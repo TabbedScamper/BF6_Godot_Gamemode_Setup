@@ -1,0 +1,23 @@
+{
+  "format": 1,
+  "layouts": {
+    "mp_isolated/conquest": {
+      "level": "mp_isolated",
+      "name": "Conquest",
+      "scene": "mp_isolated_conquest.tscn",
+      "carriers": "mp_isolated_conquest_carriers.glb",
+      "files": [
+        {
+          "name": "mp_isolated_conquest.tscn",
+          "bytes": 68895,
+          "sha256": "a57389a20ba8e9de6118eb8c24ee48f4a79dc13f865090d356a2340d29b1db3d"
+        },
+        {
+          "name": "mp_isolated_conquest_carriers.glb",
+          "bytes": 20653308,
+          "sha256": "016c605eb6248a764279daa43a1989caaf3c409086cb48b3b95be03dc0c8aef6"
+        }
+      ]
+    }
+  }
+}

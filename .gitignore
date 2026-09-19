@@ -1,0 +1,11 @@
+.godot/
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# Reference scenes and carrier exports are selected locally in the editor.
+source_assets/
+*.glb
+*.gltf
+
