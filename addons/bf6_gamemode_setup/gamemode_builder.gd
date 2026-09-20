@@ -122,7 +122,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 	var objective_vehicles := _folder(vehicle_root, "Objectives", root)
 	for letter in CAPTURE_IDS:
 		team_vehicle_folders[letter] = _folder(objective_vehicles, letter, root)
-	var attachments := _folder(conquest, "Attachments", root)
+	var attachments := _folder(conquest, "Extras", root)
 
 	var captures := {}
 	for row in _gems(entities, "gem_capturepoint"):
@@ -297,7 +297,9 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		sector.transform = _transform(sector_rows[0])
 		_set_typed_array(sector, "HQs", [hqs["HQ1"], hqs["HQ2"]])
 		var ordered_captures: Array = []
-		for letter in CAPTURE_IDS:
+		var ordered_letters: Array = CAPTURE_IDS.keys()
+		ordered_letters.sort()
+		for letter in ordered_letters:
 			ordered_captures.append(captures[letter])
 		_set_typed_array(sector, "CapturePoints", ordered_captures)
 		play_area.add_child(sector)

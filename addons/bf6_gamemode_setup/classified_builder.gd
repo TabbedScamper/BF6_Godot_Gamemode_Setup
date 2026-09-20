@@ -99,14 +99,14 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	map_root.add_child(root)
 	root.owner = map_root
 	var captures_root := _folder(root, "Objectives", map_root)
-	var zones_root := _folder(root, "Zones", map_root)
+	var zones_root := _folder(root, "Play Area", map_root)
 	var spawns_root := _folder(root, "Spawns", map_root)
 	var vehicles_root := _folder(root, "Vehicles", map_root)
 	var vehicle_team_roots := [
 		_folder(vehicles_root, "Team1", map_root),
 		_folder(vehicles_root, "Team2", map_root),
 	]
-	var attachments_root := _folder(root, "Attachments", map_root)
+	var attachments_root := _folder(root, "Extras", map_root)
 	var objects: Array = document.get("objects", [])
 	var progress_total := objects.size() + 2
 	var progress_current := 0
@@ -299,10 +299,13 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	if not captures.is_empty():
 		var sector := _scene("sector", "Sector")
 		var ordered: Array = []
-		for flag in captures.keys(): ordered.append(captures[flag])
+		var ordered_flags: Array = captures.keys()
+		ordered_flags.sort()
+		for flag in ordered_flags:
+			ordered.append(captures[flag])
 		_set_array(sector, "CapturePoints", ordered)
 		if not hqs.is_empty(): _set_array(sector, "HQs", hqs)
-		root.add_child(sector)
+		zones_root.add_child(sector)
 		sector.owner = map_root
 
 	var carrier_path := str(paths.get("carriers", ""))
