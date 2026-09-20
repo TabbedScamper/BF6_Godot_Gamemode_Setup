@@ -44,15 +44,21 @@ func _init() -> void:
 					if actual_vehicles != expected_vehicles:
 						failures += 1
 						print("FAIL ", filename, ": represented vehicle rows ", actual_vehicles, "/", expected_vehicles)
-					var expected_linked_spawns := 0
-					for object_value in manifest.get("objects", []):
-						var object := object_value as Dictionary
-						if int(object.get("role", 0)) == 1 and int(object.get("flag", -1)) >= 0:
-							expected_linked_spawns += 1
-					var actual_linked_spawns := _count_objective_spawns(built)
-					if actual_linked_spawns != expected_linked_spawns:
+					var expected_linked_spawns := int((manifest.get("counts", {}) as Dictionary).get("spawns", 0)) \
+						if mode in ["conquest", "carrierstrike", "escalation"] else 0
+					if expected_linked_spawns == 0:
+						for object_value in manifest.get("objects", []):
+							var object := object_value as Dictionary
+							if int(object.get("role", 0)) == 1 and int(object.get("flag", -1)) >= 0:
+								expected_linked_spawns += 1
+					var actual_linked_spawns := _count_assigned_spawns(built)
+					if actual_linked_spawns < expected_linked_spawns:
 						failures += 1
-						print("FAIL ", filename, ": objective spawn hierarchy ", actual_linked_spawns, "/", expected_linked_spawns)
+						print("FAIL ", filename, ": assigned spawn hierarchy ", actual_linked_spawns, "/", expected_linked_spawns)
+					var bad_hq_vehicle := _find_hq_vehicle_without_auto_spawn(built)
+					if bad_hq_vehicle != "":
+						failures += 1
+						print("FAIL ", filename, ": HQ vehicle auto-spawn disabled ", bad_hq_vehicle)
 					var generated_name := _find_generated_name(built)
 					if generated_name != "":
 						failures += 1
@@ -84,12 +90,27 @@ func _count_meta_key(node: Node, key: String) -> int:
 	return count
 
 
-func _count_objective_spawns(node: Node, inside_capture := false) -> int:
-	var is_capture := inside_capture or node.name.begins_with("CapturePoint")
-	var count := 1 if is_capture and node.name.begins_with("Spawn_Flag_") else 0
+func _count_assigned_spawns(node: Node, inside_anchor := false) -> int:
+	var is_anchor := inside_anchor or node.name.begins_with("CapturePoint") or \
+		node.name.begins_with("TEAM_")
+	var count := 1 if is_anchor and node.has_meta("bf6_spawn_team") else 0
 	for child in node.get_children():
-		count += _count_objective_spawns(child, is_capture)
+		count += _count_assigned_spawns(child, is_anchor)
 	return count
+
+
+func _find_hq_vehicle_without_auto_spawn(node: Node) -> String:
+	if node.name.begins_with("TEAM_"):
+		var spawners = node.get("VehicleSpawners")
+		if spawners != null:
+			for spawner in spawners:
+				if not bool(spawner.get("P_AutoSpawnEnabled")):
+					return str(spawner.name)
+	for child in node.get_children():
+		var found := _find_hq_vehicle_without_auto_spawn(child)
+		if found != "":
+			return found
+	return ""
 
 
 func _find_generated_name(node: Node) -> String:
