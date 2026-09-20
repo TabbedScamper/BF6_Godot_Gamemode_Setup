@@ -1,8 +1,8 @@
 param(
-    [string]$AssetDirectory = 'C:\BF6_Dev\BF6_Gamemode_Release_Assets\layouts-v1.2.0',
+    [string]$AssetDirectory = 'C:\BF6_Dev\BF6_Gamemode_Release_Assets\layouts-v1.3.0',
     [string]$Catalog = 'C:\BF6_Dev\BF6_Godot_Gamemode_Setup\data\layout_catalog.json',
     [string]$Output = 'C:\BF6_Dev\BF6_Godot_Gamemode_Setup\gamemode_index.json',
-    [string]$ReleaseTag = 'layouts-v1.2.0'
+    [string]$ReleaseTag = 'layouts-v1.3.0'
 )
 
 $ErrorActionPreference = 'Stop'
