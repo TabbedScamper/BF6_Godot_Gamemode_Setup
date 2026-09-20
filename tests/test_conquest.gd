@@ -79,7 +79,7 @@ func _init() -> void:
 				str(skin.scene_file_path).begins_with("res://objects/gameplay/vehicles/VEH_"))
 			check_equal("%s skin stays editor-only" % vehicle.name, skin.owner, null)
 		check_equal("%s auto-spawn game default" % vehicle.name, vehicle.get("P_AutoSpawnEnabled"), false)
-		check_near("%s respawn game default" % vehicle.name, float(vehicle.get("P_DefaultRespawnTime")), 0.0, 0.001)
+		check_near("%s 45-second respawn" % vehicle.name, float(vehicle.get("P_DefaultRespawnTime")), 45.0, 0.001)
 		check_equal("%s abandonment damage" % vehicle.name, vehicle.get("P_ApplyDamageToAbandonVehicle"), true)
 	check_equal("retail category/faction vehicle census", vehicle_census,
 		{3: 2, 5: 2, 7: 1, 9: 4, 10: 3, 12: 2, 13: 4, 14: 1,

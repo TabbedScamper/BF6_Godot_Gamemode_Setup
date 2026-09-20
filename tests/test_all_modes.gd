@@ -63,6 +63,10 @@ func _init() -> void:
 					if bad_hq_vehicle != "":
 						failures += 1
 						print("FAIL ", filename, ": HQ vehicle auto-spawn disabled ", bad_hq_vehicle)
+					var bad_respawn_vehicle := _find_vehicle_without_45_second_respawn(built)
+					if bad_respawn_vehicle != "":
+						failures += 1
+						print("FAIL ", filename, ": vehicle respawn is not 45 seconds ", bad_respawn_vehicle)
 					if mode in ["conquest", "carrierstrike", "escalation"]:
 						for team_name in ["Team1", "Team2"]:
 							if built.get_node_or_null("Vehicles/%s" % team_name) == null:
@@ -143,6 +147,17 @@ func _find_hq_vehicle_without_auto_spawn(node: Node) -> String:
 					return str(spawner.name)
 	for child in node.get_children():
 		var found := _find_hq_vehicle_without_auto_spawn(child)
+		if found != "":
+			return found
+	return ""
+
+
+func _find_vehicle_without_45_second_respawn(node: Node) -> String:
+	if str(node.scene_file_path).get_file() == "VehicleSpawner.tscn" \
+			and not is_equal_approx(float(node.get("P_DefaultRespawnTime")), 45.0):
+		return str(node.name)
+	for child in node.get_children():
+		var found := _find_vehicle_without_45_second_respawn(child)
 		if found != "":
 			return found
 	return ""

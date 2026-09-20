@@ -558,6 +558,8 @@ static func _create_vehicle(row: Dictionary, parent: Node, owner: Node, selector
 	var vehicle := _scene("stationary" if is_stationary else "vehicle",
 		"%s_%s" % [str(row.get("label", "Vehicle")), type_name])
 	vehicle.transform = _raw_transform(row)
+	if not is_stationary:
+		vehicle.set("P_DefaultRespawnTime", 45)
 	if resolved:
 		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", vehicle_type)
 	vehicle.set_meta(PROVENANCE_META, _source(row))

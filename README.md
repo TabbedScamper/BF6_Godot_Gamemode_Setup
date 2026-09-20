@@ -35,6 +35,7 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - A layout is not published until its generated objects carry game-data provenance and its Portal SDK scene validates.
 - Volume elevations are preserved from game data. They are not raycast or snapped to terrain.
 - Vehicle and spawn arrays are not capped.
+- Every generated SDK `VehicleSpawner` uses a 45-second `P_DefaultRespawnTime`.
 - Retail vehicle records use spawn-category selectors rather than concrete Portal `VehicleType` values. The builder resolves each category to its shipped Team 1/Team 2 vehicle pair, groups HQ vehicles by team, and creates team-gated objective spawners while retaining the original selector as provenance.
 - Verified mode-specific vehicle choices are keyed to their installed instance identity, so an HQ override does not alter legitimate uses of the same vehicle category at objectives or on other maps.
 - Objective spawns are nested under their capture point with stable names. Wake Island Conquest restores the game's authored A-G lettering and includes its 11,251.8 m² G capture volume.
