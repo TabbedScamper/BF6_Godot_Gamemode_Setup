@@ -34,6 +34,10 @@ func _init() -> void:
 				else:
 					var manifest: Dictionary = JSON.parse_string(
 						FileAccess.get_file_as_string("%s/%s" % [DATA_DIR, filename]))
+					for folder_name in ["Play Area", "Extras"]:
+						if built.get_node_or_null(folder_name) == null:
+							failures += 1
+							print("FAIL ", filename, ": missing scene folder ", folder_name)
 					var expected_special := int((manifest.get("counts", {}) as Dictionary).get("specialareas", 0))
 					var actual_special := _count_meta(built, "bf6_unmapped_role", "gem_specialcombatarea")
 					if actual_special != expected_special:
@@ -69,7 +73,7 @@ func _init() -> void:
 						if _count_name_prefix(built, "CapturePoint") != 6:
 							failures += 1
 							print("FAIL ", filename, ": Capstone must have six retail capture points")
-						if built.get_node_or_null("Zones/OutOfBounds/AreaTrigger_OutOfBounds_Cliff") == null:
+						if built.get_node_or_null("Play Area/OutOfBounds/AreaTrigger_OutOfBounds_Cliff") == null:
 							failures += 1
 							print("FAIL ", filename, ": Capstone cliff out-of-bounds trigger missing")
 						_check_combat_area(built, filename,
@@ -81,6 +85,8 @@ func _init() -> void:
 						_check_atoll_hq_areas(built, filename)
 						_check_combat_area(built, filename,
 							"0139a1cf-8515-44a9-b56e-adf3bbe57833")
+					if _count_name_prefix(built, "CapturePoint") > 0:
+						_check_sector_order(built, filename)
 					var generated_name := _find_generated_name(built)
 					if generated_name != "":
 						failures += 1
@@ -210,7 +216,7 @@ func _check_atoll_hq_areas(root: Node, filename: String) -> void:
 
 func _check_combat_area(root: Node, filename: String, combat_guid: String,
 		surrounding_guid := "") -> void:
-	var combat := root.get_node_or_null("Zones/CombatArea")
+	var combat := root.get_node_or_null("Play Area/CombatArea")
 	var volume: Node = combat.get("CombatVolume") if combat != null else null
 	if volume == null or str(volume.get_meta("bf6_source_instance_guid", "")) != combat_guid:
 		failures += 1
@@ -241,3 +247,20 @@ func _collect_vehicle_guid_types(node: Node, found: Dictionary) -> void:
 		found[str(node.get_meta("bf6_source_instance_guid"))] = int(node.get("VehicleType"))
 	for child in node.get_children():
 		_collect_vehicle_guid_types(child, found)
+
+
+func _check_sector_order(root: Node, filename: String) -> void:
+	var sector := root.get_node_or_null("Play Area/Sector")
+	if sector == null:
+		failures += 1
+		print("FAIL ", filename, ": Sector is missing from Play Area")
+		return
+	var capture_points: Array = sector.get("CapturePoints")
+	var previous := ""
+	for capture in capture_points:
+		var current := str((capture as Node).name)
+		if previous != "" and current < previous:
+			failures += 1
+			print("FAIL ", filename, ": Sector capture index is not alphabetical")
+			return
+		previous = current

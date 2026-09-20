@@ -34,8 +34,8 @@ func _init() -> void:
 
 	for path in ["Play Area/CombatArea", "Play Area/Sector", "TEAM_1_HQ", "TEAM_2_HQ",
 			"Vehicles/Team1", "Vehicles/Team2", "Vehicles/Objectives", "Obectives",
-			"Attachments/StationaryEmplacements", "Attachments/VehicleResupplys",
-			"Attachments/AutomaticAAs"]:
+			"Extras/StationaryEmplacements", "Extras/VehicleResupplys",
+			"Extras/AutomaticAAs"]:
 		check_true("node %s" % path, conquest.get_node_or_null(path) != null)
 	check_equal("no TeamSwitcher", conquest.find_child("TeamSwitcher", true, false), null)
 
@@ -158,9 +158,9 @@ func _init() -> void:
 	check_true("infantry combat volume", combat.get("CombatVolume") != null)
 	check_true("aircraft combat volume", combat.get("SurroundingVolume") != null)
 	check_near("air volume authored plane", combat.get("SurroundingVolume").position.y, 450.019806, 0.001)
-	check_equal("stationary count", conquest.get_node("Attachments/StationaryEmplacements").get_child_count(), 3)
+	check_equal("stationary count", conquest.get_node("Extras/StationaryEmplacements").get_child_count(), 3)
 	var stationary_census := {}
-	for stationary in conquest.get_node("Attachments/StationaryEmplacements").get_children():
+	for stationary in conquest.get_node("Extras/StationaryEmplacements").get_children():
 		var stationary_type := int(stationary.get("StationaryEmplacementType"))
 		stationary_census[stationary_type] = int(stationary_census.get(stationary_type, 0)) + 1
 		var stationary_skin: Node = null
@@ -174,8 +174,8 @@ func _init() -> void:
 			check_equal("%s skin stays editor-only" % stationary.name,
 				stationary_skin.owner, null)
 	check_equal("retail stationary type census", stationary_census, {0: 1, 1: 2})
-	check_equal("resupply count", conquest.get_node("Attachments/VehicleResupplys").get_child_count(), 2)
-	for station in conquest.get_node("Attachments/VehicleResupplys").get_children():
+	check_equal("resupply count", conquest.get_node("Extras/VehicleResupplys").get_child_count(), 2)
+	for station in conquest.get_node("Extras/VehicleResupplys").get_children():
 		var station_model: Node = null
 		for child in station.get_children():
 			if child.has_meta("bf6_vehicle_skin"):
@@ -189,10 +189,10 @@ func _init() -> void:
 			check_equal("%s uses packaged untextured geometry" % station.name,
 				str(station_model.scene_file_path),
 				"res://addons/bf6_gamemode_setup/assets/VehicleResupplyStation_Game.tscn")
-	check_equal("automatic AA count", conquest.get_node("Attachments/AutomaticAAs").get_child_count(), 2)
+	check_equal("automatic AA count", conquest.get_node("Extras/AutomaticAAs").get_child_count(), 2)
 	check_equal("standard Conquest has no carrier preview",
 		conquest.get_node_or_null("AircraftCarriers"), null)
-	var automatic_aas := conquest.get_node("Attachments/AutomaticAAs").get_children()
+	var automatic_aas := conquest.get_node("Extras/AutomaticAAs").get_children()
 	for aa in automatic_aas:
 		check_true("%s protection area assigned" % aa.name,
 			aa.get("ProtectionAreaVolume") != null)

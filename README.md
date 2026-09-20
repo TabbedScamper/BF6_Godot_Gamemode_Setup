@@ -37,7 +37,8 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - Verified mode-specific vehicle choices are keyed to their installed instance identity, so an HQ override does not alter legitimate uses of the same vehicle category at objectives or on other maps.
 - Objective spawns are nested under their capture point with stable names. Wake Island Conquest restores the game's authored A-G lettering and includes its 11,251.8 m² G capture volume.
 - Conquest base polygons are assigned directly to each SDK HQ's `HQArea`. Wake Island and Liberation Peak also promote their verified play-area polygons into an SDK `CombatArea` with the corresponding `CombatVolume` and, where present, `SurroundingVolume`.
-- Liberation Peak Conquest restores its six A-F objectives; the small cliff polygon that the generic classifier mistook for objective D is emitted as an SDK `AreaTrigger` under `Zones/OutOfBounds`.
+- Generated scene trees group gameplay boundaries and the alphabetically linked `Sector` under `Play Area`, while secondary gameplay objects are grouped under `Extras`.
+- Liberation Peak Conquest restores its six A-F objectives; the small cliff polygon that the generic classifier mistook for objective D is emitted as an SDK `AreaTrigger` under `Play Area/OutOfBounds`.
 - Retail `gem_specialcombatarea` records have no Portal SDK gameplay class. Their exact transforms and provenance are preserved as marked evidence nodes instead of being silently dropped or converted into invented AreaTriggers.
 - Golf Course, Defense Nexus, Downtown, Marina, Area 22B, Redline Storage, Complex 3, Portal Sandbox, and Portal Ocean currently expose no stock gameplay objects under their SDK scene roots. They remain cataloged but do not receive fabricated layouts.
 - Layouts marked `review` expose the shipped layer faithfully while objective semantics that are not present in client data remain clearly provisional.
