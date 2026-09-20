@@ -1,24 +1,12 @@
 param(
-    [string]$AssetDirectory = 'C:\BF6_Dev\BF6_Gamemode_Release_Assets\layouts-v1.1.0',
-    [string]$Output = 'C:\BF6_Dev\BF6_Godot_Gamemode_Setup\gamemode_index.json'
+    [string]$AssetDirectory = 'C:\BF6_Dev\BF6_Gamemode_Release_Assets\layouts-v1.2.0',
+    [string]$Catalog = 'C:\BF6_Dev\BF6_Godot_Gamemode_Setup\data\layout_catalog.json',
+    [string]$Output = 'C:\BF6_Dev\BF6_Godot_Gamemode_Setup\gamemode_index.json',
+    [string]$ReleaseTag = 'layouts-v1.2.0'
 )
 
 $ErrorActionPreference = 'Stop'
-$modes = [ordered]@{
-    mp_atoll = @('breakthrough', 'conquest', 'domination', 'escalation', 'kingofthehill',
-        'koth', 'payload', 'rush', 'sabotage', 'squaddeathmatch', 'strikepoint', 'teamdeathmatch')
-    mp_isolated = @('breakthrough', 'carrierstrike', 'conquest', 'domination', 'escalation',
-        'gauntlet', 'koth', 'rush', 'sabotage', 'squaddeathmatch', 'strikepoint', 'teamdeathmatch')
-}
-$mapNames = @{ mp_atoll = 'Wake Island'; mp_isolated = 'Tsuru Reef' }
-$modeNames = @{
-    breakthrough = 'Breakthrough'; carrierstrike = 'Carrier Strike'; conquest = 'Conquest'
-    domination = 'Domination'; escalation = 'Escalation'; gauntlet = 'Gauntlet'
-    kingofthehill = 'King of the Hill Zones'; koth = 'King of the Hill'
-    payload = 'Payload'; rush = 'Rush'; sabotage = 'Sabotage'
-    squaddeathmatch = 'Squad Deathmatch'; strikepoint = 'Strikepoint'
-    teamdeathmatch = 'Team Deathmatch'
-}
+$catalogData = Get-Content -LiteralPath $Catalog -Raw | ConvertFrom-Json
 $carrierAssets = @{
     'mp_isolated/carrierstrike' = 'mp_isolated_carrierstrike_carriers.glb'
     'mp_atoll/breakthrough' = 'mp_atoll_breakthrough_carriers.glb'
@@ -37,13 +25,19 @@ function File-Record([string]$Name) {
 }
 
 $layouts = [ordered]@{}
-foreach ($level in $modes.Keys) {
-    foreach ($mode in $modes[$level]) {
+foreach ($mapProperty in $catalogData.maps.PSObject.Properties) {
+    $level = $mapProperty.Name
+    $map = $mapProperty.Value
+    foreach ($mode in $map.modes) {
         $key = "$level/$mode"
         $manifest = "${level}_${mode}.layout.json"
         $files = @((File-Record $manifest))
+        $modeName = [string]$catalogData.mode_names.$mode
+        if ($mode -eq 'kingofthehill' -and @($map.modes) -contains 'koth') {
+            $modeName = 'King of the Hill Zones'
+        }
         $entry = [ordered]@{
-            name = "$($mapNames[$level]) - $($modeNames[$mode])"
+            name = "$($map.name) - $modeName"
             level = $level
             mode = $mode
             maturity = 'review'
@@ -58,7 +52,7 @@ foreach ($level in $modes.Keys) {
     }
 }
 
-$document = [ordered]@{ format = 2; release_tag = 'layouts-v1.1.0'; layouts = $layouts }
+$document = [ordered]@{ format = 2; release_tag = $ReleaseTag; layouts = $layouts }
 $json = $document | ConvertTo-Json -Depth 8
 [IO.File]::WriteAllText($Output, $json + [Environment]::NewLine, [Text.UTF8Encoding]::new($false))
 Write-Host "Wrote $($layouts.Count) layouts to $Output"
