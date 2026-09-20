@@ -40,7 +40,7 @@ func _init() -> void:
 						failures += 1
 						print("FAIL ", filename, ": special areas ", actual_special, "/", expected_special)
 					var expected_vehicles := int((manifest.get("counts", {}) as Dictionary).get("vehicles", 0))
-					var actual_vehicles := _count_meta_key(built, "bf6_retail_selector")
+					var actual_vehicles := _count_meta_key(built, "bf6_source_vehicle_record")
 					if actual_vehicles != expected_vehicles:
 						failures += 1
 						print("FAIL ", filename, ": represented vehicle rows ", actual_vehicles, "/", expected_vehicles)
@@ -59,6 +59,19 @@ func _init() -> void:
 					if bad_hq_vehicle != "":
 						failures += 1
 						print("FAIL ", filename, ": HQ vehicle auto-spawn disabled ", bad_hq_vehicle)
+					if mode in ["conquest", "carrierstrike", "escalation"]:
+						for team_name in ["Team1", "Team2"]:
+							if built.get_node_or_null("Vehicles/%s" % team_name) == null:
+								failures += 1
+								print("FAIL ", filename, ": missing vehicle team folder ", team_name)
+					if level == "mp_capstone" and mode == "conquest":
+						_check_capstone_vehicle_mapping(built, filename)
+						if _count_name_prefix(built, "CapturePoint") != 6:
+							failures += 1
+							print("FAIL ", filename, ": Capstone must have six retail capture points")
+						if built.get_node_or_null("Zones/OutOfBounds/AreaTrigger_OutOfBounds_Cliff") == null:
+							failures += 1
+							print("FAIL ", filename, ": Capstone cliff out-of-bounds trigger missing")
 					var generated_name := _find_generated_name(built)
 					if generated_name != "":
 						failures += 1
@@ -87,6 +100,13 @@ func _count_meta_key(node: Node, key: String) -> int:
 	var count := 1 if node.has_meta(key) else 0
 	for child in node.get_children():
 		count += _count_meta_key(child, key)
+	return count
+
+
+func _count_name_prefix(node: Node, prefix: String) -> int:
+	var count := 1 if str(node.name).begins_with(prefix) else 0
+	for child in node.get_children():
+		count += _count_name_prefix(child, prefix)
 	return count
 
 
@@ -121,3 +141,28 @@ func _find_generated_name(node: Node) -> String:
 		if found != "":
 			return found
 	return ""
+
+
+func _check_capstone_vehicle_mapping(root: Node, filename: String) -> void:
+	var expected := {
+		0: [0, 1], 1: [17, 3], 2: [4, 2], 4: [15, 18],
+		5: [16, 14], 6: [8, 6], 8: [22, 23], 13: [13, 9],
+	}
+	var seen := {}
+	_collect_vehicle_types(root, seen)
+	for selector in expected:
+		for vehicle_type in expected[selector]:
+			if not (seen.get(selector, []) as Array).has(vehicle_type):
+				failures += 1
+				print("FAIL ", filename, ": selector ", selector,
+					" missing VehicleType ", vehicle_type)
+
+
+func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
+	if node.has_meta("bf6_retail_selector") and node.get("VehicleType") != null:
+		var selector := int(node.get_meta("bf6_retail_selector"))
+		if not seen.has(selector):
+			seen[selector] = []
+		(seen[selector] as Array).append(int(node.get("VehicleType")))
+	for child in node.get_children():
+		_collect_vehicle_types(child, seen)

@@ -15,6 +15,7 @@ const SCENES := {
 	"volume": "res://addons/bf_portal/portal_tools/types/PolygonVolume/PolygonVolume.tscn",
 	"obb": "res://addons/bf_portal/portal_tools/types/OBBVolume/OBBVolume.tscn",
 	"combat": "res://objects/gameplay/common/CombatArea.tscn",
+	"area_trigger": "res://objects/gameplay/common/AreaTrigger.tscn",
 	"sector": "res://objects/gameplay/common/Sector.tscn",
 	"resupply": "res://objects/gameplay/common/VehicleResupplyStation.tscn",
 	"mcom": "res://objects/gameplay/rush/MCOM.tscn",
@@ -29,6 +30,32 @@ const VEHICLE_NAMES := [
 	"RCB_90_Patrol_Boat", "RCB_90_Patrol_Boat_Pax", "F_74A_Seacat",
 	"F_74A_Seacat_Pax", "FA_81F_Super_Spectre", "FA_81F_Super_Spectre_Pax",
 ]
+# Retail gameplay layers store a spawn-category selector, not the Portal SDK's
+# concrete VehicleType. Paired entries are the shipped Team 1 / Team 2 choices.
+const VEHICLE_CATEGORY_TYPES := {
+	0: [0, 1], # Tank
+	1: [17, 3], # IFV
+	2: [4, 2], # Mobile AA
+	3: [12, 20], # APC
+	4: [15, 18], # Fighter plane
+	5: [16, 14], # Attack plane
+	6: [8, 6], # Attack helicopter
+	7: [5, 19], # Transport helicopter
+	8: [22, 23], # Dirt bike
+	9: [10], # Quad bike
+	10: [11], # Golf cart
+	11: [21], # RHIB
+	12: [7, 24], # Scout helicopter
+	13: [13, 9], # Light transport
+	14: [26, 27], # Patrol boat
+	15: [30, 31], # Multirole plane
+	16: [28, 29], # Naval fighter plane
+	# Carrier Strike also authors carrier launch pads. Portal has no launch
+	# animation type, so these retain the pad transform with its aircraft type.
+	21: [28, 29],
+	22: [30],
+	23: [31],
+}
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
@@ -56,6 +83,10 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var zones_root := _folder(root, "Zones", map_root)
 	var spawns_root := _folder(root, "Spawns", map_root)
 	var vehicles_root := _folder(root, "Vehicles", map_root)
+	var vehicle_team_roots := [
+		_folder(vehicles_root, "Team1", map_root),
+		_folder(vehicles_root, "Team2", map_root),
+	]
 	var attachments_root := _folder(root, "Attachments", map_root)
 	var objects: Array = document.get("objects", [])
 	var progress_total := objects.size() + 2
@@ -64,12 +95,16 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var captures := {}
 	var capture_spawns := {}
 	var hqs: Array = []
+	if level == "mp_capstone" and mode == "conquest":
+		_build_capstone_out_of_bounds(objects, zones_root, map_root)
 
 	for value in objects:
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 2:
 			continue
-		var flag := int(row.get("flag", captures.size()))
+		var flag := _normalized_flag(level, mode, row)
+		if flag < 0:
+			continue
 		var capture := _scene("capture", "CapturePoint%s" % String.chr(65 + flag))
 		capture.position = _vec3(row.get("centre", []))
 		capture.set("ObjId", 200 + flag)
@@ -109,7 +144,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 1:
 			continue
-		var flag := int(row.get("flag", -1))
+		var flag := _normalized_flag(level, mode, row)
 		var spawn_key := "Flag_%s" % String.chr(65 + flag) if flag >= 0 else "Unassigned"
 		var spawn_index := int(spawn_counts.get(spawn_key, 0)) + 1
 		spawn_counts[spawn_key] = spawn_index
@@ -166,7 +201,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		var role := int(row.get("role", 0))
 		if role == 6:
-			_build_vehicle(row, vehicles_root, map_root, captures, hqs,
+			_build_vehicle(row, vehicles_root, vehicle_team_roots, map_root, captures, hqs,
 				objective_pair_used, hq_vehicle_links)
 		elif role == 7:
 			var resupply := _scene("resupply", str(row.get("label", "Resupply")))
@@ -255,7 +290,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 
 	var counts := document.get("counts", {}) as Dictionary
 	return "Built %s %s: %d game-data objects (%d captures, %d spawns, %d vehicles)" % [
-		level, _pretty(mode), int(counts.get("objects", 0)), int(counts.get("captures", 0)),
+		level, _pretty(mode), int(counts.get("objects", 0)), captures.size(),
 		int(counts.get("spawns", 0)), int(counts.get("vehicles", 0))]
 
 
@@ -264,12 +299,52 @@ static func _report(progress: Callable, message: String, current: int, total: in
 		progress.call(message, current, total)
 
 
-static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures: Dictionary,
-		hqs: Array, pair_used: Dictionary, hq_vehicle_links: Array) -> void:
+static func _normalized_flag(level: String, mode: String, row: Dictionary) -> int:
+	var flag := int(row.get("flag", -1))
+	if level != "mp_capstone" or mode != "conquest":
+		return flag
+	var raw := row.get("raw", {}) as Dictionary
+	if str(raw.get("instance_guid", "")) == "79cbf770-5961-492c-80ae-ce142f99683f":
+		return -1
+	# The small cliff exclusion was promoted to slot D by the generic polygon
+	# classifier. Remove that false slot and restore the shipped A-F sequence.
+	if flag == 3:
+		return -1
+	if flag == 4:
+		return 3
+	if flag == 6:
+		return 4
+	return flag
+
+
+static func _build_capstone_out_of_bounds(objects: Array, parent: Node,
+		owner: Node) -> void:
+	for value in objects:
+		var row := value as Dictionary
+		var raw := row.get("raw", {}) as Dictionary
+		if str(raw.get("instance_guid", "")) != "79cbf770-5961-492c-80ae-ce142f99683f":
+			continue
+		var folder := _folder(parent, "OutOfBounds", owner)
+		var trigger := _scene("area_trigger", "AreaTrigger_OutOfBounds_Cliff")
+		trigger.position = _vec3(row.get("centre", []))
+		trigger.set("ObjId", 1302)
+		trigger.set_meta(PROVENANCE_META, _source(row))
+		folder.add_child(trigger)
+		trigger.owner = owner
+		var area := _polygon(row, "PolygonVolume_Cliff", Color(0.95, 0.0, 0.58, 0.42))
+		trigger.add_child(area)
+		area.owner = owner
+		area.position -= trigger.position
+		trigger.set("Area", area)
+		return
+
+
+static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, owner: Node,
+		captures: Dictionary, hqs: Array, pair_used: Dictionary,
+		hq_vehicle_links: Array) -> void:
 	var raw := row.get("raw", {}) as Dictionary
 	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
 	var is_stationary := bool(row.get("stationary", false))
-	var valid_selector := selector >= 0 and selector < (3 if is_stationary else VEHICLE_NAMES.size())
 	var point := _vec3(row.get("centre", []))
 	var nearest_flag := _nearest_capture(captures, point) if not captures.is_empty() else -1
 	var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).position) \
@@ -278,36 +353,82 @@ static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures:
 	var hq_distance := point.distance_squared_to((hqs[nearest_hq] as Node3D).position) \
 		if nearest_hq >= 0 else INF
 	var belongs_to_hq := not is_stationary and nearest_hq >= 0 and hq_distance < capture_distance
-	var type_name := "Unassigned"
-	if valid_selector:
-		type_name = ["BGM71TOW", "GDF009", "M2MG"][selector] if is_stationary \
-			else str(VEHICLE_NAMES[selector])
+
+	if is_stationary:
+		var valid_stationary := selector >= 0 and selector < 3
+		var stationary_name: String = ["BGM71TOW", "GDF009", "M2MG"][selector] \
+			if valid_stationary else "Unassigned"
+		var stationary := _create_vehicle(row, parent, owner, selector, selector,
+			stationary_name, true, valid_stationary)
+		stationary.set_meta("bf6_source_vehicle_record", true)
+		return
+
+	var vehicle_types: Array = VEHICLE_CATEGORY_TYPES.get(selector, [])
+	if vehicle_types.is_empty():
+		var unknown := _create_vehicle(row, parent, owner, selector, -1,
+			"UnassignedCategory%d" % selector, false, false)
+		unknown.set_meta("bf6_source_vehicle_record", true)
+		return
+
+	if belongs_to_hq:
+		var team_index := mini(nearest_hq, 1)
+		if selector == 23:
+			team_index = 1
+		var type_index := mini(team_index, vehicle_types.size() - 1)
+		var vehicle_type := int(vehicle_types[type_index])
+		var vehicle := _create_vehicle(row, team_roots[team_index], owner, selector,
+			vehicle_type, VEHICLE_NAMES[vehicle_type], false, true)
+		vehicle.set("P_AutoSpawnEnabled", true)
+		hq_vehicle_links[nearest_hq].append(vehicle)
+		vehicle.set_meta("bf6_runtime_association", "HQ%d / Team%d" % [nearest_hq + 1, team_index + 1])
+		vehicle.set_meta("bf6_source_vehicle_record", true)
+		return
+
+	if vehicle_types.size() == 2 and nearest_flag >= 0:
+		var has_template_ids := not pair_used.has(nearest_flag)
+		for team_index in range(2):
+			var vehicle_type := int(vehicle_types[team_index])
+			var vehicle := _create_vehicle(row, parent, owner, selector, vehicle_type,
+				VEHICLE_NAMES[vehicle_type], false, true)
+			vehicle.set("SpawnIfMatchingTeam", true)
+			vehicle.set("MatchingTeam", team_index + 1)
+			if has_template_ids:
+				vehicle.set("ObjId", 600 + nearest_flag * 10 + team_index)
+			vehicle.set_meta("bf6_runtime_association", "CapturePoint%s / Team%d" % [
+				String.chr(65 + nearest_flag), team_index + 1])
+			if team_index == 0:
+				vehicle.set_meta("bf6_source_vehicle_record", true)
+		if has_template_ids:
+			pair_used[nearest_flag] = true
+		return
+
+	var vehicle_type := int(vehicle_types[0])
+	var shared := _create_vehicle(row, parent, owner, selector, vehicle_type,
+		VEHICLE_NAMES[vehicle_type], false, true)
+	shared.set_meta("bf6_source_vehicle_record", true)
+
+
+static func _create_vehicle(row: Dictionary, parent: Node, owner: Node, selector: int,
+		vehicle_type: int, type_name: String, is_stationary: bool, resolved: bool) -> Node3D:
+	var raw := row.get("raw", {}) as Dictionary
 	var vehicle := _scene("stationary" if is_stationary else "vehicle",
 		"%s_%s" % [str(row.get("label", "Vehicle")), type_name])
 	vehicle.transform = _raw_transform(row)
-	if valid_selector:
-		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", selector)
-	else:
-		vehicle.set_meta("bf6_vehicle_type_status", "retail selector is unassigned; SDK default retained")
-	if belongs_to_hq:
-		vehicle.set("P_AutoSpawnEnabled", true)
-		hq_vehicle_links[nearest_hq].append(vehicle)
-		vehicle.set_meta("bf6_runtime_association", "HQ%d" % (nearest_hq + 1))
-	elif not is_stationary and nearest_flag >= 0:
-		var objective_index := int(pair_used.get(nearest_flag, 0))
-		if objective_index < 2:
-			vehicle.set("ObjId", 600 + nearest_flag * 10 + objective_index)
-			pair_used[nearest_flag] = objective_index + 1
+	if resolved:
+		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", vehicle_type)
 	vehicle.set_meta(PROVENANCE_META, _source(row))
 	vehicle.set_meta("bf6_source_instance_guid", str(raw.get("instance_guid", "")))
 	vehicle.set_meta("bf6_retail_selector", selector)
-	vehicle.set_meta("bf6_vehicle_type_status", "exact retail ModBuilder enum -> SDK enum" if valid_selector \
-		else "retail selector is unassigned; SDK default retained")
+	vehicle.set_meta("bf6_vehicle_type_status", "retail category resolved through faction picker" \
+		if resolved else "retail category is unresolved; SDK default retained")
 	parent.add_child(vehicle)
 	vehicle.owner = owner
-	if valid_selector:
-		if is_stationary: VehicleSkin.sync_stationary(vehicle, owner)
-		else: VehicleSkin.sync_spawner(vehicle, owner)
+	if resolved:
+		if is_stationary:
+			VehicleSkin.sync_stationary(vehicle, owner)
+		else:
+			VehicleSkin.sync_spawner(vehicle, owner)
+	return vehicle
 
 
 static func _add_plain(row: Dictionary, kind: String, parent: Node, owner: Node) -> Node3D:
