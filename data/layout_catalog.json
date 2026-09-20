@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "maps": {
+    "mp_abbasid": {"name": "Siege of Cairo", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "payload", "rush", "sabotage", "squaddeathmatch", "squadobliteration", "strikepoint", "teamdeathmatch"]},
+    "mp_aftermath": {"name": "Empire State", "modes": ["breakthrough", "conquest", "domination", "kingofthehill", "rush", "sabotage", "squaddeathmatch", "squadobliteration", "strikepoint", "teamdeathmatch"]},
+    "mp_aftermath_portal": {"name": "Bellum1988's Operation Metro", "modes": ["breakthrough", "conquest", "domination", "kingofthehill", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_atoll": {"name": "Wake Island", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "koth", "payload", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_badlands": {"name": "Blackwell Fields", "modes": ["breakthrough", "conquest", "domination", "kingofthehill", "payload", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_battery": {"name": "Iberian Offensive", "modes": ["conquest", "domination", "escalation", "kingofthehill", "payload", "rush", "sabotage", "squaddeathmatch", "squadobliteration", "strikepoint", "teamdeathmatch"]},
+    "mp_capstone": {"name": "Liberation Peak", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "operations", "payload", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_contaminated": {"name": "Contaminated", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "koth", "obliteration", "operations", "payload", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_dumbo": {"name": "Manhattan Bridge", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "payload", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_eastwood": {"name": "Eastwood", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "obliteration", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_firestorm": {"name": "Operation Firestorm", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_golmudrailway": {"name": "Railway to Golmud", "modes": ["breakthrough", "conquest", "domination", "escalation", "obliteration", "rush", "squaddeathmatch", "strikepoint"]},
+    "mp_granite_clubhouse_portal": {"name": "Golf Course", "modes": []},
+    "mp_granite_mainstreet_portal": {"name": "Downtown", "modes": []},
+    "mp_granite_marina_portal": {"name": "Marina", "modes": []},
+    "mp_granite_militaryrnd_portal": {"name": "Area 22B", "modes": []},
+    "mp_granite_militarystorage_portal": {"name": "Redline Storage", "modes": []},
+    "mp_granite_techcampus_portal": {"name": "Defense Nexus", "modes": []},
+    "mp_granite_underground_portal": {"name": "Complex 3", "modes": []},
+    "mp_isolated": {"name": "Tsuru Reef", "modes": ["breakthrough", "carrierstrike", "conquest", "domination", "escalation", "gauntlet", "koth", "rush", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_limestone": {"name": "Saints Quarter", "modes": ["domination", "kingofthehill", "sabotage", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_outskirts": {"name": "New Sobek City", "modes": ["breakthrough", "conquest", "domination", "escalation", "kingofthehill", "payload", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_plaza": {"name": "Cairo Bazaar", "modes": ["breakthrough", "conquest", "domination", "koth", "payload", "rush", "squaddeathmatch", "squadobliteration", "strikepoint", "teamdeathmatch"]},
+    "mp_portal_ocean": {"name": "Portal Ocean", "modes": []},
+    "mp_portal_sand": {"name": "Portal Sandbox", "modes": []},
+    "mp_subsurface": {"name": "Hagental Base", "modes": ["breakthrough", "conquest", "domination", "koth", "operations", "payload", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]},
+    "mp_tungsten": {"name": "Mirak Valley", "modes": ["breakthrough", "conquest", "domination", "escalation", "operations", "rush", "squaddeathmatch", "strikepoint", "teamdeathmatch"]}
+  },
+  "mode_names": {
+    "breakthrough": "Breakthrough", "carrierstrike": "Carrier Strike", "conquest": "Conquest",
+    "domination": "Domination", "escalation": "Escalation", "gauntlet": "Gauntlet",
+    "kingofthehill": "King of the Hill", "koth": "King of the Hill", "obliteration": "Obliteration",
+    "operations": "Operations", "payload": "Payload", "rush": "Rush", "sabotage": "Sabotage",
+    "squaddeathmatch": "Squad Deathmatch", "squadobliteration": "Squad Obliteration",
+    "strikepoint": "Strikepoint", "teamdeathmatch": "Team Deathmatch"
+  }
+}

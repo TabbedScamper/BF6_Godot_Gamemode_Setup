@@ -1,7 +1,9 @@
 // Exports the installed game's classified game-mode layout through libbf6.
 // The resulting manifest retains both the lossless source row and the
 // classifier's role, geometry, flag association, and provenance.
+#include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <ostream>
@@ -63,6 +65,60 @@ int main(int argc, char** argv)
     std::vector<bf6_gm_object> objects((size_t)count);
     bf6_level_gamemode_layout(context, argv[2], argv[3], objects.data(), count,
                               &layout, error, sizeof(error));
+
+    /* Wake Island's authored objective letters do not follow world X order.
+     * The seven shipped capturepoint GEMs establish B, D, G, F, E, C, A at
+     * classifier slots A through G respectively. Keep the classifier's
+     * geometric match, then restore the retail letter on both objectives and
+     * their claimed spawns. */
+    std::vector<std::string> adjusted_labels((size_t)count);
+    if (!std::strcmp(argv[2], "mp_atoll") && !std::strcmp(argv[3], "conquest")) {
+        int g_index = -1;
+        bool g_was_zone = false;
+        for (int i = 0; i < count; ++i) {
+            const bf6_gm_object& object = objects[(size_t)i];
+            if ((object.role == BF6_GMR_CAPTURE || object.role == BF6_GMR_ZONE) &&
+                object.area_m2 > 11200.f && object.area_m2 < 11300.f &&
+                std::fabs(object.centre[0] - 223.27f) < 2.f &&
+                std::fabs(object.centre[2] - 140.98f) < 2.f) {
+                g_index = i;
+                g_was_zone = object.role == BF6_GMR_ZONE;
+                break;
+            }
+        }
+        if (g_index >= 0 && g_was_zone) {
+            bf6_gm_object& g = objects[(size_t)g_index];
+            g.role = BF6_GMR_CAPTURE;
+            g.flag = 2;
+            ++layout.captures;
+            --layout.zones;
+            ++layout.big_flag_rescued;
+            for (int i = 0; i < count; ++i) {
+                bf6_gm_object& object = objects[(size_t)i];
+                if (i != g_index && object.flag >= 2 &&
+                    (object.role == BF6_GMR_CAPTURE || object.role == BF6_GMR_SPAWN))
+                    ++object.flag;
+                if (object.role == BF6_GMR_SPAWN && object.flag < 0) {
+                    const float dx = object.centre[0] - g.centre[0];
+                    const float dy = object.centre[1] - g.centre[1];
+                    const float dz = object.centre[2] - g.centre[2];
+                    if (dx * dx + dy * dy + dz * dz <= 30.f * 30.f)
+                        object.flag = 2;
+                }
+            }
+        }
+        static const int retail_flag[] = { 1, 3, 6, 5, 4, 2, 0 };
+        for (int i = 0; i < count; ++i) {
+            bf6_gm_object& object = objects[(size_t)i];
+            if ((object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_SPAWN) ||
+                object.flag < 0 || object.flag >= 7) continue;
+            object.flag = retail_flag[object.flag];
+            adjusted_labels[(size_t)i] = std::string("Flag ") +
+                char('A' + object.flag) +
+                (object.role == BF6_GMR_SPAWN ? " Spawn" : "");
+            object.label = adjusted_labels[(size_t)i].c_str();
+        }
+    }
 
     std::ofstream out(argv[4], std::ios::binary);
     if (!out) { std::fprintf(stderr, "cannot write %s\n", argv[4]); bf6_close(context); return 1; }

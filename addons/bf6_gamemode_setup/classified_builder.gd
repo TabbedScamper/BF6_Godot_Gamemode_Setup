@@ -21,10 +21,6 @@ const SCENES := {
 	"bomb": "res://objects/gameplay/obliteration/Bomb.tscn",
 	"automatic_aa": "res://objects/gameplay/vehicles/VEH_Stationary_AutomaticAA.tscn",
 }
-const VEHICLE_GROUP_TYPES := {
-	0: [12, 20], 1: [17, 3], 4: [15, 18], 5: [16, 14], 7: [5, 19],
-	8: [22, 23], 9: [10], 11: [21], 12: [7, 24], 13: [13, 9], 14: [26, 27],
-}
 const VEHICLE_NAMES := [
 	"Abrams", "Leopard", "Cheetah", "CV90", "Gepard", "UH60", "Eurocopter",
 	"AH6M", "AH64", "Vector", "Quadbike", "GolfCart", "Marauder", "Flyer60",
@@ -105,12 +101,16 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		_report(progress, "Creating headquarters…", progress_current, progress_total)
 
 	var loose_spawns: Array = []
+	var spawn_counts := {}
 	for value in objects:
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 1:
 			continue
 		var flag := int(row.get("flag", -1))
-		var spawn := _scene("spawn", str(row.get("label", "Spawn")))
+		var spawn_key := "Flag_%s" % String.chr(65 + flag) if flag >= 0 else "Unassigned"
+		var spawn_index := int(spawn_counts.get(spawn_key, 0)) + 1
+		spawn_counts[spawn_key] = spawn_index
+		var spawn := _scene("spawn", "Spawn_%s_%02d" % [spawn_key, spawn_index])
 		spawn.transform = _raw_transform(row)
 		spawn.set_meta(PROVENANCE_META, _source(row))
 		var parent: Node = captures.get(flag, spawns_root)
@@ -155,13 +155,24 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			_add_plain(row, "mcom", attachments_root, map_root)
 		elif role == 9:
 			_add_plain(row, "bomb", attachments_root, map_root)
+		elif role == 10:
+			# The retail gem_specialcombatarea has no Portal SDK class. Preserve
+			# its exact authored transform and source identity without inventing
+			# AreaTrigger behavior that the shipped record does not declare.
+			var special := Node3D.new()
+			special.name = str(row.get("label", "Special Combat Area"))
+			special.transform = _raw_transform(row)
+			special.set_meta(PROVENANCE_META, _source(row))
+			special.set_meta("bf6_unmapped_role", "gem_specialcombatarea")
+			attachments_root.add_child(special)
+			special.owner = map_root
 		elif role == 101:
 			var aa := _add_plain(row, "automatic_aa", attachments_root, map_root)
 			if not hqs.is_empty():
 				var nearest: Node = hqs[_nearest_index(hqs, aa.position)]
 				if nearest.get("HQArea") != null:
 					aa.set("ProtectionAreaVolume", nearest.get("HQArea"))
-		if role in [6, 7, 8, 9, 101]:
+		if role in [6, 7, 8, 9, 10, 101]:
 			progress_current += 1
 			_report(progress, "Creating vehicles and attachments…", progress_current, progress_total)
 
@@ -228,32 +239,35 @@ static func _report(progress: Callable, message: String, current: int, total: in
 static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures: Dictionary,
 		pair_used: Dictionary) -> void:
 	var raw := row.get("raw", {}) as Dictionary
-	var group := int(raw.get("gem_selector", row.get("gem_value", -1)))
-	var types: Array = VEHICLE_GROUP_TYPES.get(group, [])
-	if types.is_empty():
-		return
+	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
+	var is_stationary := bool(row.get("stationary", false))
+	var valid_selector := selector >= 0 and selector < (3 if is_stationary else VEHICLE_NAMES.size())
 	var nearest_flag := _nearest_capture(captures, _vec3(row.get("centre", [])))
-	var pair_base := 0
-	if types.size() > 1 and nearest_flag >= 0 and not pair_used.has(nearest_flag):
-		pair_base = 600 + nearest_flag * 10
-		pair_used[nearest_flag] = true
-	for index in range(types.size()):
-		var selector := int(types[index])
-		var vehicle := _scene("stationary" if bool(row.get("stationary", false)) else "vehicle",
-			"%s_%s" % [str(row.get("label", "Vehicle")), VEHICLE_NAMES[selector]])
-		vehicle.transform = _raw_transform(row)
-		if bool(row.get("stationary", false)):
-			vehicle.set("StationaryEmplacementType", max(group, 0))
-		else:
-			vehicle.set("VehicleType", selector)
-			if types.size() > 1:
-				vehicle.set("SpawnIfMatchingTeam", true)
-				vehicle.set("MatchingTeam", index + 1)
-			if pair_base > 0: vehicle.set("ObjId", pair_base + index)
-		vehicle.set_meta(PROVENANCE_META, _source(row))
-		parent.add_child(vehicle)
-		vehicle.owner = owner
-		if bool(row.get("stationary", false)): VehicleSkin.sync_stationary(vehicle, owner)
+	var type_name := "Unassigned"
+	if valid_selector:
+		type_name = ["BGM71TOW", "GDF009", "M2MG"][selector] if is_stationary \
+			else str(VEHICLE_NAMES[selector])
+	var vehicle := _scene("stationary" if is_stationary else "vehicle",
+		"%s_%s" % [str(row.get("label", "Vehicle")), type_name])
+	vehicle.transform = _raw_transform(row)
+	if valid_selector:
+		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", selector)
+	else:
+		vehicle.set_meta("bf6_vehicle_type_status", "retail selector is unassigned; SDK default retained")
+	if not is_stationary and nearest_flag >= 0:
+		var objective_index := int(pair_used.get(nearest_flag, 0))
+		if objective_index < 2:
+			vehicle.set("ObjId", 600 + nearest_flag * 10 + objective_index)
+			pair_used[nearest_flag] = objective_index + 1
+	vehicle.set_meta(PROVENANCE_META, _source(row))
+	vehicle.set_meta("bf6_source_instance_guid", str(raw.get("instance_guid", "")))
+	vehicle.set_meta("bf6_retail_selector", selector)
+	vehicle.set_meta("bf6_vehicle_type_status", "exact retail ModBuilder enum -> SDK enum" if valid_selector \
+		else "retail selector is unassigned; SDK default retained")
+	parent.add_child(vehicle)
+	vehicle.owner = owner
+	if valid_selector:
+		if is_stationary: VehicleSkin.sync_stationary(vehicle, owner)
 		else: VehicleSkin.sync_spawner(vehicle, owner)
 
 

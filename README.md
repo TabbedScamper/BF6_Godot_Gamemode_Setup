@@ -2,7 +2,9 @@
 
 A focused Godot editor plugin for building editable Battlefield Portal game-mode layouts from installed-game data.
 
-The current review release covers 24 gameplay layers across **Tsuru Reef (`MP_Isolated`)** and **Wake Island (`MP_Atoll`)**. The dropdown includes Conquest, Breakthrough, Rush, Domination, Escalation, King of the Hill, Sabotage, Strikepoint, team deathmatch variants, and the map-specific Carrier Strike, Gauntlet, and Payload layouts.
+The current review release covers **184 shipped gameplay layers across 18 maps**. The dropdown includes Conquest, Breakthrough, Rush, Domination, Escalation, King of the Hill, Operations, Obliteration, Squad Obliteration, Sabotage, Strikepoint, deathmatch variants, and map-specific Carrier Strike, Gauntlet, and Payload layouts.
+
+The supported map catalog includes Siege of Cairo, Empire State, Bellum1988's Operation Metro, Wake Island, Blackwell Fields, Iberian Offensive, Liberation Peak, Contaminated, Manhattan Bridge, Eastwood, Operation Firestorm, Railway to Golmud, Tsuru Reef, Saints Quarter, New Sobek City, Cairo Bazaar, Hagental Base, and Mirak Valley.
 
 Community scenes are used only to reproduce the compatible hierarchy and Blockly/TypeScript setup method. They are not accepted as sources for gameplay objects, transforms, links, IDs, vehicle settings, volumes, cameras, or carrier placement. SDK scene internals remain scene-owned, so implementation nodes such as `Mesh`, `StaticBody3D`, and `CollisionShape3D` are not promoted into editable game-mode content.
 
@@ -11,7 +13,7 @@ Community scenes are used only to reproduce the compatible hierarchy and Blockly
 1. Download the plugin ZIP from the [latest release](../../releases/latest), or clone this repository.
 2. Copy `addons/bf6_gamemode_setup` into the `addons` folder of a Battlefield Portal Godot project.
 3. In Godot, open **Project > Project Settings > Plugins** and enable **BF6 Game Mode Setup**.
-4. Open the `MP_Isolated` or `MP_Atoll` map scene and use the **BF6 Game Mode Setup** dock.
+4. Open a supported map scene and use the **BF6 Game Mode Setup** dock.
 
 ## Build a game mode
 
@@ -31,6 +33,10 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - A layout is not published until its generated objects carry game-data provenance and its Portal SDK scene validates.
 - Volume elevations are preserved from game data. They are not raycast or snapped to terrain.
 - Vehicle and spawn arrays are not capped.
+- Vehicle spawners use the exact retail `ModBuilder_Enum_VehicleList` selector; one shipped record creates one SDK spawner, including the Wake Island carrier aircraft and naval variants.
+- Objective spawns are nested under their capture point with stable names. Wake Island Conquest restores the game's authored A-G lettering and includes its 11,251.8 m² G capture volume.
+- Retail `gem_specialcombatarea` records have no Portal SDK gameplay class. Their exact transforms and provenance are preserved as marked evidence nodes instead of being silently dropped or converted into invented AreaTriggers.
+- Golf Course, Defense Nexus, Downtown, Marina, Area 22B, Redline Storage, Complex 3, Portal Sandbox, and Portal Ocean currently expose no stock gameplay objects under their SDK scene roots. They remain cataloged but do not receive fabricated layouts.
 - Layouts marked `review` expose the shipped layer faithfully while objective semantics that are not present in client data remain clearly provisional.
 
 ## License
