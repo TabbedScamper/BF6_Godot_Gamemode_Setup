@@ -4,12 +4,14 @@ extends EditorPlugin
 const Builder = preload("gamemode_builder.gd")
 const Fetch = preload("layout_fetch.gd")
 const VehicleSkin = preload("vehicle_skin.gd")
+const TemplateAddons = preload("template_addons.gd")
 
 var _dock: VBoxContainer
 var _map_label: Label
 var _layout: OptionButton
 var _status: Label
 var _clear_button: Button
+var _template_addons_button: Button
 var _progress_box: VBoxContainer
 var _progress_label: Label
 var _progress_bar: ProgressBar
@@ -75,6 +77,11 @@ func _create_dock() -> void:
 	_progress_bar.show_percentage = true
 	_progress_box.add_child(_progress_bar)
 	_dock.add_child(_progress_box)
+	_template_addons_button = Button.new()
+	_template_addons_button.text = "Andys Template Addons"
+	_template_addons_button.tooltip_text = "Add Andy's TeamSwitcher, AI Spawns, and EndGameCamera template objects at the origin."
+	_template_addons_button.pressed.connect(_add_template_addons)
+	_dock.add_child(_template_addons_button)
 	_clear_button = Button.new()
 	_clear_button.text = "Clear downloaded layouts"
 	_clear_button.pressed.connect(_clear_cache)
@@ -201,6 +208,52 @@ func _clear_cache() -> void:
 	_fetch.clear_cache()
 	_update_cache_button()
 	_status.text = "Downloaded layout files cleared. Existing scene nodes were not changed."
+
+
+func _add_template_addons() -> void:
+	if _busy:
+		return
+	var root := _root()
+	var target := _selected_build(root)
+	if target == null:
+		_status.text = "Build or select a generated game-mode layout first."
+		return
+	var result := TemplateAddons.add_to(target, root)
+	_status.text = str(result.get("message", "Template addons could not be added."))
+	if int(result.get("added", 0)) <= 0:
+		return
+	get_editor_interface().mark_scene_as_unsaved()
+	var added_node := result.get("node") as Node
+	if added_node != null:
+		get_editor_interface().get_selection().clear()
+		get_editor_interface().get_selection().add_node(added_node)
+
+
+func _selected_build(root: Node) -> Node:
+	if root == null:
+		return null
+	var selected := get_editor_interface().get_selection().get_selected_nodes()
+	for selected_node in selected:
+		var candidate := selected_node as Node
+		while candidate != null and candidate != root:
+			if candidate.has_meta(Builder.BUILD_META):
+				return candidate
+			candidate = candidate.get_parent()
+	if _layout.selected > 0 and _layout.selected - 1 < _rows.size():
+		var key := str((_rows[_layout.selected - 1] as Dictionary).get("key", ""))
+		var current := Builder.find_build(root, key)
+		if current != null:
+			return current
+	var visible_builds: Array[Node] = []
+	var all_builds: Array[Node] = []
+	for child in root.get_children():
+		if child.has_meta(Builder.BUILD_META):
+			all_builds.append(child)
+			if not (child is Node3D) or (child as Node3D).visible:
+				visible_builds.append(child)
+	if visible_builds.size() == 1:
+		return visible_builds[0]
+	return all_builds[0] if all_builds.size() == 1 else null
 
 
 func _update_cache_button() -> void:
