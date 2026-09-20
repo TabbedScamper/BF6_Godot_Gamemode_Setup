@@ -75,6 +75,7 @@ func _init() -> void:
 						_check_combat_area(built, filename,
 							"fd455bd8-e5f7-4bec-8fd7-cb171926fa58",
 							"7da73b7d-0f84-4842-9afc-d9fef5abde13")
+						_check_capstone_flyer_overrides(built, filename)
 					if level == "mp_atoll" and mode == "conquest":
 						_check_atoll_flag_mapping(built, manifest, filename)
 						_check_atoll_hq_areas(built, filename)
@@ -219,3 +220,24 @@ func _check_combat_area(root: Node, filename: String, combat_guid: String,
 		if surrounding == null or str(surrounding.get_meta("bf6_source_instance_guid", "")) != surrounding_guid:
 			failures += 1
 			print("FAIL ", filename, ": CombatArea does not own the retail surrounding zone")
+
+
+func _check_capstone_flyer_overrides(root: Node, filename: String) -> void:
+	var expected := {
+		"31426ce7-ee3a-4827-8a12-6d4034036fde": 13,
+		"fccb3aae-d90b-4606-852c-f10dccd337fb": 13,
+	}
+	var found := {}
+	_collect_vehicle_guid_types(root, found)
+	for guid in expected:
+		if int(found.get(guid, -1)) != int(expected[guid]):
+			failures += 1
+			print("FAIL ", filename, ": Capstone HQ slot ", guid,
+				" must use Flyer 60")
+
+
+func _collect_vehicle_guid_types(node: Node, found: Dictionary) -> void:
+	if node.has_meta("bf6_source_instance_guid") and node.get("VehicleType") != null:
+		found[str(node.get_meta("bf6_source_instance_guid"))] = int(node.get("VehicleType"))
+	for child in node.get_children():
+		_collect_vehicle_guid_types(child, found)

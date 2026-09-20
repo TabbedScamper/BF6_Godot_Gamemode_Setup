@@ -67,6 +67,14 @@ const ATOLL_CONQUEST_FLAG_REMAP := {
 	5: 1, # F -> B
 	6: 6, # G -> G
 }
+# Some retail modes override the generic spawn category for an individual pad.
+# Key these corrections by the installed instance identity so a map-specific
+# choice never changes legitimate uses of the same category elsewhere.
+const VEHICLE_RECORD_TYPE_OVERRIDES := {
+	# Liberation Peak Team 1 HQ light-transport pads.
+	"31426ce7-ee3a-4827-8a12-6d4034036fde": 13, # Flyer 60
+	"fccb3aae-d90b-4606-852c-f10dccd337fb": 13, # Flyer 60
+}
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
@@ -503,10 +511,14 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 		var team_index := mini(nearest_hq, 1)
 		if selector == 23:
 			team_index = 1
+		var source_guid := str(raw.get("instance_guid", ""))
+		var override_type := int(VEHICLE_RECORD_TYPE_OVERRIDES.get(source_guid, -1))
 		var type_index := mini(team_index, vehicle_types.size() - 1)
-		var vehicle_type := int(vehicle_types[type_index])
+		var vehicle_type := override_type if override_type >= 0 else int(vehicle_types[type_index])
 		var vehicle := _create_vehicle(row, team_roots[team_index], owner, selector,
 			vehicle_type, VEHICLE_NAMES[vehicle_type], false, true)
+		if override_type >= 0:
+			vehicle.set_meta("bf6_vehicle_type_status", "verified map-specific vehicle override")
 		vehicle.set("P_AutoSpawnEnabled", true)
 		hq_vehicle_links[nearest_hq].append(vehicle)
 		vehicle.set_meta("bf6_runtime_association", "HQ%d / Team%d" % [nearest_hq + 1, team_index + 1])

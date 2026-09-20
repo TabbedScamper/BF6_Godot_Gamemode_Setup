@@ -34,6 +34,7 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - Volume elevations are preserved from game data. They are not raycast or snapped to terrain.
 - Vehicle and spawn arrays are not capped.
 - Retail vehicle records use spawn-category selectors rather than concrete Portal `VehicleType` values. The builder resolves each category to its shipped Team 1/Team 2 vehicle pair, groups HQ vehicles by team, and creates team-gated objective spawners while retaining the original selector as provenance.
+- Verified mode-specific vehicle choices are keyed to their installed instance identity, so an HQ override does not alter legitimate uses of the same vehicle category at objectives or on other maps.
 - Objective spawns are nested under their capture point with stable names. Wake Island Conquest restores the game's authored A-G lettering and includes its 11,251.8 m² G capture volume.
 - Conquest base polygons are assigned directly to each SDK HQ's `HQArea`. Wake Island and Liberation Peak also promote their verified play-area polygons into an SDK `CombatArea` with the corresponding `CombatVolume` and, where present, `SurroundingVolume`.
 - Liberation Peak Conquest restores its six A-F objectives; the small cliff polygon that the generic classifier mistook for objective D is emitted as an SDK `AreaTrigger` under `Zones/OutOfBounds`.
