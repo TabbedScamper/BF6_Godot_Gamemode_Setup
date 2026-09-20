@@ -92,7 +92,10 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			continue
 		var hq := _scene("hq", "TEAM_%d_HQ" % (hqs.size() + 1))
 		hq.transform = _raw_transform(row)
-		hq.set("ObjId", hqs.size() + 1)
+		var hq_team := hqs.size() + 1
+		hq.set("Team", hq_team)
+		hq.set("AltTeam", 2 if hq_team == 1 else 1)
+		hq.set("ObjId", hq_team)
 		hq.set_meta(PROVENANCE_META, _source(row))
 		root.add_child(hq)
 		hq.owner = map_root
@@ -113,37 +116,58 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var spawn := _scene("spawn", "Spawn_%s_%02d" % [spawn_key, spawn_index])
 		spawn.transform = _raw_transform(row)
 		spawn.set_meta(PROVENANCE_META, _source(row))
+		spawn.set_meta("bf6_spawn_team", int(row.get("team", 0)))
 		var parent: Node = captures.get(flag, spawns_root)
 		parent.add_child(spawn)
 		spawn.owner = map_root
 		if parent != spawns_root:
 			spawn.transform = (parent as Node3D).transform.affine_inverse() * spawn.transform
-			var team := int(row.get("team", 0))
-			if team == 1 or team == 2:
-				capture_spawns[flag][team].append(spawn)
-			else:
-				capture_spawns[flag][1].append(spawn)
-				capture_spawns[flag][2].append(spawn)
+			_append_spawn_for_team(capture_spawns, flag, spawn, int(row.get("team", 0)))
 		else:
 			loose_spawns.append(spawn)
 		progress_current += 1
 		_report(progress, "Creating infantry spawns…", progress_current, progress_total)
+	var hq_spawns: Array = []
+	for _index in range(hqs.size()): hq_spawns.append([])
+	var captures_own_loose_spawns := mode in ["conquest", "carrierstrike", "escalation"]
+	for spawn_value in loose_spawns:
+		var spawn := spawn_value as Node3D
+		var point := spawn.global_position
+		var nearest_flag := _nearest_capture(captures, point) if not captures.is_empty() else -1
+		var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).global_position) \
+			if nearest_flag >= 0 else INF
+		var hq_index := _nearest_index(hqs, point) if not hqs.is_empty() else -1
+		var hq_distance := point.distance_squared_to((hqs[hq_index] as Node3D).global_position) \
+			if hq_index >= 0 else INF
+		if captures_own_loose_spawns and nearest_flag >= 0 and capture_distance <= hq_distance:
+			var capture := captures[nearest_flag] as Node3D
+			spawn.reparent(capture, true)
+			var key := "Flag_%s" % String.chr(65 + nearest_flag)
+			var index := int(spawn_counts.get(key, 0)) + 1
+			spawn_counts[key] = index
+			spawn.name = "Spawn_%s_%02d" % [key, index]
+			spawn.set_meta("bf6_capture_flag", nearest_flag)
+			_append_spawn_for_team(capture_spawns, nearest_flag, spawn,
+				int(spawn.get_meta("bf6_spawn_team", 0)))
+		elif hq_index >= 0:
+			spawn.reparent(hqs[hq_index], true)
+			spawn.name = "Spawn_HQ_%d_%02d" % [hq_index + 1, hq_spawns[hq_index].size() + 1]
+			hq_spawns[hq_index].append(spawn)
 	for flag in captures:
 		_set_array(captures[flag], "InfantrySpawnPoints_Team1", capture_spawns[flag][1])
 		_set_array(captures[flag], "InfantrySpawnPoints_Team2", capture_spawns[flag][2])
 	for hq_index in range(hqs.size()):
-		var linked: Array = []
-		for spawn in loose_spawns:
-			if _nearest_index(hqs, (spawn as Node3D).position) == hq_index:
-				linked.append(spawn)
-		_set_array(hqs[hq_index], "InfantrySpawns", linked)
+		_set_array(hqs[hq_index], "InfantrySpawns", hq_spawns[hq_index])
 
 	var objective_pair_used := {}
+	var hq_vehicle_links: Array = []
+	for _index in range(hqs.size()): hq_vehicle_links.append([])
 	for value in objects:
 		var row := value as Dictionary
 		var role := int(row.get("role", 0))
 		if role == 6:
-			_build_vehicle(row, vehicles_root, map_root, captures, objective_pair_used)
+			_build_vehicle(row, vehicles_root, map_root, captures, hqs,
+				objective_pair_used, hq_vehicle_links)
 		elif role == 7:
 			var resupply := _scene("resupply", str(row.get("label", "Resupply")))
 			resupply.transform = _raw_transform(row)
@@ -175,6 +199,10 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		if role in [6, 7, 8, 9, 10, 101]:
 			progress_current += 1
 			_report(progress, "Creating vehicles and attachments…", progress_current, progress_total)
+
+	for hq_index in range(hqs.size()):
+		_set_array(hqs[hq_index], "VehicleSpawners", hq_vehicle_links[hq_index])
+		hqs[hq_index].set("VehicleSpawnersEnabled", not hq_vehicle_links[hq_index].is_empty())
 
 	for value in objects:
 		var row := value as Dictionary
@@ -237,12 +265,19 @@ static func _report(progress: Callable, message: String, current: int, total: in
 
 
 static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures: Dictionary,
-		pair_used: Dictionary) -> void:
+		hqs: Array, pair_used: Dictionary, hq_vehicle_links: Array) -> void:
 	var raw := row.get("raw", {}) as Dictionary
 	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
 	var is_stationary := bool(row.get("stationary", false))
 	var valid_selector := selector >= 0 and selector < (3 if is_stationary else VEHICLE_NAMES.size())
-	var nearest_flag := _nearest_capture(captures, _vec3(row.get("centre", [])))
+	var point := _vec3(row.get("centre", []))
+	var nearest_flag := _nearest_capture(captures, point) if not captures.is_empty() else -1
+	var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).position) \
+		if nearest_flag >= 0 else INF
+	var nearest_hq := _nearest_index(hqs, point) if not hqs.is_empty() else -1
+	var hq_distance := point.distance_squared_to((hqs[nearest_hq] as Node3D).position) \
+		if nearest_hq >= 0 else INF
+	var belongs_to_hq := not is_stationary and nearest_hq >= 0 and hq_distance < capture_distance
 	var type_name := "Unassigned"
 	if valid_selector:
 		type_name = ["BGM71TOW", "GDF009", "M2MG"][selector] if is_stationary \
@@ -254,7 +289,11 @@ static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures:
 		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", selector)
 	else:
 		vehicle.set_meta("bf6_vehicle_type_status", "retail selector is unassigned; SDK default retained")
-	if not is_stationary and nearest_flag >= 0:
+	if belongs_to_hq:
+		vehicle.set("P_AutoSpawnEnabled", true)
+		hq_vehicle_links[nearest_hq].append(vehicle)
+		vehicle.set_meta("bf6_runtime_association", "HQ%d" % (nearest_hq + 1))
+	elif not is_stationary and nearest_flag >= 0:
 		var objective_index := int(pair_used.get(nearest_flag, 0))
 		if objective_index < 2:
 			vehicle.set("ObjId", 600 + nearest_flag * 10 + objective_index)
@@ -326,6 +365,15 @@ static func _raw_transform(row: Dictionary) -> Transform3D:
 
 static func _vec3(value: Array) -> Vector3:
 	return Vector3(float(value[0]), float(value[1]), float(value[2])) if value.size() >= 3 else Vector3.ZERO
+
+
+static func _append_spawn_for_team(spawn_sets: Dictionary, flag: int, spawn: Node,
+		team: int) -> void:
+	if team == 1 or team == 2:
+		spawn_sets[flag][team].append(spawn)
+	else:
+		spawn_sets[flag][1].append(spawn)
+		spawn_sets[flag][2].append(spawn)
 
 
 static func _set_array(node: Object, property: String, values: Array) -> void:
