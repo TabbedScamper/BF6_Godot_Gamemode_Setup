@@ -73,6 +73,13 @@ const COLORS := {
 }
 
 
+static func swap_factions(root: Node, layout_id: String) -> String:
+	var layout := find_build(root, layout_id)
+	if layout == null:
+		return "Build the selected game-mode layout before swapping factions."
+	return ClassifiedBuilder.swap_factions(layout, root)
+
+
 static func validate(root: Node, paths: Dictionary) -> String:
 	if root == null:
 		return "Open the MP_Isolated map scene first"
@@ -90,7 +97,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 	if problem != "":
 		return problem
 	var document := _read_json(str(paths["manifest"]))
-	if int(document.get("schema", 0)) == 2:
+	if int(document.get("schema", 0)) in [2, 3]:
 		return ClassifiedBuilder.build(root, layout_id, document, paths, replace_existing, progress)
 	if layout_id != "mp_isolated/conquest":
 		return "This plugin version does not support %s" % layout_id
