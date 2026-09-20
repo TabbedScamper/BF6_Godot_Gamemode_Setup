@@ -67,10 +67,10 @@ int main(int argc, char** argv)
                               &layout, error, sizeof(error));
 
     /* Wake Island's authored objective letters do not follow world X order.
-     * The seven shipped capturepoint GEMs establish B, D, G, F, E, C, A at
-     * classifier slots A through G respectively. Keep the classifier's
-     * geometric match, then restore the retail letter on both objectives and
-     * their claimed spawns. */
+     * Retain the classifier's geometry match, including the large G polygon,
+     * then join each polygon back to its nearest installed gem_capturepoint.
+     * Stable GEM root identities determine the retail letter; world ordering
+     * and the classifier's provisional A/B/C labels do not. */
     std::vector<std::string> adjusted_labels((size_t)count);
     if (!std::strcmp(argv[2], "mp_atoll") && !std::strcmp(argv[3], "conquest")) {
         int g_index = -1;
@@ -107,16 +107,49 @@ int main(int argc, char** argv)
                 }
             }
         }
-        /* Final retail review, expressed against classifier slots after the
-         * missing G polygon is inserted. This yields the same corrected scene
-         * lettering as remapping the v1.2.0 manifest A-D, B-E, C-A, D-C,
-         * E-F, F-B, G-G. */
-        static const int retail_flag[] = { 4, 2, 6, 1, 5, 0, 3 };
+        auto retail_flag_for_root = [](int root) {
+            switch (root) {
+                case 3: return 0;  // A
+                case 5: return 1;  // B
+                case 23: return 2; // C
+                case 6: return 3;  // D
+                case 4: return 4;  // E
+                case 2: return 5;  // F
+                case 24: return 6; // G
+                default: return -1;
+            }
+        };
+        int classified_to_retail[7] = { -1, -1, -1, -1, -1, -1, -1 };
+        for (int i = 0; i < count; ++i) {
+            const bf6_gm_object& object = objects[(size_t)i];
+            if (object.role != BF6_GMR_CAPTURE || object.flag < 0 || object.flag >= 7)
+                continue;
+            float best_distance = INFINITY;
+            int best_retail_flag = -1;
+            for (const bf6_gm_entity& row : raw) {
+                if (!row.mode || std::strcmp(row.mode, "conquest") || !row.gem_link ||
+                    std::strcmp(row.gem_link, "gem_capturepoint")) continue;
+                const int retail_flag = retail_flag_for_root(row.root_order);
+                if (retail_flag < 0) continue;
+                const float dx = object.centre[0] - row.xform[9];
+                const float dy = object.centre[1] - row.xform[10];
+                const float dz = object.centre[2] - row.xform[11];
+                const float distance = dx * dx + dy * dy + dz * dz;
+                if (distance < best_distance) {
+                    best_distance = distance;
+                    best_retail_flag = retail_flag;
+                }
+            }
+            if (best_retail_flag >= 0 && best_distance < 60.f * 60.f)
+                classified_to_retail[object.flag] = best_retail_flag;
+        }
         for (int i = 0; i < count; ++i) {
             bf6_gm_object& object = objects[(size_t)i];
             if ((object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_SPAWN) ||
                 object.flag < 0 || object.flag >= 7) continue;
-            object.flag = retail_flag[object.flag];
+            const int retail_flag = classified_to_retail[object.flag];
+            if (retail_flag < 0) continue;
+            object.flag = retail_flag;
             adjusted_labels[(size_t)i] = std::string("Flag ") +
                 char('A' + object.flag) +
                 (object.role == BF6_GMR_SPAWN ? " Spawn" : "");

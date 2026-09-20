@@ -139,7 +139,7 @@ func _refresh_map() -> void:
 
 func _fill_layouts() -> void:
 	var map := _map_name()
-	if map == "" or map == _listed_map or _busy:
+	if map == "" or _busy:
 		return
 	_busy = true
 	_status.text = "Checking published layouts…"

@@ -199,17 +199,36 @@ func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
 
 
 func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: String) -> void:
+	var retail_guids := {
+		0: "5119911c-3e48-4f74-adc3-296a5fd026af", # A, GEM root 3
+		1: "f82ac26e-80d4-441b-8487-509af6833c37", # B, GEM root 5
+		2: "e931291b-2785-47b1-b67e-72045e63a9b1", # C, GEM root 23
+		3: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4", # D, GEM root 6
+		4: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2", # E, GEM root 4
+		5: "0110efce-cec2-4619-ab13-59957dcf397c", # F, GEM root 2
+		6: "dc35642b-df23-44be-b375-222ada842bf7", # G, GEM root 24
+	}
+	var seen := 0
 	for value in manifest.get("objects", []):
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 2:
 			continue
 		var source_flag := int(row.get("flag", -1))
+		seen += 1
+		if str((row.get("raw", {}) as Dictionary).get("instance_guid", "")) != \
+				str(retail_guids.get(source_flag, "")):
+			failures += 1
+			print("FAIL ", filename, ": Atoll manifest flag identity is wrong for ",
+				String.chr(65 + source_flag))
 		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + source_flag)) as Node3D
 		var expected := Vector3(float(row.centre[0]), float(row.centre[1]), float(row.centre[2]))
 		if capture == null or not capture.position.is_equal_approx(expected):
 			failures += 1
 			print("FAIL ", filename, ": Atoll flag ", String.chr(65 + source_flag),
 				" was remapped after manifest classification")
+	if seen != 7:
+		failures += 1
+		print("FAIL ", filename, ": Atoll must contain seven retail capture identities")
 
 
 func _check_atoll_hq_areas(root: Node, filename: String) -> void:
