@@ -1,4 +1,366 @@
 {
-  "format": 1,
-  "layouts": {}
+  "format": 2,
+  "release_tag": "layouts-v1.1.0",
+  "layouts": {
+    "mp_atoll/breakthrough": {
+      "name": "Wake Island - Breakthrough",
+      "level": "mp_atoll",
+      "mode": "breakthrough",
+      "maturity": "review",
+      "manifest": "mp_atoll_breakthrough.layout.json",
+      "carriers": "mp_atoll_breakthrough_carriers.glb",
+      "files": [
+        {
+          "name": "mp_atoll_breakthrough.layout.json",
+          "bytes": 352413,
+          "sha256": "301df70bbd64a9bf82c3f9cdbca38ddc59aea5073babd2db9f984afd81170a15"
+        },
+        {
+          "name": "mp_atoll_breakthrough_carriers.glb",
+          "bytes": 14589228,
+          "sha256": "f1529384e09e8fe58d968cb848b267c5c812730428174c086074afd44fe6132a"
+        }
+      ]
+    },
+    "mp_atoll/conquest": {
+      "name": "Wake Island - Conquest",
+      "level": "mp_atoll",
+      "mode": "conquest",
+      "maturity": "review",
+      "manifest": "mp_atoll_conquest.layout.json",
+      "carriers": "mp_atoll_conquest_carriers.glb",
+      "files": [
+        {
+          "name": "mp_atoll_conquest.layout.json",
+          "bytes": 128676,
+          "sha256": "d292d500dad77cbfc3a909f19318f67d5188f996853d78c28826c9ff187fc9f5"
+        },
+        {
+          "name": "mp_atoll_conquest_carriers.glb",
+          "bytes": 16625220,
+          "sha256": "c5054e1ab79f7d630c6cc14f83eef806e1405171818aa60a63aa625283d072db"
+        }
+      ]
+    },
+    "mp_atoll/domination": {
+      "name": "Wake Island - Domination",
+      "level": "mp_atoll",
+      "mode": "domination",
+      "maturity": "review",
+      "manifest": "mp_atoll_domination.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_domination.layout.json",
+          "bytes": 17287,
+          "sha256": "f240280d1c83ca3be39d0eb0c287ddd66f1973f50e9226b37d19184d298cf96c"
+        }
+      ]
+    },
+    "mp_atoll/escalation": {
+      "name": "Wake Island - Escalation",
+      "level": "mp_atoll",
+      "mode": "escalation",
+      "maturity": "review",
+      "manifest": "mp_atoll_escalation.layout.json",
+      "carriers": "mp_atoll_escalation_carriers.glb",
+      "files": [
+        {
+          "name": "mp_atoll_escalation.layout.json",
+          "bytes": 94767,
+          "sha256": "7921309694d9a51039d4d89ade32b352d35368d72960c6401b91d675553d52b1"
+        },
+        {
+          "name": "mp_atoll_escalation_carriers.glb",
+          "bytes": 16649736,
+          "sha256": "e6b90940db9767ccfe9f56478d391f1a7d0cc30bed3f023d3df802687ad59c26"
+        }
+      ]
+    },
+    "mp_atoll/kingofthehill": {
+      "name": "Wake Island - King of the Hill Zones",
+      "level": "mp_atoll",
+      "mode": "kingofthehill",
+      "maturity": "review",
+      "manifest": "mp_atoll_kingofthehill.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_kingofthehill.layout.json",
+          "bytes": 4283,
+          "sha256": "59dda58132673f9add056a3905cf9f8c18a43c6974f16e3481671a91a5733d02"
+        }
+      ]
+    },
+    "mp_atoll/koth": {
+      "name": "Wake Island - King of the Hill",
+      "level": "mp_atoll",
+      "mode": "koth",
+      "maturity": "review",
+      "manifest": "mp_atoll_koth.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_koth.layout.json",
+          "bytes": 29470,
+          "sha256": "1e352a1636d5e390eb8cdd8783b0ba09f993e554c72af0bef5fcb849a08fdcc4"
+        }
+      ]
+    },
+    "mp_atoll/payload": {
+      "name": "Wake Island - Payload",
+      "level": "mp_atoll",
+      "mode": "payload",
+      "maturity": "review",
+      "manifest": "mp_atoll_payload.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_payload.layout.json",
+          "bytes": 16988,
+          "sha256": "cf228d748b1cb23273f759ff528505d345b37f4de25842c47b9ea1f39f6106bc"
+        }
+      ]
+    },
+    "mp_atoll/rush": {
+      "name": "Wake Island - Rush",
+      "level": "mp_atoll",
+      "mode": "rush",
+      "maturity": "review",
+      "manifest": "mp_atoll_rush.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_rush.layout.json",
+          "bytes": 114986,
+          "sha256": "ca675700149e17ed953efc52c9a7047e1173a1f1a73bca3ba8580a2e6f48c617"
+        }
+      ]
+    },
+    "mp_atoll/sabotage": {
+      "name": "Wake Island - Sabotage",
+      "level": "mp_atoll",
+      "mode": "sabotage",
+      "maturity": "review",
+      "manifest": "mp_atoll_sabotage.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_sabotage.layout.json",
+          "bytes": 12677,
+          "sha256": "366a5b02128b687af117a8e1163534cf39e8236190f225f9eb62a57285023a1d"
+        }
+      ]
+    },
+    "mp_atoll/squaddeathmatch": {
+      "name": "Wake Island - Squad Deathmatch",
+      "level": "mp_atoll",
+      "mode": "squaddeathmatch",
+      "maturity": "review",
+      "manifest": "mp_atoll_squaddeathmatch.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_squaddeathmatch.layout.json",
+          "bytes": 17957,
+          "sha256": "dcd4c95d250f00ac8ce55c6eac2132120b8d5fa8bb92583f6130f39b0ffb430d"
+        }
+      ]
+    },
+    "mp_atoll/strikepoint": {
+      "name": "Wake Island - Strikepoint",
+      "level": "mp_atoll",
+      "mode": "strikepoint",
+      "maturity": "review",
+      "manifest": "mp_atoll_strikepoint.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_strikepoint.layout.json",
+          "bytes": 5120,
+          "sha256": "a6da433cb04b320fead464ed2ba8170082b6ec934d127e53791406a8071e4d66"
+        }
+      ]
+    },
+    "mp_atoll/teamdeathmatch": {
+      "name": "Wake Island - Team Deathmatch",
+      "level": "mp_atoll",
+      "mode": "teamdeathmatch",
+      "maturity": "review",
+      "manifest": "mp_atoll_teamdeathmatch.layout.json",
+      "files": [
+        {
+          "name": "mp_atoll_teamdeathmatch.layout.json",
+          "bytes": 18958,
+          "sha256": "10d88cc076ddb9dcb3be2ae8be79eab1ea5500ebb10f3d2ea9a72ac596d3249c"
+        }
+      ]
+    },
+    "mp_isolated/breakthrough": {
+      "name": "Tsuru Reef - Breakthrough",
+      "level": "mp_isolated",
+      "mode": "breakthrough",
+      "maturity": "review",
+      "manifest": "mp_isolated_breakthrough.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_breakthrough.layout.json",
+          "bytes": 243185,
+          "sha256": "d94d4ea959783db735a2aaeaa2d4ba65386f5b6f48c19a9ebf7ae09261586ecd"
+        }
+      ]
+    },
+    "mp_isolated/carrierstrike": {
+      "name": "Tsuru Reef - Carrier Strike",
+      "level": "mp_isolated",
+      "mode": "carrierstrike",
+      "maturity": "review",
+      "manifest": "mp_isolated_carrierstrike.layout.json",
+      "carriers": "mp_isolated_carrierstrike_carriers.glb",
+      "files": [
+        {
+          "name": "mp_isolated_carrierstrike.layout.json",
+          "bytes": 165631,
+          "sha256": "f96e7bb96ea832dd89819d6f61bd716c1dffdf262eb635c4dcaae23f3554750e"
+        },
+        {
+          "name": "mp_isolated_carrierstrike_carriers.glb",
+          "bytes": 35178684,
+          "sha256": "91e7b9a1faba1d48a56a9acdb381f6065d5bb2284446162baaa8466d29869021"
+        }
+      ]
+    },
+    "mp_isolated/conquest": {
+      "name": "Tsuru Reef - Conquest",
+      "level": "mp_isolated",
+      "mode": "conquest",
+      "maturity": "review",
+      "manifest": "mp_isolated_conquest.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_conquest.layout.json",
+          "bytes": 162711,
+          "sha256": "e2fba2886ce4a7b07bf668ef745bf48b1ae8f41b1103db6a100680248ff35c53"
+        }
+      ]
+    },
+    "mp_isolated/domination": {
+      "name": "Tsuru Reef - Domination",
+      "level": "mp_isolated",
+      "mode": "domination",
+      "maturity": "review",
+      "manifest": "mp_isolated_domination.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_domination.layout.json",
+          "bytes": 21693,
+          "sha256": "7fbe23c2db7374cf05c6be94ed770bc4a4be08f2432b22d47fb3e33061921ef2"
+        }
+      ]
+    },
+    "mp_isolated/escalation": {
+      "name": "Tsuru Reef - Escalation",
+      "level": "mp_isolated",
+      "mode": "escalation",
+      "maturity": "review",
+      "manifest": "mp_isolated_escalation.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_escalation.layout.json",
+          "bytes": 72171,
+          "sha256": "e757a0bc0ffe2be0facf895d98b680958480ec09cca8e324ac8eebf3fe997802"
+        }
+      ]
+    },
+    "mp_isolated/gauntlet": {
+      "name": "Tsuru Reef - Gauntlet",
+      "level": "mp_isolated",
+      "mode": "gauntlet",
+      "maturity": "review",
+      "manifest": "mp_isolated_gauntlet.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_gauntlet.layout.json",
+          "bytes": 20698,
+          "sha256": "5f79e0bd0341d239e396c9df2bf874604fb8f62fef955e43a7eb7c9c6468a012"
+        }
+      ]
+    },
+    "mp_isolated/koth": {
+      "name": "Tsuru Reef - King of the Hill",
+      "level": "mp_isolated",
+      "mode": "koth",
+      "maturity": "review",
+      "manifest": "mp_isolated_koth.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_koth.layout.json",
+          "bytes": 50736,
+          "sha256": "eb82c4ce95f99e76b66bddfce45f3d987671438250c70c91950c3812d318c00b"
+        }
+      ]
+    },
+    "mp_isolated/rush": {
+      "name": "Tsuru Reef - Rush",
+      "level": "mp_isolated",
+      "mode": "rush",
+      "maturity": "review",
+      "manifest": "mp_isolated_rush.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_rush.layout.json",
+          "bytes": 56842,
+          "sha256": "d30c6c2227827829633b388c6471455ab036608003fd988add4346182443b13e"
+        }
+      ]
+    },
+    "mp_isolated/sabotage": {
+      "name": "Tsuru Reef - Sabotage",
+      "level": "mp_isolated",
+      "mode": "sabotage",
+      "maturity": "review",
+      "manifest": "mp_isolated_sabotage.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_sabotage.layout.json",
+          "bytes": 19497,
+          "sha256": "542e6fb25d7d0ec24c17196347238462e43a71673b9b0e6a572ee3eed355f6ad"
+        }
+      ]
+    },
+    "mp_isolated/squaddeathmatch": {
+      "name": "Tsuru Reef - Squad Deathmatch",
+      "level": "mp_isolated",
+      "mode": "squaddeathmatch",
+      "maturity": "review",
+      "manifest": "mp_isolated_squaddeathmatch.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_squaddeathmatch.layout.json",
+          "bytes": 50133,
+          "sha256": "6d90a9267da5fbbfeac02c44d20854fc230535b3de50dfca72a11624746c77e5"
+        }
+      ]
+    },
+    "mp_isolated/strikepoint": {
+      "name": "Tsuru Reef - Strikepoint",
+      "level": "mp_isolated",
+      "mode": "strikepoint",
+      "maturity": "review",
+      "manifest": "mp_isolated_strikepoint.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_strikepoint.layout.json",
+          "bytes": 3349,
+          "sha256": "f1a7592c0842bb277db79b8b9b7cf902bd4de074e775cf86f97abe3bbc85d4c4"
+        }
+      ]
+    },
+    "mp_isolated/teamdeathmatch": {
+      "name": "Tsuru Reef - Team Deathmatch",
+      "level": "mp_isolated",
+      "mode": "teamdeathmatch",
+      "maturity": "review",
+      "manifest": "mp_isolated_teamdeathmatch.layout.json",
+      "files": [
+        {
+          "name": "mp_isolated_teamdeathmatch.layout.json",
+          "bytes": 21047,
+          "sha256": "f29be06978bafb02314de7683cb11ec38f56d75429f80e01c5e3c8a00d8a041c"
+        }
+      ]
+    }
+  }
 }
