@@ -199,19 +199,17 @@ func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
 
 
 func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: String) -> void:
-	var corrected := {0: 3, 1: 4, 2: 0, 3: 2, 4: 5, 5: 1, 6: 6}
 	for value in manifest.get("objects", []):
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 2:
 			continue
 		var source_flag := int(row.get("flag", -1))
-		var target_flag := int(corrected.get(source_flag, source_flag))
-		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + target_flag)) as Node3D
+		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + source_flag)) as Node3D
 		var expected := Vector3(float(row.centre[0]), float(row.centre[1]), float(row.centre[2]))
 		if capture == null or not capture.position.is_equal_approx(expected):
 			failures += 1
 			print("FAIL ", filename, ": Atoll flag ", String.chr(65 + source_flag),
-				" must map to ", String.chr(65 + target_flag))
+				" was remapped after manifest classification")
 
 
 func _check_atoll_hq_areas(root: Node, filename: String) -> void:

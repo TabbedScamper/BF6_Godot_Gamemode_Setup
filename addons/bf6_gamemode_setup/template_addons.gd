@@ -4,6 +4,7 @@ extends RefCounted
 const ADDONS_META := "bf6_andy_template_addons"
 const TEAM_SWITCH_MANNEQUIN_OFFSET := Vector3(0.42244, 0.0, -0.332597)
 const TEAM_SWITCH_INTERACT_OFFSET := Vector3(0.0, 1.036, 0.0860289)
+const FIXED_CAMERA_ROTATION := Vector3(0.0, PI, 0.0)
 const SCENE_PATHS := {
 	"ai_spawner": "res://objects/gameplay/ai/AI_Spawner.tscn",
 	"interact_point": "res://objects/gameplay/common/InteractPoint.tscn",
@@ -47,13 +48,16 @@ static func add_to(mode_root: Node, scene_root: Node) -> Dictionary:
 			first_added = ai_spawns
 		added += 1
 
-	if mode_root.get_node_or_null("EndGameCamera") == null:
-		var end_camera := _make_end_game_camera()
+	var end_camera := mode_root.get_node_or_null("EndGameCamera")
+	if end_camera == null:
+		end_camera = _make_end_game_camera()
 		mode_root.add_child(end_camera)
 		_assign_owners(end_camera, scene_root)
 		if first_added == null:
 			first_added = end_camera
 		added += 1
+	else:
+		updated += _sync_end_game_camera(end_camera)
 
 	if added == 0 and updated == 0:
 		return {
@@ -64,7 +68,7 @@ static func add_to(mode_root: Node, scene_root: Node) -> Dictionary:
 		}
 	if added == 0:
 		return {
-			"message": "Andys Template Addons updated: restored the TeamSwitcher child offsets.",
+			"message": "Andys Template Addons updated: restored template child offsets and camera orientation.",
 			"node": team_switcher,
 			"added": 0,
 			"changed": true,
@@ -136,9 +140,27 @@ static func _make_end_game_camera() -> Camera3D:
 	root.name = "EndGameCamera"
 	root.set_meta(ADDONS_META, true)
 	var fixed := _instantiate("fixed_camera", "FixedCamera")
+	fixed.rotation = FIXED_CAMERA_ROTATION
 	fixed.set("ObjId", 950)
 	root.add_child(fixed)
 	return root
+
+
+static func _sync_end_game_camera(root: Node) -> int:
+	var fixed := root.get_node_or_null("FixedCamera") as Node3D
+	if fixed == null:
+		return 0
+	var changed := 0
+	if fixed.position != Vector3.ZERO:
+		fixed.position = Vector3.ZERO
+		changed += 1
+	if not fixed.rotation.is_equal_approx(FIXED_CAMERA_ROTATION):
+		fixed.rotation = FIXED_CAMERA_ROTATION
+		changed += 1
+	if int(fixed.get("ObjId")) != 950:
+		fixed.set("ObjId", 950)
+		changed += 1
+	return changed
 
 
 static func _instantiate(kind: String, node_name: String) -> Node3D:
