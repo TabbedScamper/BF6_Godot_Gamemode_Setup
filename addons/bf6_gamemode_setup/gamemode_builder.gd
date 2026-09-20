@@ -76,13 +76,14 @@ static func validate(root: Node, paths: Dictionary) -> String:
 	return ""
 
 
-static func build(root: Node, layout_id: String, paths: Dictionary, replace_existing := false) -> String:
+static func build(root: Node, layout_id: String, paths: Dictionary, replace_existing := false,
+		progress: Callable = Callable()) -> String:
 	var problem := validate(root, paths)
 	if problem != "":
 		return problem
 	var document := _read_json(str(paths["manifest"]))
 	if int(document.get("schema", 0)) == 2:
-		return ClassifiedBuilder.build(root, layout_id, document, paths, replace_existing)
+		return ClassifiedBuilder.build(root, layout_id, document, paths, replace_existing, progress)
 	if layout_id != "mp_isolated/conquest":
 		return "This plugin version does not support %s" % layout_id
 	var existing := find_build(root, layout_id)
@@ -101,6 +102,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 	var entities: Array = document.get("entities", [])
 	if entities.size() != 271:
 		return "The installed-game manifest failed its 271-entity census"
+	_report(progress, "Preparing Conquest hierarchy…", 0, 10)
 
 	var conquest := Node3D.new()
 	conquest.name = "Conquest"
@@ -138,6 +140,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		objective_root.add_child(capture)
 		capture.owner = root
 		captures[letter] = capture
+	_report(progress, "Created capture points…", 1, 10)
 
 	var hqs := {}
 	for row in _gems(entities, "gem_hq"):
@@ -153,6 +156,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		hq.owner = root
 		_folder(hq, "InfantrySpawns", root)
 		hqs[key] = hq
+	_report(progress, "Created headquarters…", 2, 10)
 
 	var finite_volume_rows: Array = []
 	var infinite_rows: Array = []
@@ -190,6 +194,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		volume.owner = root
 		_rebase_volume_under(volume, row, capture)
 		capture.set("CaptureArea", volume)
+	_report(progress, "Created capture volumes…", 3, 10)
 
 	var combat_rows: Array = []
 	for row in infinite_rows:
@@ -212,6 +217,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		combat.add_child(volume)
 		volume.owner = root
 		combat.set("SurroundingVolume" if is_air else "CombatVolume", volume)
+	_report(progress, "Created combat and aircraft volumes…", 4, 10)
 
 	var spawn_links := {}
 	for letter in captures:
@@ -238,6 +244,8 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		var anchor: Node3D = hqs[owner_key] if owner_key.begins_with("HQ") else captures[owner_key]
 		spawn.transform = (anchor as Node3D).transform.affine_inverse() * _transform(row)
 		spawn_links[owner_key].append(spawn)
+		if spawn_links[owner_key].size() % 12 == 0:
+			_report(progress, "Creating infantry spawns…", 5, 10)
 	for letter in captures:
 		# Installed-game spawns are neutral: both teams reference one physical set.
 		_set_typed_array(captures[letter], "InfantrySpawnPoints_Team1", spawn_links[letter])
@@ -248,6 +256,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 	var vehicle_links := {"HQ1": [], "HQ2": []}
 	var objective_vehicle_pair_assigned := {}
 	for row in _gems(entities, "gem_vehiclespawner"):
+		_report(progress, "Creating vehicle spawners and previews…", 6, 10)
 		var owner_key := _nearest_anchor(captures, hqs, _origin(row))
 		var group_id := int(row.get("gem_selector", -1))
 		var vehicle_types: Array = VEHICLE_GROUP_TYPES.get(group_id, [])
@@ -293,9 +302,17 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 		_set_typed_array(sector, "CapturePoints", ordered_captures)
 		play_area.add_child(sector)
 		sector.owner = root
+	_report(progress, "Linking objectives, HQs, and sectors…", 8, 10)
 	_build_attachments(entities, attachments, root, hqs)
+	_report(progress, "Finishing attachments…", 9, 10)
+	_report(progress, "Game mode ready", 10, 10)
 
 	return "Tsuru Reef Conquest built from 271 installed-game records: 2 HQs, 9 objectives, 155 spawns, 40 vehicle slots, exact volumes, and attachments"
+
+
+static func _report(progress: Callable, message: String, current: int, total: int) -> void:
+	if progress.is_valid():
+		progress.call(message, current, total)
 
 
 static func find_build(root: Node, layout_id: String) -> Node:

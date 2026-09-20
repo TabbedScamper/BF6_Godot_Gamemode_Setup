@@ -36,7 +36,7 @@ const VEHICLE_NAMES := [
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
-		paths: Dictionary, replace_existing: bool) -> String:
+		paths: Dictionary, replace_existing: bool, progress: Callable = Callable()) -> String:
 	var source := document.get("source", {}) as Dictionary
 	var level := str(source.get("level", ""))
 	var mode := str(source.get("mode", ""))
@@ -62,6 +62,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var vehicles_root := _folder(root, "Vehicles", map_root)
 	var attachments_root := _folder(root, "Attachments", map_root)
 	var objects: Array = document.get("objects", [])
+	var progress_total := objects.size() + 2
+	var progress_current := 0
+	_report(progress, "Preparing %s hierarchy…" % _pretty(mode), progress_current, progress_total)
 	var captures := {}
 	var capture_spawns := {}
 	var hqs: Array = []
@@ -84,6 +87,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		capture.set("CaptureArea", area)
 		captures[flag] = capture
 		capture_spawns[flag] = {1: [], 2: []}
+		progress_current += 1
+		_report(progress, "Creating objectives…", progress_current, progress_total)
 
 	for value in objects:
 		var row := value as Dictionary
@@ -96,6 +101,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		root.add_child(hq)
 		hq.owner = map_root
 		hqs.append(hq)
+		progress_current += 1
+		_report(progress, "Creating headquarters…", progress_current, progress_total)
 
 	var loose_spawns: Array = []
 	for value in objects:
@@ -119,6 +126,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				capture_spawns[flag][2].append(spawn)
 		else:
 			loose_spawns.append(spawn)
+		progress_current += 1
+		_report(progress, "Creating infantry spawns…", progress_current, progress_total)
 	for flag in captures:
 		_set_array(captures[flag], "InfantrySpawnPoints_Team1", capture_spawns[flag][1])
 		_set_array(captures[flag], "InfantrySpawnPoints_Team2", capture_spawns[flag][2])
@@ -152,6 +161,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				var nearest: Node = hqs[_nearest_index(hqs, aa.position)]
 				if nearest.get("HQArea") != null:
 					aa.set("ProtectionAreaVolume", nearest.get("HQArea"))
+		if role in [6, 7, 8, 9, 101]:
+			progress_current += 1
+			_report(progress, "Creating vehicles and attachments…", progress_current, progress_total)
 
 	for value in objects:
 		var row := value as Dictionary
@@ -177,6 +189,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				obb.set_meta(PROVENANCE_META, _source(row))
 				zones_root.add_child(obb)
 				obb.owner = map_root
+		if int(row.get("role", 0)) in [3, 4, 5]:
+			progress_current += 1
+			_report(progress, "Creating gameplay volumes…", progress_current, progress_total)
 
 	if not captures.is_empty():
 		var sector := _scene("sector", "Sector")
@@ -189,6 +204,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 
 	var carrier_path := str(paths.get("carriers", ""))
 	if carrier_path != "":
+		_report(progress, "Loading aircraft carrier geometry…", progress_total - 1, progress_total)
 		var carrier := CarrierPreview.new()
 		carrier.name = "Aircraft Carriers (hide to disable preview)"
 		carrier.source_path = carrier_path
@@ -196,11 +212,17 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		root.add_child(carrier)
 		carrier.owner = map_root
 		carrier.rebuild()
+	_report(progress, "Game mode ready", progress_total, progress_total)
 
 	var counts := document.get("counts", {}) as Dictionary
 	return "Built %s %s: %d game-data objects (%d captures, %d spawns, %d vehicles)" % [
 		level, _pretty(mode), int(counts.get("objects", 0)), int(counts.get("captures", 0)),
 		int(counts.get("spawns", 0)), int(counts.get("vehicles", 0))]
+
+
+static func _report(progress: Callable, message: String, current: int, total: int) -> void:
+	if progress.is_valid():
+		progress.call(message, current, total)
 
 
 static func _build_vehicle(row: Dictionary, parent: Node, owner: Node, captures: Dictionary,

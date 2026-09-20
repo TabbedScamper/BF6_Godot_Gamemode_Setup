@@ -17,6 +17,8 @@ Community scenes are used only to reproduce the compatible hierarchy and Blockly
 
 When a verified layout is available, open the **Game mode** dropdown and select it. The plugin downloads the gameplay layout and optional geometry from the data release, caches them in Godot's user-data directory, creates the game-mode node, and selects it in the Scene dock. Save the map scene when satisfied.
 
+The plugin displays build progress in its Godot dock while it creates gameplay objects, vehicle previews, volumes, and optional carrier geometry. Large modes remain synchronous because Godot scene nodes must be authored on the editor thread, but explicit UI redraws keep the progress display visibly updating throughout the build.
+
 Optional preview geometry is editor-only and can be hidden from the Scene dock. Generated mesh children are rebuilt from the downloaded asset when the scene opens and are not exported with the level.
 
 Aircraft-carrier previews are mode-specific. Tsuru Reef receives carriers only for Carrier Strike. Wake Island receives the matching Conquest, Breakthrough, or Escalation carrier layout; its always-visible carrier pieces remain part of the base map. Each downloaded carrier branch is named so it can be hidden manually.
