@@ -399,6 +399,7 @@ static func _make_vehicle_spawner(row: Dictionary, owner_key: String, vehicle_ty
 		owner_key, _vehicle_name(vehicle_type), int(row.root_order), suffix])
 	vehicle.transform = _transform(row)
 	vehicle.set("VehicleType", vehicle_type)
+	vehicle.set("P_DefaultRespawnTime", 45)
 	if template_obj_id > 0:
 		vehicle.set("ObjId", template_obj_id)
 		vehicle.set_meta("bf6_template_obj_id", template_obj_id)
