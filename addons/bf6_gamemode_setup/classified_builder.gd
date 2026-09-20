@@ -95,10 +95,18 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var zones_root := _folder(root, "Play Area", map_root)
 	var spawns_root := _folder(root, "Spawns", map_root)
 	var vehicles_root := _folder(root, "Vehicles", map_root)
-	var vehicle_team_roots := [
-		_folder(vehicles_root, "Team1", map_root),
-		_folder(vehicles_root, "Team2", map_root),
+	var hq_vehicles_root := _folder(vehicles_root, "HQ", map_root)
+	var hq_vehicle_team_roots := [
+		_folder(hq_vehicles_root, "Team1", map_root),
+		_folder(hq_vehicles_root, "Team2", map_root),
 	]
+	var objective_vehicles_root := _folder(vehicles_root, "Objectives", map_root)
+	var objective_vehicle_team_roots := [
+		_folder(objective_vehicles_root, "Team1", map_root),
+		_folder(objective_vehicles_root, "Team2", map_root),
+	]
+	var objective_shared_root := _folder(objective_vehicles_root, "Shared", map_root)
+	var emplacements_root := _folder(vehicles_root, "Emplacements", map_root)
 	var attachments_root := _folder(root, "Extras", map_root)
 	var objects: Array = document.get("objects", [])
 	var progress_total := objects.size() + 2
@@ -110,7 +118,17 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	if level == "mp_capstone" and mode == "conquest":
 		_build_capstone_out_of_bounds(objects, zones_root, map_root)
 
+	var capture_rows: Array = []
 	for value in objects:
+		var candidate := value as Dictionary
+		if int(candidate.get("role", 0)) == 2 and mode != "rush" and \
+				_normalized_flag(level, mode, candidate) >= 0:
+			capture_rows.append(candidate)
+	capture_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_flag := _normalized_flag(level, mode, a)
+		var b_flag := _normalized_flag(level, mode, b)
+		return a_flag < b_flag if a_flag != b_flag else _root_order(a) < _root_order(b))
+	for value in capture_rows:
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 2:
 			continue
@@ -175,23 +193,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var claimed_zone_sources := {}
 	if mode == "conquest" and _count_role(objects, 3) > hqs.size():
 		claimed_zone_sources = _assign_hq_areas(objects, hqs, map_root)
-	if level == "mp_atoll" and mode == "conquest":
-		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
-			map_root, "Zone 2")
-	elif level == "mp_capstone" and mode == "conquest":
-		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
-			map_root, "Zone 4", "Zone 2")
-	elif level == "mp_eastwood" and mode == "conquest":
-		# The retail layer has no explicit CombatArea record.  Its two smallest
-		# enclosing polygons are the HQ areas; the remaining inner/outer pair is
-		# the playable combat volume and its surrounding boundary.
-		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
-			map_root, "Zone 1", "Zone 2")
-	elif level == "mp_battery" and mode == "conquest":
-		# Battery likewise authors the play area as a generic zone.  The two
-		# same-named small zones are consumed by the HQs, leaving Zone 1.
-		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
-			map_root, "Zone 1")
+	if mode == "conquest":
+		_build_combat_area_from_unclaimed_zones(objects, claimed_zone_sources,
+			zones_root, map_root)
 
 	var loose_spawns: Array = []
 	var spawn_counts := {}
@@ -260,8 +264,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		var role := int(row.get("role", 0))
 		if role == 6:
-			_build_vehicle(row, vehicles_root, vehicle_team_roots, map_root, captures, hqs,
-				hq_vehicle_links)
+			_build_vehicle(row, objective_shared_root, hq_vehicle_team_roots,
+				objective_vehicle_team_roots, emplacements_root, map_root, captures,
+				hqs, hq_vehicle_links)
 		elif role == 7:
 			var resupply := _scene("resupply", str(row.get("label", "Resupply")))
 			resupply.transform = _raw_transform(row)
@@ -292,7 +297,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			var aa := _scene("automatic_aa", _automatic_aa_name(row, aa_team))
 			aa.transform = _raw_transform(row)
 			aa.set_meta(PROVENANCE_META, _source(row))
-			attachments_root.add_child(aa)
+			emplacements_root.add_child(aa)
 			aa.owner = map_root
 			if aa_team > 0:
 				aa.set("OwnerTeam", aa_team)
@@ -544,12 +549,42 @@ static func _assign_hq_areas(objects: Array, hqs: Array, owner: Node) -> Diction
 	return used
 
 
+static func _build_combat_area_from_unclaimed_zones(objects: Array, used: Dictionary,
+		parent: Node, owner: Node) -> void:
+	# Conquest authors base areas and its combat boundaries as the same
+	# VolumeVectorShapeData type.  Once the smallest containing polygon has been
+	# bound to each HQ, the largest remaining polygon is the surrounding flight
+	# boundary and the next largest is the playable combat volume.  Infantry-only
+	# maps author only one remaining polygon and therefore have no separate
+	# surrounding warning boundary.
+	var rows: Array = []
+	for value in objects:
+		var row := value as Dictionary
+		if int(row.get("role", 0)) == 3 and not used.has(_row_key(row)):
+			rows.append(row)
+	if rows.is_empty():
+		return
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("area_m2", 0.0)) > float(b.get("area_m2", 0.0)))
+	var surrounding_row := rows[0] as Dictionary if rows.size() > 1 else {}
+	var combat_row := rows[1] as Dictionary if rows.size() > 1 else rows[0] as Dictionary
+	_build_combat_area_rows(combat_row, surrounding_row, used, parent, owner)
+
+
 static func _build_combat_area_from_zones(objects: Array, used: Dictionary,
 		parent: Node, owner: Node, combat_label: String,
 		surrounding_label := "") -> void:
 	var combat_row := _zone_by_label(objects, used, combat_label)
 	if combat_row.is_empty():
 		return
+	var surrounding_row := _zone_by_label(objects, used, surrounding_label) \
+		if surrounding_label != "" else {}
+	_build_combat_area_rows(combat_row, surrounding_row, used, parent, owner)
+
+
+static func _build_combat_area_rows(combat_row: Dictionary,
+		surrounding_row: Dictionary, used: Dictionary, parent: Node,
+		owner: Node) -> void:
 	var combat := _scene("combat", "CombatArea")
 	combat.position = _vec3(combat_row.get("centre", []))
 	combat.set_meta(PROVENANCE_META, _source(combat_row))
@@ -563,9 +598,6 @@ static func _build_combat_area_from_zones(objects: Array, used: Dictionary,
 		str((combat_row.get("raw", {}) as Dictionary).get("instance_guid", "")))
 	combat.set("CombatVolume", volume)
 	used[_row_key(combat_row)] = true
-	if surrounding_label == "":
-		return
-	var surrounding_row := _zone_by_label(objects, used, surrounding_label)
 	if surrounding_row.is_empty():
 		return
 	var surrounding := _polygon(surrounding_row, "SurroundingVolume",
@@ -620,8 +652,10 @@ static func _count_role(objects: Array, role: int) -> int:
 	return count
 
 
-static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, owner: Node,
-		captures: Dictionary, hqs: Array, hq_vehicle_links: Array) -> void:
+static func _build_vehicle(row: Dictionary, objective_shared_root: Node,
+		hq_team_roots: Array, objective_team_roots: Array,
+		emplacements_root: Node, owner: Node, captures: Dictionary, hqs: Array,
+		hq_vehicle_links: Array) -> void:
 	var raw := row.get("raw", {}) as Dictionary
 	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
 	var is_stationary := bool(row.get("stationary", false))
@@ -639,7 +673,7 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 		var valid_stationary := stationary_type >= 0
 		var stationary_name: String = ["BGM71TOW", "GDF009", "M2MG"][stationary_type] \
 			if valid_stationary else "Unassigned"
-		var stationary := _create_vehicle(row, parent, owner, selector, stationary_type,
+		var stationary := _create_vehicle(row, emplacements_root, owner, selector, stationary_type,
 			stationary_name, true, valid_stationary)
 		stationary.set_meta("bf6_vehicle_type_status",
 			"installed activity class -> SDK stationary type")
@@ -650,7 +684,7 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 	var vehicle_class_name := str(VEHICLE_CLASS_NAMES.get(selector,
 		"UnknownClass%d" % selector))
 	if vehicle_types.is_empty():
-		var unknown := _create_vehicle(row, parent, owner, selector, -1,
+		var unknown := _create_vehicle(row, objective_shared_root, owner, selector, -1,
 			"UnassignedSelector%d" % selector, false, false)
 		if nearest_flag >= 0:
 			unknown.name = _objective_vehicle_name(nearest_flag, 0,
@@ -664,7 +698,7 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 		var team_index := clampi(int((hqs[nearest_hq] as Node).get("Team")) - 1, 0, 1)
 		var vehicle_type := int(vehicle_types[team_index] if vehicle_types.size() > 1 \
 			else vehicle_types[0])
-		var vehicle := _create_vehicle(row, team_roots[team_index], owner, selector,
+		var vehicle := _create_vehicle(row, hq_team_roots[team_index], owner, selector,
 			vehicle_type, VEHICLE_NAMES[vehicle_type], false, true)
 		vehicle.set_meta("bf6_vehicle_class", vehicle_class_name)
 		vehicle.set_meta("bf6_vehicle_type_status",
@@ -679,7 +713,8 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 	for index in range(vehicle_types.size()):
 		var vehicle_type := int(vehicle_types[index])
 		var vehicle_team := index + 1 if vehicle_types.size() > 1 else 0
-		var vehicle_parent: Node = team_roots[index] if vehicle_team > 0 else parent
+		var vehicle_parent: Node = objective_team_roots[index] \
+			if vehicle_team > 0 else objective_shared_root
 		var vehicle := _create_vehicle(row, vehicle_parent, owner, selector, vehicle_type,
 			VEHICLE_NAMES[vehicle_type], false, true)
 		vehicle.set_meta("bf6_vehicle_class", vehicle_class_name)
