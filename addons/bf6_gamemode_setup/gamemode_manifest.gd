@@ -1,0 +1,123 @@
+@tool
+extends RefCounted
+
+const EXPECTED_COUNTS := {
+	"gem_hq": 2,
+	"gem_capturepoint": 9,
+	"gem_vehiclespawner": 40,
+	"gem_insertion": 16,
+	"gem_stationaryspawner": 3,
+	"gem_vehicleresupplystation": 2,
+	"gem_automaticaa": 2,
+	"gem_specialcombatarea": 1,
+	"gem_sector": 1,
+}
+
+const VEHICLE_NAMES := [
+	"Abrams", "Leopard", "Cheetah", "CV90", "Gepard", "UH60",
+	"Eurocopter", "AH6M", "AH64", "Vector", "Quadbike", "GolfCart",
+	"Marauder", "Flyer60", "JAS39", "F22", "F16", "M2Bradley", "SU57",
+	"UH60_Pax", "Marauder_Pax", "RHIB", "DirtBike", "DirtBike_Pax",
+	"AH6M_Pax", "Couch", "RCB_90_Patrol_Boat",
+	"RCB_90_Patrol_Boat_Pax", "F_74A_Seacat", "F_74A_Seacat_Pax",
+	"FA_81F_Super_Spectre", "FA_81F_Super_Spectre_Pax",
+]
+
+var error := ""
+var document: Dictionary = {}
+var entities: Array = []
+
+
+func load_file(path: String) -> bool:
+	error = ""
+	document = {}
+	entities = []
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		error = "could not read the game-data manifest"
+		return false
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	file.close()
+	if not (parsed is Dictionary):
+		error = "the game-data manifest is not valid JSON"
+		return false
+	document = parsed
+	return _validate()
+
+
+func gems(blueprint := "") -> Array:
+	var result: Array = []
+	for value in entities:
+		var row := value as Dictionary
+		if not row.has("gem_blueprint"):
+			continue
+		if blueprint == "" or str(row.get("gem_blueprint", "")) == blueprint:
+			result.append(row)
+	result.sort_custom(func(a: Dictionary, b: Dictionary): return int(a.root_order) < int(b.root_order))
+	return result
+
+
+static func vehicle_name(selector: int) -> String:
+	return VEHICLE_NAMES[selector] if selector >= 0 and selector < VEHICLE_NAMES.size() else "Vehicle%d" % selector
+
+
+func _validate() -> bool:
+	if int(document.get("schema", 0)) != 1:
+		return _fail("unsupported game-data manifest schema")
+	var source := document.get("source", {}) as Dictionary
+	if str(source.get("kind", "")) != "installed_bf6":
+		return _fail("manifest provenance is not an installed BF6 build")
+	if str(source.get("level", "")).to_lower() != "mp_isolated" or str(source.get("mode", "")).to_lower() != "conquest":
+		return _fail("manifest is not MP_Isolated Conquest")
+	entities = document.get("entities", []) as Array
+	if entities.size() != 271:
+		return _fail("manifest entity census changed: expected 271, got %d" % entities.size())
+
+	var blueprint_counts := {}
+	var root_orders := {}
+	var alternate_spawns := 0
+	var capture_shapes := 0
+	for value in entities:
+		if not (value is Dictionary):
+			return _fail("manifest contains a non-object entity")
+		var row := value as Dictionary
+		var transform := row.get("transform", []) as Array
+		if transform.size() != 12:
+			return _fail("entity %s has no exact 3x4 transform" % str(row.get("instance_guid", "?")))
+		if str(row.get("type", "")) == "AlternateSpawnEntityData":
+			alternate_spawns += 1
+		var blueprint := str(row.get("gem_blueprint", ""))
+		if blueprint == "":
+			continue
+		blueprint_counts[blueprint] = int(blueprint_counts.get(blueprint, 0)) + 1
+		var order := int(row.get("root_order", -1))
+		if order < 0 or root_orders.has(order):
+			return _fail("GEM root order is missing or duplicated")
+		root_orders[order] = true
+		if blueprint == "gem_capturepoint" and row.has("gem_shape_physics"):
+			capture_shapes += 1
+
+	if alternate_spawns != 155:
+		return _fail("spawn census changed: expected 155, got %d" % alternate_spawns)
+	if root_orders.size() != 94 or not root_orders.has(0) or not root_orders.has(93):
+		return _fail("expected all 94 authored GEM root-order slots")
+	for blueprint in EXPECTED_COUNTS:
+		var got := int(blueprint_counts.get(blueprint, 0))
+		if got != int(EXPECTED_COUNTS[blueprint]):
+			return _fail("%s census changed: expected %d, got %d" % [blueprint, EXPECTED_COUNTS[blueprint], got])
+	if capture_shapes != 9:
+		return _fail("not all capture points carry their bound game shape")
+	var hq_rows := gems("gem_hq")
+	if [int(hq_rows[0].root_order), int(hq_rows[1].root_order)] != [1, 2]:
+		return _fail("HQ authored order changed")
+	var capture_order: Array[int] = []
+	for capture in gems("gem_capturepoint"):
+		capture_order.append(int((capture as Dictionary).root_order))
+	if capture_order != [3, 4, 5, 6, 7, 44, 45, 69, 70]:
+		return _fail("capture-point authored order changed")
+	return true
+
+
+func _fail(message: String) -> bool:
+	error = message
+	return false

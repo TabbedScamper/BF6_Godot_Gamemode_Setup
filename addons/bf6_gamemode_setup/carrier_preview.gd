@@ -2,6 +2,7 @@
 extends Node3D
 
 const GEOMETRY_NAME := "Geometry"
+const CARRIER_ORANGE := Color(1.0, 0.34, 0.04)
 
 @export_file("*.glb", "*.gltf") var source_path := ""
 
@@ -27,8 +28,8 @@ func rebuild() -> String:
 	_convert_importer_meshes(geometry)
 	add_child(geometry)
 	geometry.owner = null
-	# The export contains world-space transforms. Cancel the gameplay folder's
-	# transform so both carriers remain aligned with their authored HQs.
+	# The export already contains the correct SDK-world transforms. Cancel only
+	# the gameplay folder transform so the carrier placement stays unchanged.
 	var gameplay := get_parent() as Node3D
 	if gameplay != null:
 		geometry.transform = gameplay.transform.affine_inverse()
@@ -68,7 +69,10 @@ func _strip_materials_and_physics(node: Node) -> void:
 	if not (node is MeshInstance3D):
 		return
 	var mesh_instance := node as MeshInstance3D
-	mesh_instance.material_override = null
+	var material := StandardMaterial3D.new()
+	material.albedo_color = CARRIER_ORANGE
+	material.roughness = 0.9
+	mesh_instance.material_override = material
 	for index in range(mesh_instance.get_surface_override_material_count()):
 		mesh_instance.set_surface_override_material(index, null)
 	if mesh_instance.mesh is ArrayMesh:

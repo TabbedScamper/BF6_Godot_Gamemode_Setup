@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "maps": {
+    "mp_isolated": {
+      "display_name": "Tsuru Reef",
+      "variants": {
+        "conquest": null,
+        "escalation": null,
+        "carrierstrike": {
+          "layer": "carrierstrike",
+          "file": "Tsuru Reef/Carrier_Layout_Carrierstrike.glb"
+        },
+        "customportal": {
+          "layer": "portal_aircraftcarriers_conquest",
+          "file": "Tsuru Reef/Carrier_Layout_PortalAircraftcarriersConquest.glb"
+        },
+        "customportal_carrierstrike": {
+          "layer": "portal_aircraftcarriers_carrierstrike",
+          "file": "Tsuru Reef/Carrier_Layout_PortalAircraftcarriersCarrierstrike.glb"
+        }
+      }
+    },
+    "mp_atoll": {
+      "display_name": "Wake Island",
+      "variants": {
+        "conquest": {
+          "layer": "conquest",
+          "file": "Wake Island/Carrier_Layout_Conquest.glb"
+        },
+        "breakthrough": {
+          "layer": "breakthrough",
+          "file": "Wake Island/Carrier_Layout_Breakthrough.glb"
+        },
+        "escalation": {
+          "layer": "escalation",
+          "file": "Wake Island/Carrier_Layout_Escalation.glb"
+        }
+      }
+    }
+  }
+}

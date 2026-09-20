@@ -3,7 +3,7 @@ extends Node
 
 const REPO := "TabbedScamper/BF6_Godot_Gamemode_Setup"
 const INDEX_URL := "https://raw.githubusercontent.com/%s/main/gamemode_index.json"
-const DATA_TAG := "layouts-v1.0.0"
+const DATA_TAG := "layouts-v1.1.0"
 const RELEASE_API := "https://api.github.com/repos/%s/releases/tags/%s"
 const CACHE_DIR := "user://bf6_gamemode_setup/layouts"
 const USER_AGENT := "BF6-Game-Mode-Setup"
@@ -51,7 +51,7 @@ func layouts_for(level: String) -> Array:
 func ensure_layout(entry: Dictionary) -> Dictionary:
 	error = ""
 	var result := {}
-	for part in ["scene", "carriers"]:
+	for part in ["manifest", "carriers"]:
 		var asset := str(entry.get(part, ""))
 		if asset == "":
 			continue
@@ -213,4 +213,3 @@ static func sha256_of(path: String) -> String:
 		context.update(chunk)
 	file.close()
 	return context.finish().hex_encode()
-

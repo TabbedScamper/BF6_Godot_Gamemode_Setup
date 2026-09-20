@@ -1,6 +1,8 @@
+tools/*.exe
+*.obj
+*.log
 .godot/
 *.tmp
-*.log
 .DS_Store
 Thumbs.db
 
@@ -8,4 +10,3 @@ Thumbs.db
 source_assets/
 *.glb
 *.gltf
-

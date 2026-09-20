@@ -3,6 +3,7 @@ extends EditorPlugin
 
 const Builder = preload("gamemode_builder.gd")
 const Fetch = preload("layout_fetch.gd")
+const VehicleSkin = preload("vehicle_skin.gd")
 
 var _dock: VBoxContainer
 var _map_label: Label
@@ -13,6 +14,7 @@ var _fetch: Node
 var _listed_map := ""
 var _rows: Array = []
 var _busy := false
+var _vehicle_scan_elapsed := 0.0
 
 
 func _enter_tree() -> void:
@@ -22,6 +24,7 @@ func _enter_tree() -> void:
 	_create_dock()
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock)
 	scene_changed.connect(_on_scene_changed)
+	set_process(true)
 	_refresh_map()
 
 
@@ -86,6 +89,21 @@ func _on_scene_changed(_scene: Node) -> void:
 	_layout.clear()
 	_layout.add_item("Off")
 	_refresh_map()
+	call_deferred("_sync_vehicle_skins")
+
+
+func _process(delta: float) -> void:
+	_vehicle_scan_elapsed += delta
+	if _vehicle_scan_elapsed < 0.25:
+		return
+	_vehicle_scan_elapsed = 0.0
+	_sync_vehicle_skins()
+
+
+func _sync_vehicle_skins() -> void:
+	var root := _root()
+	if root != null:
+		VehicleSkin.sync_tree(root)
 
 
 func _refresh_map() -> void:
@@ -140,7 +158,7 @@ func _on_layout_selected(index: int) -> void:
 		_status.text = "Layout download failed: " + str(_fetch.error)
 	else:
 		_status.text = Builder.build(_root(), str(entry.get("key", "")), paths, false)
-		if _status.text.begins_with("Tsuru Reef Conquest built"):
+		if _status.text.begins_with("Tsuru Reef Conquest built") or _status.text.begins_with("Built "):
 			get_editor_interface().mark_scene_as_unsaved()
 			var node := Builder.find_build(_root(), str(entry.get("key", "")))
 			if node != null:
@@ -160,6 +178,5 @@ func _clear_cache() -> void:
 
 
 func _update_cache_button() -> void:
-	var bytes := _fetch.cache_bytes() if _fetch != null else 0
+	var bytes: int = int(_fetch.cache_bytes()) if _fetch != null else 0
 	_clear_button.text = "Clear downloaded layouts" if bytes == 0 else "Clear downloaded layouts (%s)" % String.humanize_size(bytes)
-
