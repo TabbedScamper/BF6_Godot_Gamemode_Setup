@@ -2,6 +2,8 @@
 extends RefCounted
 
 const ADDONS_META := "bf6_andy_template_addons"
+const TEAM_SWITCH_MANNEQUIN_OFFSET := Vector3(0.42244, 0.0, -0.332597)
+const TEAM_SWITCH_INTERACT_OFFSET := Vector3(0.0, 1.036, 0.0860289)
 const SCENE_PATHS := {
 	"ai_spawner": "res://objects/gameplay/ai/AI_Spawner.tscn",
 	"interact_point": "res://objects/gameplay/common/InteractPoint.tscn",
@@ -25,13 +27,17 @@ static func add_to(mode_root: Node, scene_root: Node) -> Dictionary:
 		return {"message": problem, "node": null, "added": 0}
 
 	var added := 0
+	var updated := 0
 	var first_added: Node = null
-	if mode_root.get_node_or_null("TeamSwitcher") == null:
-		var team_switcher := _make_team_switcher()
+	var team_switcher := mode_root.get_node_or_null("TeamSwitcher")
+	if team_switcher == null:
+		team_switcher = _make_team_switcher()
 		mode_root.add_child(team_switcher)
 		_assign_owners(team_switcher, scene_root)
 		first_added = team_switcher
 		added += 1
+	else:
+		updated += _sync_team_switcher(team_switcher)
 
 	if mode_root.get_node_or_null("AI Spawns") == null:
 		var ai_spawns := _make_ai_spawns(mode_root)
@@ -49,16 +55,25 @@ static func add_to(mode_root: Node, scene_root: Node) -> Dictionary:
 			first_added = end_camera
 		added += 1
 
-	if added == 0:
+	if added == 0 and updated == 0:
 		return {
 			"message": "Andys Template Addons are already present; nothing was changed.",
 			"node": mode_root.get_node_or_null("TeamSwitcher"),
 			"added": 0,
+			"changed": false,
+		}
+	if added == 0:
+		return {
+			"message": "Andys Template Addons updated: restored the TeamSwitcher child offsets.",
+			"node": team_switcher,
+			"added": 0,
+			"changed": true,
 		}
 	return {
 		"message": "Andys Template Addons added at (0, 0, 0): TeamSwitcher, AI Spawns, and EndGameCamera.",
 		"node": first_added,
 		"added": added,
+		"changed": true,
 	}
 
 
@@ -73,12 +88,35 @@ static func _make_team_switcher() -> Node3D:
 		root.add_child(switch)
 
 		var mannequin := _instantiate("mannequin", "MannequinRotation_01")
+		mannequin.position = TEAM_SWITCH_MANNEQUIN_OFFSET
 		switch.add_child(mannequin)
 
 		var interact := _instantiate("interact_point", "InteractPoint")
+		interact.position = TEAM_SWITCH_INTERACT_OFFSET
 		interact.set("ObjId", 998 + index)
 		switch.add_child(interact)
 	return root
+
+
+static func _sync_team_switcher(root: Node) -> int:
+	var changed := 0
+	for switch_index in range(1, 3):
+		var switch := root.get_node_or_null("Switch%d" % switch_index)
+		if switch == null:
+			continue
+		var mannequin := switch.get_node_or_null("MannequinRotation_01") as Node3D
+		if mannequin != null and not mannequin.position.is_equal_approx(TEAM_SWITCH_MANNEQUIN_OFFSET):
+			mannequin.position = TEAM_SWITCH_MANNEQUIN_OFFSET
+			changed += 1
+		var interact := switch.get_node_or_null("InteractPoint") as Node3D
+		if interact != null:
+			if not interact.position.is_equal_approx(TEAM_SWITCH_INTERACT_OFFSET):
+				interact.position = TEAM_SWITCH_INTERACT_OFFSET
+				changed += 1
+			if int(interact.get("ObjId")) != 997 + switch_index:
+				interact.set("ObjId", 997 + switch_index)
+				changed += 1
+	return changed
 
 
 static func _make_ai_spawns(mode_root: Node) -> Node3D:

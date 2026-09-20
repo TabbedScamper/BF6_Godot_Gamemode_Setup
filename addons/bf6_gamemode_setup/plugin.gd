@@ -220,7 +220,7 @@ func _add_template_addons() -> void:
 		return
 	var result := TemplateAddons.add_to(target, root)
 	_status.text = str(result.get("message", "Template addons could not be added."))
-	if int(result.get("added", 0)) <= 0:
+	if not bool(result.get("changed", false)):
 		return
 	get_editor_interface().mark_scene_as_unsaved()
 	var added_node := result.get("node") as Node

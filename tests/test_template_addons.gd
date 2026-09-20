@@ -32,15 +32,23 @@ func _init() -> void:
 		if node == null or int(node.get("ObjId")) != int(expected_ids[path]):
 			_fail("Missing or incorrect template node: %s" % path)
 			return
-		if node is Node3D and (node as Node3D).position != Vector3.ZERO:
-			_fail("Template node is not at the origin: %s" % path)
-			return
 
 	for path in ["TeamSwitcher", "TeamSwitcher/Switch1", "TeamSwitcher/Switch2",
 			"AI Spawns", "EndGameCamera"]:
 		var node := mode.get_node(path) as Node3D
 		if node.position != Vector3.ZERO:
 			_fail("Template branch is not at the origin: %s" % path)
+			return
+
+	for switch_index in range(1, 3):
+		var switch_path := "TeamSwitcher/Switch%d" % switch_index
+		var mannequin := mode.get_node("%s/MannequinRotation_01" % switch_path) as Node3D
+		var interact := mode.get_node("%s/InteractPoint" % switch_path) as Node3D
+		if not mannequin.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_MANNEQUIN_OFFSET):
+			_fail("Switch %d mannequin offset is incorrect" % switch_index)
+			return
+		if not interact.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_INTERACT_OFFSET):
+			_fail("Switch %d interaction offset is incorrect" % switch_index)
 			return
 
 	for team in range(1, 3):
@@ -50,8 +58,21 @@ func _init() -> void:
 			_fail("Team %d AI spawns were not linked to its HQ" % team)
 			return
 
+	var existing_mannequin := mode.get_node("TeamSwitcher/Switch1/MannequinRotation_01") as Node3D
+	var existing_interact := mode.get_node("TeamSwitcher/Switch1/InteractPoint") as Node3D
+	existing_mannequin.position = Vector3.ZERO
+	existing_interact.position = Vector3.ZERO
+	var repaired := TemplateAddons.add_to(mode, root)
+	if int(repaired.get("added", -1)) != 0 or not bool(repaired.get("changed", false)):
+		_fail("Existing TeamSwitcher offsets were not repaired in place")
+		return
+	if not existing_mannequin.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_MANNEQUIN_OFFSET) \
+			or not existing_interact.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_INTERACT_OFFSET):
+		_fail("Repaired TeamSwitcher offsets are incorrect")
+		return
+
 	var repeated := TemplateAddons.add_to(mode, root)
-	if int(repeated.get("added", -1)) != 0:
+	if int(repeated.get("added", -1)) != 0 or bool(repeated.get("changed", true)):
 		_fail("Second import was not idempotent")
 		return
 
