@@ -72,6 +72,14 @@ func _init() -> void:
 						if built.get_node_or_null("Zones/OutOfBounds/AreaTrigger_OutOfBounds_Cliff") == null:
 							failures += 1
 							print("FAIL ", filename, ": Capstone cliff out-of-bounds trigger missing")
+						_check_combat_area(built, filename,
+							"fd455bd8-e5f7-4bec-8fd7-cb171926fa58",
+							"7da73b7d-0f84-4842-9afc-d9fef5abde13")
+					if level == "mp_atoll" and mode == "conquest":
+						_check_atoll_flag_mapping(built, manifest, filename)
+						_check_atoll_hq_areas(built, filename)
+						_check_combat_area(built, filename,
+							"0139a1cf-8515-44a9-b56e-adf3bbe57833")
 					var generated_name := _find_generated_name(built)
 					if generated_name != "":
 						failures += 1
@@ -166,3 +174,48 @@ func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
 		(seen[selector] as Array).append(int(node.get("VehicleType")))
 	for child in node.get_children():
 		_collect_vehicle_types(child, seen)
+
+
+func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: String) -> void:
+	var corrected := {0: 3, 1: 4, 2: 0, 3: 2, 4: 5, 5: 1, 6: 6}
+	for value in manifest.get("objects", []):
+		var row := value as Dictionary
+		if int(row.get("role", 0)) != 2:
+			continue
+		var source_flag := int(row.get("flag", -1))
+		var target_flag := int(corrected.get(source_flag, source_flag))
+		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + target_flag)) as Node3D
+		var expected := Vector3(float(row.centre[0]), float(row.centre[1]), float(row.centre[2]))
+		if capture == null or not capture.position.is_equal_approx(expected):
+			failures += 1
+			print("FAIL ", filename, ": Atoll flag ", String.chr(65 + source_flag),
+				" must map to ", String.chr(65 + target_flag))
+
+
+func _check_atoll_hq_areas(root: Node, filename: String) -> void:
+	var expected_guids := [
+		"98bff49d-cfdf-4e6a-947f-f7858a4be14d",
+		"af1d74e3-82f6-42c8-b9ed-c13216c6df5f",
+	]
+	for team_index in range(2):
+		var hq := root.get_node_or_null("TEAM_%d_HQ" % (team_index + 1))
+		var area: Node = hq.get("HQArea") if hq != null else null
+		if area == null or area.get_parent() != hq or \
+				str(area.get_meta("bf6_source_instance_guid", "")) != expected_guids[team_index]:
+			failures += 1
+			print("FAIL ", filename, ": Team ", team_index + 1,
+				" HQ does not own its retail base zone")
+
+
+func _check_combat_area(root: Node, filename: String, combat_guid: String,
+		surrounding_guid := "") -> void:
+	var combat := root.get_node_or_null("Zones/CombatArea")
+	var volume: Node = combat.get("CombatVolume") if combat != null else null
+	if volume == null or str(volume.get_meta("bf6_source_instance_guid", "")) != combat_guid:
+		failures += 1
+		print("FAIL ", filename, ": CombatArea does not own the retail combat zone")
+	if surrounding_guid != "":
+		var surrounding: Node = combat.get("SurroundingVolume") if combat != null else null
+		if surrounding == null or str(surrounding.get_meta("bf6_source_instance_guid", "")) != surrounding_guid:
+			failures += 1
+			print("FAIL ", filename, ": CombatArea does not own the retail surrounding zone")

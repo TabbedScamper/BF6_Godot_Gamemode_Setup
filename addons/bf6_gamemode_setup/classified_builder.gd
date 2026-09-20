@@ -56,6 +56,17 @@ const VEHICLE_CATEGORY_TYPES := {
 	22: [30],
 	23: [31],
 }
+# The published v1.2.0 Atoll manifest carries the first recovered lettering
+# table. Retail review corrected those labels without changing any transforms.
+const ATOLL_CONQUEST_FLAG_REMAP := {
+	0: 3, # A -> D
+	1: 4, # B -> E
+	2: 0, # C -> A
+	3: 2, # D -> C
+	4: 5, # E -> F
+	5: 1, # F -> B
+	6: 6, # G -> G
+}
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
@@ -137,6 +148,15 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		hqs.append(hq)
 		progress_current += 1
 		_report(progress, "Creating headquarters…", progress_current, progress_total)
+	var claimed_zone_sources := {}
+	if mode == "conquest" and _count_role(objects, 3) > hqs.size():
+		claimed_zone_sources = _assign_hq_areas(objects, hqs, map_root)
+	if level == "mp_atoll" and mode == "conquest":
+		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
+			map_root, "Zone 2")
+	elif level == "mp_capstone" and mode == "conquest":
+		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
+			map_root, "Zone 4", "Zone 2")
 
 	var loose_spawns: Array = []
 	var spawn_counts := {}
@@ -243,7 +263,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		match int(row.get("role", 0)):
 			3:
-				_add_polygon(row, zones_root, map_root, Color(0.55, 0.75, 0.95, 0.35))
+				if not claimed_zone_sources.has(_row_key(row)):
+					_add_polygon(row, zones_root, map_root, Color(0.55, 0.75, 0.95, 0.35))
 			4:
 				var combat := _scene("combat", str(row.get("label", "Combat Area")))
 				combat.position = _vec3(row.get("centre", []))
@@ -301,6 +322,8 @@ static func _report(progress: Callable, message: String, current: int, total: in
 
 static func _normalized_flag(level: String, mode: String, row: Dictionary) -> int:
 	var flag := int(row.get("flag", -1))
+	if level == "mp_atoll" and mode == "conquest":
+		return int(ATOLL_CONQUEST_FLAG_REMAP.get(flag, flag))
 	if level != "mp_capstone" or mode != "conquest":
 		return flag
 	var raw := row.get("raw", {}) as Dictionary
@@ -337,6 +360,112 @@ static func _build_capstone_out_of_bounds(objects: Array, parent: Node,
 		area.position -= trigger.position
 		trigger.set("Area", area)
 		return
+
+
+static func _assign_hq_areas(objects: Array, hqs: Array, owner: Node) -> Dictionary:
+	var used := {}
+	for hq_index in range(hqs.size()):
+		var hq := hqs[hq_index] as Node3D
+		var best: Dictionary = {}
+		var best_area := INF
+		for value in objects:
+			var row := value as Dictionary
+			if int(row.get("role", 0)) != 3 or used.has(_row_key(row)):
+				continue
+			if not _polygon_contains_xz(row.get("world_points", []) as Array, hq.position):
+				continue
+			var area_m2 := float(row.get("area_m2", INF))
+			if area_m2 < best_area:
+				best = row
+				best_area = area_m2
+		if best.is_empty():
+			continue
+		var area := _polygon(best, "HQArea_Team%d" % (hq_index + 1),
+			Color(0.0, 0.53, 0.99, 0.42) if hq_index == 0 else Color(0.95, 0.23, 0.0, 0.42))
+		hq.add_child(area)
+		area.owner = owner
+		area.transform = hq.transform.affine_inverse() * area.transform
+		area.set_meta("bf6_source_instance_guid",
+			str((best.get("raw", {}) as Dictionary).get("instance_guid", "")))
+		hq.set("HQArea", area)
+		used[_row_key(best)] = true
+	return used
+
+
+static func _build_combat_area_from_zones(objects: Array, used: Dictionary,
+		parent: Node, owner: Node, combat_label: String,
+		surrounding_label := "") -> void:
+	var combat_row := _zone_by_label(objects, used, combat_label)
+	if combat_row.is_empty():
+		return
+	var combat := _scene("combat", "CombatArea")
+	combat.position = _vec3(combat_row.get("centre", []))
+	combat.set_meta(PROVENANCE_META, _source(combat_row))
+	parent.add_child(combat)
+	combat.owner = owner
+	var volume := _polygon(combat_row, "CombatVolume", Color(0.2, 0.75, 0.3, 0.3))
+	combat.add_child(volume)
+	volume.owner = owner
+	volume.position -= combat.position
+	volume.set_meta("bf6_source_instance_guid",
+		str((combat_row.get("raw", {}) as Dictionary).get("instance_guid", "")))
+	combat.set("CombatVolume", volume)
+	used[_row_key(combat_row)] = true
+	if surrounding_label == "":
+		return
+	var surrounding_row := _zone_by_label(objects, used, surrounding_label)
+	if surrounding_row.is_empty():
+		return
+	var surrounding := _polygon(surrounding_row, "SurroundingVolume",
+		Color(0.2, 0.55, 0.95, 0.22))
+	combat.add_child(surrounding)
+	surrounding.owner = owner
+	surrounding.position -= combat.position
+	surrounding.set_meta("bf6_source_instance_guid",
+		str((surrounding_row.get("raw", {}) as Dictionary).get("instance_guid", "")))
+	combat.set("SurroundingVolume", surrounding)
+	used[_row_key(surrounding_row)] = true
+
+
+static func _zone_by_label(objects: Array, used: Dictionary, label: String) -> Dictionary:
+	for value in objects:
+		var row := value as Dictionary
+		if int(row.get("role", 0)) == 3 and str(row.get("label", "")) == label \
+				and not used.has(_row_key(row)):
+			return row
+	return {}
+
+
+static func _polygon_contains_xz(points: Array, point: Vector3) -> bool:
+	var count := int(points.size() / 3)
+	if count < 3:
+		return false
+	var inside := false
+	var previous := count - 1
+	for index in range(count):
+		var x := float(points[index * 3])
+		var z := float(points[index * 3 + 2])
+		var previous_x := float(points[previous * 3])
+		var previous_z := float(points[previous * 3 + 2])
+		if (z > point.z) != (previous_z > point.z) and \
+				point.x < (previous_x - x) * (point.z - z) / (previous_z - z) + x:
+			inside = not inside
+		previous = index
+	return inside
+
+
+static func _row_key(row: Dictionary) -> String:
+	var raw := row.get("raw", {}) as Dictionary
+	return "%s#%s#%s" % [str(raw.get("layer", "")), str(raw.get("instance", "")),
+		str(raw.get("instance_guid", ""))]
+
+
+static func _count_role(objects: Array, role: int) -> int:
+	var count := 0
+	for value in objects:
+		if int((value as Dictionary).get("role", 0)) == role:
+			count += 1
+	return count
 
 
 static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, owner: Node,

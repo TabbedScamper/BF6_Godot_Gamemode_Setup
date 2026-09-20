@@ -107,7 +107,11 @@ int main(int argc, char** argv)
                 }
             }
         }
-        static const int retail_flag[] = { 1, 3, 6, 5, 4, 2, 0 };
+        /* Final retail review, expressed against classifier slots after the
+         * missing G polygon is inserted. This yields the same corrected scene
+         * lettering as remapping the v1.2.0 manifest A-D, B-E, C-A, D-C,
+         * E-F, F-B, G-G. */
+        static const int retail_flag[] = { 4, 2, 6, 1, 5, 0, 3 };
         for (int i = 0; i < count; ++i) {
             bf6_gm_object& object = objects[(size_t)i];
             if ((object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_SPAWN) ||
