@@ -200,12 +200,12 @@ func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
 
 func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: String) -> void:
 	var retail_guids := {
-		0: "5119911c-3e48-4f74-adc3-296a5fd026af", # A, GEM root 3
-		1: "f82ac26e-80d4-441b-8487-509af6833c37", # B, GEM root 5
-		2: "e931291b-2785-47b1-b67e-72045e63a9b1", # C, GEM root 23
-		3: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4", # D, GEM root 6
-		4: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2", # E, GEM root 4
-		5: "0110efce-cec2-4619-ab13-59957dcf397c", # F, GEM root 2
+		0: "0110efce-cec2-4619-ab13-59957dcf397c", # A, GEM root 2
+		1: "5119911c-3e48-4f74-adc3-296a5fd026af", # B, GEM root 3
+		2: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2", # C, GEM root 4
+		3: "f82ac26e-80d4-441b-8487-509af6833c37", # D, GEM root 5
+		4: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4", # E, GEM root 6
+		5: "e931291b-2785-47b1-b67e-72045e63a9b1", # F, GEM root 23
 		6: "dc35642b-df23-44be-b375-222ada842bf7", # G, GEM root 24
 	}
 	var seen := 0

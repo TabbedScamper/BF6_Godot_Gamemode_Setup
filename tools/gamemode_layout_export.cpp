@@ -69,8 +69,9 @@ int main(int argc, char** argv)
     /* Wake Island's authored objective letters do not follow world X order.
      * Retain the classifier's geometry match, including the large G polygon,
      * then join each polygon back to its nearest installed gem_capturepoint.
-     * Stable GEM root identities determine the retail letter; world ordering
-     * and the classifier's provisional A/B/C labels do not. */
+     * The installed conquest partition stores the objectives in ascending GEM
+     * root order (2, 3, 4, 5, 6, 23, 24), which determines A-G. World ordering,
+     * record iteration order, and the classifier's provisional labels do not. */
     std::vector<std::string> adjusted_labels((size_t)count);
     if (!std::strcmp(argv[2], "mp_atoll") && !std::strcmp(argv[3], "conquest")) {
         int g_index = -1;
@@ -109,12 +110,12 @@ int main(int argc, char** argv)
         }
         auto retail_flag_for_root = [](int root) {
             switch (root) {
-                case 3: return 0;  // A
-                case 5: return 1;  // B
-                case 23: return 2; // C
-                case 6: return 3;  // D
-                case 4: return 4;  // E
-                case 2: return 5;  // F
+                case 2: return 0;  // A
+                case 3: return 1;  // B
+                case 4: return 2;  // C
+                case 5: return 3;  // D
+                case 6: return 4;  // E
+                case 23: return 5; // F
                 case 24: return 6; // G
                 default: return -1;
             }

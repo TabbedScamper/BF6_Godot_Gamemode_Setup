@@ -4,12 +4,12 @@ extends SceneTree
 const Fetch = preload("res://addons/bf6_gamemode_setup/layout_fetch.gd")
 const Builder = preload("res://addons/bf6_gamemode_setup/gamemode_builder.gd")
 const EXPECTED_GUIDS := {
-	0: "5119911c-3e48-4f74-adc3-296a5fd026af",
-	1: "f82ac26e-80d4-441b-8487-509af6833c37",
-	2: "e931291b-2785-47b1-b67e-72045e63a9b1",
-	3: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4",
-	4: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2",
-	5: "0110efce-cec2-4619-ab13-59957dcf397c",
+	0: "0110efce-cec2-4619-ab13-59957dcf397c",
+	1: "5119911c-3e48-4f74-adc3-296a5fd026af",
+	2: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2",
+	3: "f82ac26e-80d4-441b-8487-509af6833c37",
+	4: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4",
+	5: "e931291b-2785-47b1-b67e-72045e63a9b1",
 	6: "dc35642b-df23-44be-b375-222ada842bf7",
 }
 
