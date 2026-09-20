@@ -10,6 +10,9 @@ var _map_label: Label
 var _layout: OptionButton
 var _status: Label
 var _clear_button: Button
+var _progress_box: VBoxContainer
+var _progress_label: Label
+var _progress_bar: ProgressBar
 var _fetch: Node
 var _listed_map := ""
 var _rows: Array = []
@@ -62,6 +65,16 @@ func _create_dock() -> void:
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.custom_minimum_size = Vector2(220, 0)
 	_dock.add_child(_status)
+	_progress_box = VBoxContainer.new()
+	_progress_box.visible = false
+	_progress_label = Label.new()
+	_progress_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_progress_box.add_child(_progress_label)
+	_progress_bar = ProgressBar.new()
+	_progress_bar.custom_minimum_size = Vector2(220, 18)
+	_progress_bar.show_percentage = true
+	_progress_box.add_child(_progress_bar)
+	_dock.add_child(_progress_box)
 	_clear_button = Button.new()
 	_clear_button.text = "Clear downloaded layouts"
 	_clear_button.pressed.connect(_clear_cache)
@@ -157,7 +170,10 @@ func _on_layout_selected(index: int) -> void:
 	if paths.is_empty():
 		_status.text = "Layout download failed: " + str(_fetch.error)
 	else:
-		_status.text = Builder.build(_root(), str(entry.get("key", "")), paths, false)
+		_progress_box.visible = true
+		_status.text = Builder.build(_root(), str(entry.get("key", "")), paths, false,
+			_report_build_progress)
+		_progress_box.visible = false
 		if _status.text.begins_with("Tsuru Reef Conquest built") or _status.text.begins_with("Built "):
 			get_editor_interface().mark_scene_as_unsaved()
 			var node := Builder.find_build(_root(), str(entry.get("key", "")))
@@ -167,6 +183,16 @@ func _on_layout_selected(index: int) -> void:
 	_layout.disabled = false
 	_busy = false
 	_update_cache_button()
+
+
+func _report_build_progress(message: String, current: int, total: int) -> void:
+	_progress_label.text = message
+	_progress_bar.max_value = maxi(total, 1)
+	_progress_bar.value = clampi(current, 0, maxi(total, 1))
+	# Scene construction is editor-thread-only. Force a UI repaint at each
+	# checkpoint so large layouts never look like an unexplained lockup.
+	DisplayServer.process_events()
+	RenderingServer.force_draw(true)
 
 
 func _clear_cache() -> void:
