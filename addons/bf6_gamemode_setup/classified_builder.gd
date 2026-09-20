@@ -56,17 +56,6 @@ const VEHICLE_CATEGORY_TYPES := {
 	22: [30],
 	23: [31],
 }
-# The published v1.2.0 Atoll manifest carries the first recovered lettering
-# table. Retail review corrected those labels without changing any transforms.
-const ATOLL_CONQUEST_FLAG_REMAP := {
-	0: 3, # A -> D
-	1: 4, # B -> E
-	2: 0, # C -> A
-	3: 2, # D -> C
-	4: 5, # E -> F
-	5: 1, # F -> B
-	6: 6, # G -> G
-}
 # Some retail modes override the generic spawn category for an individual pad.
 # Key these corrections by the installed instance identity so a map-specific
 # choice never changes legitimate uses of the same category elsewhere.
@@ -333,8 +322,6 @@ static func _report(progress: Callable, message: String, current: int, total: in
 
 static func _normalized_flag(level: String, mode: String, row: Dictionary) -> int:
 	var flag := int(row.get("flag", -1))
-	if level == "mp_atoll" and mode == "conquest":
-		return int(ATOLL_CONQUEST_FLAG_REMAP.get(flag, flag))
 	if level != "mp_capstone" or mode != "conquest":
 		return flag
 	var raw := row.get("raw", {}) as Dictionary

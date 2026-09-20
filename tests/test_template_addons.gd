@@ -50,6 +50,10 @@ func _init() -> void:
 		if not interact.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_INTERACT_OFFSET):
 			_fail("Switch %d interaction offset is incorrect" % switch_index)
 			return
+	var fixed_camera := mode.get_node("EndGameCamera/FixedCamera") as Node3D
+	if not fixed_camera.rotation.is_equal_approx(TemplateAddons.FIXED_CAMERA_ROTATION):
+		_fail("FixedCamera model does not match the creator's 180-degree local orientation")
+		return
 
 	for team in range(1, 3):
 		var ai := mode.get_node("AI Spawns/AI_Spawner - Team%d" % team)
@@ -62,6 +66,7 @@ func _init() -> void:
 	var existing_interact := mode.get_node("TeamSwitcher/Switch1/InteractPoint") as Node3D
 	existing_mannequin.position = Vector3.ZERO
 	existing_interact.position = Vector3.ZERO
+	fixed_camera.rotation = Vector3.ZERO
 	var repaired := TemplateAddons.add_to(mode, root)
 	if int(repaired.get("added", -1)) != 0 or not bool(repaired.get("changed", false)):
 		_fail("Existing TeamSwitcher offsets were not repaired in place")
@@ -69,6 +74,9 @@ func _init() -> void:
 	if not existing_mannequin.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_MANNEQUIN_OFFSET) \
 			or not existing_interact.position.is_equal_approx(TemplateAddons.TEAM_SWITCH_INTERACT_OFFSET):
 		_fail("Repaired TeamSwitcher offsets are incorrect")
+		return
+	if not fixed_camera.rotation.is_equal_approx(TemplateAddons.FIXED_CAMERA_ROTATION):
+		_fail("Existing FixedCamera orientation was not repaired")
 		return
 
 	var repeated := TemplateAddons.add_to(mode, root)
