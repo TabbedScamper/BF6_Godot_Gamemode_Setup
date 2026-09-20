@@ -25,8 +25,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_abbasid_conquest.layout.json",
-                                                                  "bytes":  119591,
-                                                                  "sha256":  "2c364f223d539475affabcd4b37274e9259e7e8aefe4e69c61990cac87f8a6cf"
+                                                                  "bytes":  119589,
+                                                                  "sha256":  "f8267188304134e7d5548669b41b41231d201af5e775eb6a22086b58c43ac096"
                                                               }
                                                           ]
                                             },
@@ -193,8 +193,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_aftermath_conquest.layout.json",
-                                                                    "bytes":  112318,
-                                                                    "sha256":  "6e16c65342f37de3e4ba9fa8f86d9259ac35e3a49d35c8664628bebbe00aba32"
+                                                                    "bytes":  112316,
+                                                                    "sha256":  "5a29ee3b3ef8a1d2e3eace73c3eaf294cdd076fccb1d0d8e5f148e267811ab30"
                                                                 }
                                                             ]
                                               },
@@ -333,8 +333,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_aftermath_portal_conquest.layout.json",
-                                                                           "bytes":  116693,
-                                                                           "sha256":  "2841ec298161d32d2014d956c773b8081182c739a361950722c8c51d405b4aed"
+                                                                           "bytes":  116691,
+                                                                           "sha256":  "03dcf35228350cb8d9f2b1b5047187250ea2584f9f000587a6289eee4b2cac9d"
                                                                        }
                                                                    ]
                                                      },
@@ -646,7 +646,7 @@
                                                                {
                                                                    "name":  "mp_badlands_conquest.layout.json",
                                                                    "bytes":  127690,
-                                                                   "sha256":  "55f298bcc0b8dfcc4f41e4bd006a6231c4fd32629f0f145d6d8aba41ec8003cf"
+                                                                   "sha256":  "85e9b8048d63a000192415a81ba770e4cb13596e8e2bff6ec9556e1563c8ffa1"
                                                                }
                                                            ]
                                              },
@@ -771,8 +771,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_battery_conquest.layout.json",
-                                                                  "bytes":  110062,
-                                                                  "sha256":  "768047c9cfe20a7691015df2f3be5930f3cf7b9c9be80744d06ff568c0226cbf"
+                                                                  "bytes":  110060,
+                                                                  "sha256":  "e5c35f12c40f48bb41e0bd009c8389895574b4e4ed6bc71b494fc752d05e44b0"
                                                               }
                                                           ]
                                             },
@@ -939,8 +939,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_capstone_conquest.layout.json",
-                                                                   "bytes":  152237,
-                                                                   "sha256":  "14ff4a5c8e81237cb6d2f11ae988128a66c81f8a2212b7d07cdde15dbca06bc0"
+                                                                   "bytes":  152236,
+                                                                   "sha256":  "d0762056197905c9e285068ec47c03a4ac7b328c309730dc4df34c0f7a1b1ec0"
                                                                }
                                                            ]
                                              },
@@ -1093,8 +1093,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_contaminated_conquest.layout.json",
-                                                                       "bytes":  166209,
-                                                                       "sha256":  "442c5216229fa452730ee30c6c57d0408fd2df437f28662acaf6a8f4f8d7a757"
+                                                                       "bytes":  166208,
+                                                                       "sha256":  "e0fbff7f989c6c9d4a7cebadae0b9857a12eb94700cb849d032ce8f7d07579cf"
                                                                    }
                                                                ]
                                                  },
@@ -1275,8 +1275,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_dumbo_conquest.layout.json",
-                                                                "bytes":  178785,
-                                                                "sha256":  "7dee0ce73a821cff962e0b00d7803527c6342d0245b478b431e52ff6ae47041e"
+                                                                "bytes":  178775,
+                                                                "sha256":  "c748d6996ade21e6c34c910121a5b6300082e0412a5efe0c31968ea316d8d2a3"
                                                             }
                                                         ]
                                           },
@@ -1430,7 +1430,7 @@
                                                                {
                                                                    "name":  "mp_eastwood_conquest.layout.json",
                                                                    "bytes":  141831,
-                                                                   "sha256":  "45b7b0c668aedce1b7bb1e13e35817e39fd362e73cfefdc8b7282f9e079457b5"
+                                                                   "sha256":  "bcf5b23cb700ade5e4bf2edc2fcc54135ff580fc1cd6c3c5f826ca6515f4ec72"
                                                                }
                                                            ]
                                              },
@@ -1584,7 +1584,7 @@
                                                                 {
                                                                     "name":  "mp_firestorm_conquest.layout.json",
                                                                     "bytes":  136138,
-                                                                    "sha256":  "ace2e36ff570a9411cada249c3d661b1e9fa7ee2a0622935314d148777f95e95"
+                                                                    "sha256":  "aef1d499153c38282823b3ad9227a0252e142dd59e08228fd0c98fe2e8a170f6"
                                                                 }
                                                             ]
                                               },
@@ -1710,7 +1710,7 @@
                                                                     {
                                                                         "name":  "mp_golmudrailway_conquest.layout.json",
                                                                         "bytes":  195276,
-                                                                        "sha256":  "ed3fdd96d043fabdf11d11888722f3d2a5160fa1f0105763891b4ac7c01ef11c"
+                                                                        "sha256":  "229aa737e76cf225f3321887ff22c8c3fe87d37d4ccbac343612b6e2c63813f3"
                                                                     }
                                                                 ]
                                                   },
@@ -1842,7 +1842,7 @@
                                                                {
                                                                    "name":  "mp_isolated_conquest.layout.json",
                                                                    "bytes":  162711,
-                                                                   "sha256":  "e2fba2886ce4a7b07bf668ef745bf48b1ae8f41b1103db6a100680248ff35c53"
+                                                                   "sha256":  "2471b9786c88522dec7d4fefdd126ae5eef80fa5a316d70c4c839dd07f5d9517"
                                                                }
                                                            ]
                                              },
@@ -2219,8 +2219,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_plaza_conquest.layout.json",
-                                                                "bytes":  78891,
-                                                                "sha256":  "31a8a9449bef8b6299b277b964dc23da9a4486eab853e9bd35b4db5b32eda7bd"
+                                                                "bytes":  78889,
+                                                                "sha256":  "c1665852214833a82130c42cb0c0417323ce45b68013109b85a955c6fef23b65"
                                                             }
                                                         ]
                                           },
@@ -2359,8 +2359,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_subsurface_conquest.layout.json",
-                                                                     "bytes":  99918,
-                                                                     "sha256":  "ece00e9886e28c8c621305b5260e13afb6e7c00630d027a34c325e49649e6a41"
+                                                                     "bytes":  99916,
+                                                                     "sha256":  "60413b61360e5585127dbbbb430b3f012be05119ad64f5e58b65a563a46d2aa8"
                                                                  }
                                                              ]
                                                },
@@ -2500,7 +2500,7 @@
                                                                {
                                                                    "name":  "mp_tungsten_conquest.layout.json",
                                                                    "bytes":  144127,
-                                                                   "sha256":  "8116ba12f23548b60b27e667eea5d7862be7195157db4d7183cf16bf5dde4f64"
+                                                                   "sha256":  "ad82fdf291c1932ed2e1941ff8f3ae3538252cecdcfa858b0e3ee58e2409dd54"
                                                                }
                                                            ]
                                              },
