@@ -35,6 +35,29 @@ static void floats(std::ostream& out, const float* value, int count)
     out << ']';
 }
 
+static void raw_element(std::ostream& out, const bf6_gm_entity& r)
+{
+    out << "{\"gem\":"; text(out, r.gem_link);
+    out << ",\"selector\":" << r.gem_value
+        << ",\"team\":" << r.team
+        << ",\"enabled\":" << (r.enabled ? "true" : "false")
+        << ",\"root_order\":" << r.root_order
+        << ",\"instance\":" << r.instance
+        << ",\"instance_guid\":"; text(out, r.instance_guid);
+    out << ",\"layer\":"; text(out, r.layer);
+    out << ",\"partition\":"; text(out, r.partition);
+    out << ",\"transform\":"; floats(out, r.xform, 12);
+    out << ",\"shape\":"; text(out, r.gem_shape);
+    out << ",\"shape_property\":" << r.gem_shape_property
+        << ",\"links\":[";
+    for (int i = 0; i < r.link_count; ++i) {
+        if (i) out << ',';
+        out << "{\"target\":" << r.links[i]
+            << ",\"source_field\":" << r.link_fields[i] << '}';
+    }
+    out << "]}";
+}
+
 static int conquest_flag_for_root(const char* level, int root)
 {
     struct Mapping { const char* level; int root; int flag; };
@@ -258,7 +281,7 @@ int main(int argc, char** argv)
     std::ofstream out(argv[4], std::ios::binary);
     if (!out) { std::fprintf(stderr, "cannot write %s\n", argv[4]); bf6_close(context); return 1; }
     out << std::setprecision(9);
-    out << "{\n  \"schema\":2,\n  \"source\":{\"kind\":\"installed_bf6\",\"level\":";
+    out << "{\n  \"schema\":3,\n  \"source\":{\"kind\":\"installed_bf6\",\"level\":";
     text(out, argv[2]); out << ",\"mode\":"; text(out, argv[3]); out << "},\n";
     out << "  \"objects\":[\n";
     for (int i = 0; i < count; ++i) {
@@ -307,6 +330,7 @@ int main(int argc, char** argv)
         out << ",\"gem_shape\":"; text(out, r.gem_shape);
         out << ",\"gem_shape_property\":" << r.gem_shape_property;
         out << ",\"shape_asset\":"; text(out, r.shape_asset);
+        out << ",\"owner_type\":"; text(out, r.owner_type);
         out << "}}";
     }
     int extras = 0;
@@ -328,8 +352,37 @@ int main(int argc, char** argv)
         out << ",\"blueprint\":"; text(out, r.blueprint);
         out << ",\"transform\":"; floats(out, r.xform, 12);
         out << ",\"gem_blueprint\":"; text(out, r.gem_link);
-        out << ",\"gem_selector\":" << r.gem_value << "}}";
+        out << ",\"gem_selector\":" << r.gem_value << '}';
+        if (role == 101) {
+            for (int link = 0; link < r.link_count; ++link) {
+                if (r.link_fields[link] != 0xD7DAD1C4u) continue;
+                const int target_index = r.links[link];
+                if (target_index < 0 || target_index >= raw_count) continue;
+                const bf6_gm_entity& target = raw[(size_t)target_index];
+                if (target.kind != BF6_GM_OBB && target.kind != BF6_GM_CYLINDER) continue;
+                out << ",\"protection_shape\":{\"instance_guid\":";
+                text(out, target.instance_guid);
+                out << ",\"partition\":"; text(out, target.partition);
+                out << ",\"kind\":";
+                text(out, target.kind == BF6_GM_CYLINDER ? "cylinder" : "obb");
+                out << ",\"source_field\":" << r.link_fields[link]
+                    << ",\"transform\":"; floats(out, target.xform, 12);
+                out << ",\"half_extents\":"; floats(out, target.half_extents, 3);
+                out << '}';
+                break;
+            }
+        }
+        out << '}';
         ++extras;
+    }
+    out << "\n  ],\n  \"elements\":[\n";
+    bool first_element = true;
+    for (const bf6_gm_entity& r : raw) {
+        if (!r.gem_link || !r.mode) continue;
+        if (std::strcmp(r.mode, argv[3]) && std::strcmp(r.mode, "__shared")) continue;
+        if (!first_element) out << ",\n";
+        out << "    "; raw_element(out, r);
+        first_element = false;
     }
     out << "\n  ],\n  \"counts\":{\"objects\":" << layout.objects
         << ",\"spawns\":" << layout.spawns << ",\"captures\":" << layout.captures

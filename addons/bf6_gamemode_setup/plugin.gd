@@ -32,6 +32,7 @@ var _mode_description: Label
 var _status: Label
 var _clear_button: Button
 var _template_addons_button: Button
+var _swap_factions_button: Button
 var _progress_box: VBoxContainer
 var _progress_label: Label
 var _progress_bar: ProgressBar
@@ -119,6 +120,11 @@ func _create_dock() -> void:
 	_template_addons_button.tooltip_text = "Add Andy's TeamSwitcher, AI Spawns, and EndGameCamera template objects at the origin."
 	_template_addons_button.pressed.connect(_add_template_addons)
 	_dock.add_child(_template_addons_button)
+	_swap_factions_button = Button.new()
+	_swap_factions_button.text = "Swap Team 1 / Team 2"
+	_swap_factions_button.tooltip_text = "Swap HQ ownership, faction vehicles, objective IDs, AA teams, and team spawn arrays for the selected imported layout. Press again to restore."
+	_swap_factions_button.pressed.connect(_swap_factions)
+	_dock.add_child(_swap_factions_button)
 	_clear_button = Button.new()
 	_clear_button.text = "Clear downloaded layouts"
 	_clear_button.pressed.connect(_clear_cache)
@@ -275,6 +281,17 @@ func _clear_cache() -> void:
 	_fetch.clear_cache()
 	_update_cache_button()
 	_status.text = "Downloaded layout files cleared. Existing scene nodes were not changed."
+
+
+func _swap_factions() -> void:
+	if _busy or _layout.selected <= 0 or _layout.selected - 1 >= _rows.size():
+		_status.text = "Select and build a game-mode layout first."
+		return
+	var entry := _rows[_layout.selected - 1] as Dictionary
+	_status.text = Builder.swap_factions(_root(), str(entry.get("key", "")))
+	if _status.text.begins_with("Faction sides"):
+		_sync_vehicle_skins()
+		get_editor_interface().mark_scene_as_unsaved()
 
 
 func _add_template_addons() -> void:

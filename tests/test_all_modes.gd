@@ -44,15 +44,10 @@ func _init() -> void:
 				else:
 					var manifest: Dictionary = JSON.parse_string(
 						FileAccess.get_file_as_string("%s/%s" % [DATA_DIR, filename]))
-					for folder_name in ["Play Area", "Extras"]:
-						if built.get_node_or_null(folder_name) == null:
-							failures += 1
-							print("FAIL ", filename, ": missing scene folder ", folder_name)
-					var expected_special := int((manifest.get("counts", {}) as Dictionary).get("specialareas", 0))
 					var actual_special := _count_meta(built, "bf6_unmapped_role", "gem_specialcombatarea")
-					if actual_special != expected_special:
+					if actual_special != 0:
 						failures += 1
-						print("FAIL ", filename, ": special areas ", actual_special, "/", expected_special)
+						print("FAIL ", filename, ": standalone special-area nodes ", actual_special)
 					var expected_vehicles := int((manifest.get("counts", {}) as Dictionary).get("vehicles", 0))
 					var actual_vehicles := _count_meta_key(built, "bf6_source_vehicle_record")
 					if actual_vehicles != expected_vehicles:
@@ -60,7 +55,9 @@ func _init() -> void:
 						print("FAIL ", filename, ": represented vehicle rows ", actual_vehicles, "/", expected_vehicles)
 					var expected_linked_spawns := int((manifest.get("counts", {}) as Dictionary).get("spawns", 0)) \
 						if mode in ["conquest", "carrierstrike", "escalation"] else 0
-					if expected_linked_spawns == 0:
+					if expected_linked_spawns == 0 and mode in ["conquest", "carrierstrike",
+							"escalation", "domination", "breakthrough", "operations", "koth",
+							"kingofthehill", "strikepoint"]:
 						for object_value in manifest.get("objects", []):
 							var object := object_value as Dictionary
 							if int(object.get("role", 0)) == 1 and int(object.get("flag", -1)) >= 0:
@@ -82,12 +79,6 @@ func _init() -> void:
 						failures += 1
 						print("FAIL ", filename, ": required auto-spawn disabled ",
 							bad_required_auto_spawn)
-					if mode in ["conquest", "carrierstrike", "escalation"]:
-						for vehicle_path in ["HQ/Team1", "HQ/Team2", "Objectives/Team1",
-								"Objectives/Team2", "Objectives/Shared", "Emplacements"]:
-							if built.get_node_or_null("Vehicles/%s" % vehicle_path) == null:
-								failures += 1
-								print("FAIL ", filename, ": missing vehicle folder ", vehicle_path)
 					if level == "mp_capstone" and mode == "conquest":
 						_check_capstone_vehicle_mapping(built, filename)
 						if _count_name_prefix(built, "CapturePoint") != 6:
@@ -100,6 +91,7 @@ func _init() -> void:
 							"fd455bd8-e5f7-4bec-8fd7-cb171926fa58",
 							"7da73b7d-0f84-4842-9afc-d9fef5abde13")
 						_check_capstone_flyer_overrides(built, filename)
+						_check_capstone_objective_tanks(built, filename)
 					if mode == "conquest" and conquest_identities.has(level):
 						_check_conquest_flag_mapping(built, manifest, filename,
 							conquest_identities[level] as Array)
@@ -107,10 +99,13 @@ func _init() -> void:
 						_check_rush_contract(built, manifest, filename)
 					if mode == "breakthrough":
 						_check_breakthrough_sectors(built, manifest, filename)
+					_check_deploy_cameras(built, manifest, filename)
 					if level == "mp_atoll" and mode == "conquest":
 						_check_atoll_hq_areas(built, filename)
 						_check_combat_area(built, filename,
-							"0139a1cf-8515-44a9-b56e-adf3bbe57833")
+							"0139a1cf-8515-44a9-b56e-adf3bbe57833",
+							"adf6e4b1-5197-4dda-a6d8-3e52178fcb63")
+						_check_faction_swap_roundtrip(root, built, key, filename)
 					if level == "mp_eastwood" and mode == "conquest":
 						_check_combat_area(built, filename,
 							"3da39332-bedc-47b2-ae21-1dac5dc0be79",
@@ -122,19 +117,34 @@ func _init() -> void:
 					if level == "mp_battery" and mode == "conquest":
 						_check_combat_area(built, filename,
 							"edb24581-1ad9-48b0-9a4c-907f9fde7f50")
-					if mode != "breakthrough" and _count_name_prefix(built, "CapturePoint") > 0:
+					if mode == "conquest" and level in ["mp_dumbo", "mp_badlands"]:
+						_check_no_loose_conquest_boundaries(built, filename)
+					if level == "mp_aftermath" and mode == "conquest":
+						_check_aftermath_hq_areas(built, filename)
+					if mode == "conquest" and level in ["mp_abbasid", "mp_battery"] and \
+							built.get_node_or_null("Vehicles/Unassigned") != null:
+						failures += 1
+						print("FAIL ", filename, ": HQ-adjacent unresolved vehicles leaked to Unassigned")
+					if mode in ["conquest", "domination", "carrierstrike"] and \
+							_count_name_prefix(built, "CapturePoint") > 0:
 						_check_sector_order(built, filename)
+					_check_mode_objective_contract(built, manifest, filename, mode)
 					var generated_name := _find_generated_name(built)
 					if generated_name != "":
 						failures += 1
 						print("FAIL ", filename, ": generated node name ", generated_name)
 					_check_automatic_aa_teams(built, filename)
+					_check_automatic_aa_protection_bindings(built, manifest, filename)
 					_check_objective_vehicle_names(built, filename)
 					_check_exact_vehicle_selectors(built, filename)
 					_check_objective_vehicle_faction_pairs(built, filename)
 					_check_capture_provenance(built, manifest, filename)
 					_check_hq_teams(built, filename)
+					_check_hq_insertion_spawns(built, manifest, filename)
 					_check_vehicle_folders(built, filename)
+					_check_objective_vehicle_ids(built, filename)
+					_check_no_empty_generated_folders(built, filename)
+					_check_root_order(built, filename)
 					_check_objective_tree_order(built, filename)
 					_check_expected_flight_boundary(built, manifest, filename)
 					var packed := PackedScene.new()
@@ -225,13 +235,102 @@ func _check_vehicle_folder_node(root: Node, node: Node, filename: String) -> voi
 			print("FAIL ", filename, ": vehicle folder mismatch ", relative,
 				" for ", association)
 	var scene_name := str(node.scene_file_path).get_file()
-	if scene_name in ["StationaryEmplacementSpawner.tscn",
-			"VEH_Stationary_AutomaticAA.tscn"] and \
-			not relative.begins_with("Vehicles/Emplacements/"):
+	if scene_name == "StationaryEmplacementSpawner.tscn" and \
+			not relative.begins_with("Emplacements/"):
 		failures += 1
 		print("FAIL ", filename, ": emplacement outside category ", relative)
+	if scene_name == "VEH_Stationary_AutomaticAA.tscn" and \
+			not relative.begins_with("AA-Defences/"):
+		failures += 1
+		print("FAIL ", filename, ": automatic AA outside category ", relative)
 	for child in node.get_children():
 		_check_vehicle_folder_node(root, child, filename)
+
+
+func _check_objective_vehicle_ids(root: Node, filename: String) -> void:
+	_check_objective_vehicle_id_node(root, root, filename)
+
+
+func _check_objective_vehicle_id_node(root: Node, node: Node, filename: String) -> void:
+	var association := str(node.get_meta("bf6_runtime_association", ""))
+	if association.begins_with("CapturePoint") and node.get("ObjId") != null:
+		var flag := association.unicode_at(12) - "A".unicode_at(0)
+		var team := 1 if association.ends_with("Team1") else \
+			2 if association.ends_with("Team2") else 0
+		var object_id := int(node.get("ObjId"))
+		if team == 0:
+			if object_id != -1 or not bool(node.get("P_AutoSpawnEnabled")):
+				failures += 1
+				print("FAIL ", filename, ": shared objective vehicle contract ", node.name)
+		else:
+			var minimum := 600 + flag * 10 + (5 if team == 2 else 0)
+			if object_id == -1 and bool(node.get("P_AutoSpawnEnabled")):
+				pass # More than five authored pads: Portal's reserved range is exhausted.
+			elif object_id < minimum or object_id > minimum + 4:
+				failures += 1
+				print("FAIL ", filename, ": objective vehicle ObjId ", object_id,
+					" outside ", minimum, "-", minimum + 4)
+	for child in node.get_children():
+		_check_objective_vehicle_id_node(root, child, filename)
+
+
+func _check_no_empty_generated_folders(node: Node, filename: String) -> void:
+	if node.has_meta("bf6_generated_folder") and node.get_child_count() == 0:
+		failures += 1
+		print("FAIL ", filename, ": empty generated folder ", node.get_path())
+	for child in node.get_children():
+		_check_no_empty_generated_folders(child, filename)
+
+
+func _check_root_order(root: Node, filename: String) -> void:
+	var ranks := {"Play Area": 0, "Objectives": 3, "Spawns": 4, "Vehicles": 5,
+		"Emplacements": 6, "Resupply": 7, "AA-Defences": 8, "Extras": 9,
+		"Aircraft Carriers (hide to disable preview)": 10}
+	var previous := -1
+	for child in root.get_children():
+		var rank := int(ranks.get(str(child.name), 100))
+		if str(child.name).begins_with("TEAM_1_HQ"):
+			rank = 1
+		elif str(child.name).begins_with("TEAM_2_HQ"):
+			rank = 2
+		if rank < previous:
+			failures += 1
+			print("FAIL ", filename, ": root hierarchy order at ", child.name)
+			return
+		previous = rank
+
+
+func _check_faction_swap_roundtrip(map_root: Node, layout: Node, key: String,
+		filename: String) -> void:
+	var before := _faction_state(layout)
+	Builder.swap_factions(map_root, key)
+	var swapped := _faction_state(layout)
+	Builder.swap_factions(map_root, key)
+	var restored := _faction_state(layout)
+	if before == swapped:
+		failures += 1
+		print("FAIL ", filename, ": faction swap changed no authored state")
+	if before != restored:
+		failures += 1
+		print("FAIL ", filename, ": faction swap is not reversible")
+
+
+func _faction_state(root: Node) -> Array:
+	var rows: Array = []
+	_collect_faction_state(root, root, rows)
+	rows.sort()
+	return rows
+
+
+func _collect_faction_state(root: Node, node: Node, rows: Array) -> void:
+	var values: Array = [str(root.get_path_to(node)), str(node.name)]
+	for property in ["Team", "AltTeam", "OwnerTeam", "MatchingTeam", "VehicleType", "ObjId"]:
+		if node.get(property) != null:
+			values.append("%s=%s" % [property, str(node.get(property))])
+	if values.size() > 2 or str(node.name).contains("Team") or str(node.name).contains("TEAM_"):
+		rows.append("|".join(values))
+	for child in node.get_children():
+		_collect_faction_state(root, child, rows)
 
 
 func _check_objective_tree_order(root: Node, filename: String) -> void:
@@ -248,6 +347,17 @@ func _check_objective_tree_order(root: Node, filename: String) -> void:
 			print("FAIL ", filename, ": objective scene tree is not alphabetical")
 			return
 		previous = current
+	var vehicle_objectives := root.get_node_or_null("Vehicles/Objectives")
+	if vehicle_objectives == null:
+		return
+	previous = ""
+	for child in vehicle_objectives.get_children():
+		var current := str(child.name)
+		if previous != "" and current < previous:
+			failures += 1
+			print("FAIL ", filename, ": objective vehicle folders are not alphabetical")
+			return
+		previous = current
 
 
 func _check_expected_flight_boundary(root: Node, manifest: Dictionary,
@@ -255,16 +365,13 @@ func _check_expected_flight_boundary(root: Node, manifest: Dictionary,
 	if str((manifest.get("source", {}) as Dictionary).get("mode", "")) != "conquest":
 		return
 	var air_classes := [4, 5, 6, 7, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-	var zone_count := 0
 	var has_aircraft := false
 	for value in manifest.get("objects", []):
 		var row := value as Dictionary
-		if int(row.get("role", 0)) == 3:
-			zone_count += 1
-		elif int(row.get("role", 0)) == 6 and air_classes.has(
+		if int(row.get("role", 0)) == 6 and air_classes.has(
 				int((row.get("raw", {}) as Dictionary).get("gem_selector", -1))):
 			has_aircraft = true
-	if not has_aircraft or zone_count < 4:
+	if not has_aircraft:
 		return
 	var combat := root.get_node_or_null("Play Area/CombatArea")
 	if combat == null or combat.get("SurroundingVolume") == null:
@@ -373,7 +480,19 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 		failures += 1
 		print("FAIL ", filename, ": Rush contains CapturePoint objectives")
 	var sectors := root.get_node_or_null("Objectives/Sectors")
-	var expected_mcoms := int((manifest.get("counts", {}) as Dictionary).get("mcoms", 0))
+	var authored_mcoms := int((manifest.get("counts", {}) as Dictionary).get("mcoms", 0))
+	var authored_sectors := 0
+	for value in manifest.get("elements", []):
+		var element := value as Dictionary
+		if str(element.get("gem", "")) == "gem_sector" and \
+				not str(element.get("layer", "")).ends_with("/gameplay_global"):
+			authored_sectors += 1
+	# Sector.MCOMs is the live Portal contract. Retail may retain dormant or
+	# alternate MCOM GEM placements (MP_Tungsten has 13 unique records while
+	# its Rush layer exposes eight live slots), so raw placement count is only
+	# an upper bound.
+	var expected_mcoms := mini(authored_mcoms, authored_sectors * 2) \
+		if authored_sectors > 0 else authored_mcoms
 	if expected_mcoms > 0 and sectors == null:
 		failures += 1
 		print("FAIL ", filename, ": Rush MCOM objectives are not under Objectives/Sectors")
@@ -400,6 +519,136 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 	if _has_capture_vehicle_association(root):
 		failures += 1
 		print("FAIL ", filename, ": Rush vehicle assigned to a capture point")
+
+
+func _check_mode_objective_contract(root: Node, manifest: Dictionary,
+		filename: String, mode: String) -> void:
+	if mode in ["rush", "payload", "sabotage", "obliteration", "squadobliteration",
+			"teamdeathmatch", "squaddeathmatch", "gauntlet"] and \
+			_count_scene(root, "CapturePoint.tscn") != 0:
+		failures += 1
+		print("FAIL ", filename, ": mode must not contain CapturePoint objectives")
+	if mode == "payload":
+		var expected := _count_manifest_gem(manifest, "gem_payload") + \
+			_count_manifest_gem(manifest, "gem_checkpoint")
+		var folder := root.get_node_or_null("Objectives/Payload Route")
+		if folder == null or folder.get_child_count() != expected:
+			failures += 1
+			print("FAIL ", filename, ": payload markers ",
+				0 if folder == null else folder.get_child_count(), "/", expected)
+	if mode == "sabotage":
+		var expected := _count_manifest_gem(manifest, "gem_destructiblezone")
+		var folder := root.get_node_or_null("Objectives/Destructible Objectives")
+		if folder == null or folder.get_child_count() != expected:
+			failures += 1
+			print("FAIL ", filename, ": destructible objectives ",
+				0 if folder == null else folder.get_child_count(), "/", expected)
+	if mode in ["obliteration", "squadobliteration"]:
+		if root.get_node_or_null("Objectives/MCOM Objectives") == null or \
+				root.get_node_or_null("Objectives/Bomb Spawn Candidates") == null:
+			failures += 1
+			print("FAIL ", filename, ": Obliteration objective folders are incomplete")
+	if mode in ["escalation", "koth", "kingofthehill", "strikepoint"] and \
+			_count_manifest_gem(manifest, "gem_sector") > 0 and \
+			root.get_node_or_null("Objectives/Runtime Sectors") == null:
+		failures += 1
+		print("FAIL ", filename, ": runtime-fed sector placements are missing")
+
+
+func _count_manifest_gem(manifest: Dictionary, gem_name: String) -> int:
+	var count := 0
+	for value in manifest.get("elements", []):
+		if str((value as Dictionary).get("gem", "")) == gem_name and \
+				not str((value as Dictionary).get("layer", "")).ends_with("/gameplay_global"):
+			count += 1
+	return count
+
+
+func _check_deploy_cameras(root: Node, manifest: Dictionary, filename: String) -> void:
+	var local: Array = []
+	var shared: Array = []
+	for value in manifest.get("elements", []):
+		var element := value as Dictionary
+		if str(element.get("gem", "")) != "gem_deploycam":
+			continue
+		if str(element.get("layer", "")).ends_with("/gameplay_global"):
+			shared.append(element)
+		else:
+			local.append(element)
+	var expected := local if not local.is_empty() else shared
+	var folder := root.get_node_or_null("Extras/Deploy Cameras")
+	var actual := 0 if folder == null else folder.get_child_count()
+	if actual != expected.size():
+		failures += 1
+		print("FAIL ", filename, ": deploy cameras ", actual, "/", expected.size())
+		return
+	for child in folder.get_children() if folder != null else []:
+		var source_guid := str(child.get_meta("bf6_source_instance_guid", ""))
+		var matched := false
+		for value in expected:
+			if source_guid == str((value as Dictionary).get("instance_guid", "")):
+				matched = true
+				break
+		if not matched:
+			failures += 1
+			print("FAIL ", filename, ": deploy camera source is not authored ", source_guid)
+
+
+func _check_automatic_aa_protection_bindings(root: Node, manifest: Dictionary,
+		filename: String) -> void:
+	var expected := {}
+	for value in manifest.get("objects", []):
+		var row := value as Dictionary
+		if int(row.get("role", 0)) != 101:
+			continue
+		var shape := row.get("protection_shape", {}) as Dictionary
+		if not shape.is_empty():
+			expected[str(shape.get("instance_guid", ""))] = true
+	var found: Array[Node] = []
+	_collect_meta_nodes(root, "bf6_protection_instance_guid", found)
+	if found.size() != expected.size():
+		failures += 1
+		print("FAIL ", filename, ": exact AA protection bindings ",
+			found.size(), "/", expected.size())
+	for aa in found:
+		var guid := str(aa.get_meta("bf6_protection_instance_guid", ""))
+		if not expected.has(guid):
+			failures += 1
+			print("FAIL ", filename, ": AA protection source is not authored ", guid)
+		var protection = aa.get("ProtectionAreaVolume")
+		if protection == null or not is_instance_valid(protection) or protection.get_parent() != aa:
+			failures += 1
+			print("FAIL ", filename, ": AA exact protection volume is not attached ", aa.name)
+
+
+func _collect_meta_nodes(node: Node, key: String, result: Array[Node]) -> void:
+	if node.has_meta(key):
+		result.append(node)
+	for child in node.get_children():
+		_collect_meta_nodes(child, key, result)
+
+
+func _check_hq_insertion_spawns(root: Node, manifest: Dictionary,
+		filename: String) -> void:
+	var expected := 0
+	for value in manifest.get("elements", []):
+		var row := value as Dictionary
+		if str(row.get("gem", "")) == "gem_insertion" and \
+				not str(row.get("layer", "")).ends_with("/gameplay_global"):
+			expected += 1
+	var hq_count := _count_name_prefix(root, "TEAM_")
+	var actual := _count_meta(root, "bf6_spawn_binding", "installed_gem_insertion")
+	if hq_count > 0 and actual != expected:
+		failures += 1
+		print("FAIL ", filename, ": authored HQ insertion spawns ", actual, "/", expected)
+	if filename == "mp_atoll_conquest.layout.json":
+		for team in [1, 2]:
+			var hq := root.get_node_or_null("TEAM_%d_HQ" % team)
+			var count := 0 if hq == null else \
+				_count_meta(hq, "bf6_spawn_binding", "installed_gem_insertion")
+			if count != 8:
+				failures += 1
+				print("FAIL ", filename, ": Team ", team, " HQ insertion count ", count, "/8")
 
 
 func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: String) -> void:
@@ -475,7 +724,8 @@ func _check_exact_vehicle_selectors(node: Node, filename: String) -> void:
 	if node.has_meta("bf6_retail_selector") and node.get("VehicleType") != null:
 		var selector := int(node.get_meta("bf6_retail_selector"))
 		var vehicle_type := int(node.get("VehicleType"))
-		var allowed: Array = VEHICLE_CLASS_TYPES.get(selector, [])
+		var allowed: Array = [0, 1] if node.has_meta("bf6_vehicle_override") else \
+			VEHICLE_CLASS_TYPES.get(selector, [])
 		if not allowed.is_empty() and not allowed.has(vehicle_type):
 			failures += 1
 			print("FAIL ", filename, ": retail class selector ", selector,
@@ -489,7 +739,8 @@ func _check_objective_vehicle_faction_pairs(root: Node, filename: String) -> voi
 	_collect_objective_vehicle_records(root, records)
 	for guid in records:
 		var record := records[guid] as Dictionary
-		var expected: Array = VEHICLE_CLASS_TYPES.get(int(record.selector), [])
+		var expected: Array = [0, 1] if bool(record.get("override", false)) else \
+			VEHICLE_CLASS_TYPES.get(int(record.selector), [])
 		if expected.size() != 2:
 			continue
 		var actual: Array = record.types
@@ -509,6 +760,7 @@ func _collect_objective_vehicle_records(node: Node, records: Dictionary) -> void
 		if not records.has(guid):
 			records[guid] = {
 				"selector": int(node.get_meta("bf6_retail_selector", -1)),
+				"override": node.has_meta("bf6_vehicle_override"),
 				"types": [],
 			}
 		(records[guid].types as Array).append(int(node.get("VehicleType")))
@@ -572,6 +824,31 @@ func _check_combat_area(root: Node, filename: String, combat_guid: String,
 			print("FAIL ", filename, ": CombatArea does not own the retail surrounding zone")
 
 
+func _check_no_loose_conquest_boundaries(root: Node, filename: String) -> void:
+	var play_area := root.get_node_or_null("Play Area")
+	if play_area == null:
+		return
+	for child in play_area.get_children():
+		var scene_name := str(child.scene_file_path).get_file()
+		if scene_name in ["PolygonVolume.tscn", "OBBVolume.tscn"]:
+			failures += 1
+			print("FAIL ", filename, ": loose bridge/rooftop boundary ", child.name)
+
+
+func _check_aftermath_hq_areas(root: Node, filename: String) -> void:
+	var hq_count := 0
+	var area_count := 0
+	for child in root.get_children():
+		if not str(child.name).begins_with("TEAM_"):
+			continue
+		hq_count += 1
+		if child.get("HQArea") != null:
+			area_count += 1
+	if hq_count != 3 or area_count != 3:
+		failures += 1
+		print("FAIL ", filename, ": Aftermath HQ areas ", area_count, "/3")
+
+
 func _check_capstone_flyer_overrides(root: Node, filename: String) -> void:
 	var expected := {
 		"31426ce7-ee3a-4827-8a12-6d4034036fde": 13,
@@ -584,6 +861,32 @@ func _check_capstone_flyer_overrides(root: Node, filename: String) -> void:
 			failures += 1
 			print("FAIL ", filename, ": Capstone HQ slot ", guid,
 				" must use Flyer 60")
+
+
+func _check_capstone_objective_tanks(root: Node, filename: String) -> void:
+	var expected := {
+		"f2f47407-2dbb-4637-9a97-49aafd0f96d6": true,
+		"8ccc0aab-7d71-47e2-8ad5-4ca2195b3df2": true,
+	}
+	var found := {}
+	_collect_capstone_objective_tanks(root, expected, found)
+	for guid in expected:
+		if not found.has(guid):
+			failures += 1
+			print("FAIL ", filename, ": Capstone objective B/E tank missing ", guid)
+
+
+func _collect_capstone_objective_tanks(node: Node, expected: Dictionary,
+		found: Dictionary) -> void:
+	var guid := str(node.get_meta("bf6_source_instance_guid", ""))
+	if expected.has(guid) and node.get("VehicleType") != null:
+		if int(node.get("VehicleType")) in [0, 1]:
+			found[guid] = true
+		else:
+			failures += 1
+			print("FAIL Capstone objective B/E is not Abrams/Leopard: ", node.name)
+	for child in node.get_children():
+		_collect_capstone_objective_tanks(child, expected, found)
 
 
 func _collect_vehicle_guid_types(node: Node, found: Dictionary) -> void:
