@@ -321,21 +321,9 @@ static func _report(progress: Callable, message: String, current: int, total: in
 
 
 static func _normalized_flag(level: String, mode: String, row: Dictionary) -> int:
-	var flag := int(row.get("flag", -1))
-	if level != "mp_capstone" or mode != "conquest":
-		return flag
-	var raw := row.get("raw", {}) as Dictionary
-	if str(raw.get("instance_guid", "")) == "79cbf770-5961-492c-80ae-ce142f99683f":
-		return -1
-	# The small cliff exclusion was promoted to slot D by the generic polygon
-	# classifier. Remove that false slot and restore the shipped A-F sequence.
-	if flag == 3:
-		return -1
-	if flag == 4:
-		return 3
-	if flag == 6:
-		return 4
-	return flag
+	# Exported manifests already carry their game-root-derived objective index.
+	# Applying map-specific remaps here would shift correctly classified flags.
+	return int(row.get("flag", -1))
 
 
 static func _build_capstone_out_of_bounds(objects: Array, parent: Node,

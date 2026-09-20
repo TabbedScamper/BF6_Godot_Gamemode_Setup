@@ -35,6 +35,55 @@ static void floats(std::ostream& out, const float* value, int count)
     out << ']';
 }
 
+static int conquest_flag_for_root(const char* level, int root)
+{
+    struct Mapping { const char* level; int root; int flag; };
+    static const Mapping mappings[] = {
+        {"mp_abbasid",1,0},{"mp_abbasid",2,1},{"mp_abbasid",3,2},{"mp_abbasid",4,3},{"mp_abbasid",5,4},
+        {"mp_aftermath",19,0},{"mp_aftermath",20,1},{"mp_aftermath",21,2},{"mp_aftermath",0,3},{"mp_aftermath",22,4},
+        {"mp_aftermath_portal",19,0},{"mp_aftermath_portal",20,1},{"mp_aftermath_portal",21,2},{"mp_aftermath_portal",0,3},{"mp_aftermath_portal",22,4},
+        {"mp_atoll",2,0},{"mp_atoll",3,1},{"mp_atoll",4,2},{"mp_atoll",5,3},{"mp_atoll",6,4},{"mp_atoll",23,5},{"mp_atoll",24,6},
+        {"mp_badlands",3,0},{"mp_badlands",4,1},{"mp_badlands",5,2},{"mp_badlands",6,3},{"mp_badlands",27,4},{"mp_badlands",28,5},
+        {"mp_battery",3,0},{"mp_battery",4,1},{"mp_battery",5,2},{"mp_battery",6,3},{"mp_battery",7,4},
+        {"mp_capstone",3,0},{"mp_capstone",4,1},{"mp_capstone",5,2},{"mp_capstone",6,3},{"mp_capstone",7,4},{"mp_capstone",25,5},
+        {"mp_contaminated",3,0},{"mp_contaminated",7,1},{"mp_contaminated",4,2},{"mp_contaminated",47,3},{"mp_contaminated",6,4},{"mp_contaminated",5,5},
+        {"mp_dumbo",18,0},{"mp_dumbo",17,1},{"mp_dumbo",3,2},{"mp_dumbo",4,3},{"mp_dumbo",16,4},
+        {"mp_eastwood",3,0},{"mp_eastwood",4,1},{"mp_eastwood",5,2},{"mp_eastwood",6,3},{"mp_eastwood",7,4},
+        {"mp_firestorm",1,0},{"mp_firestorm",2,1},{"mp_firestorm",3,2},{"mp_firestorm",4,3},{"mp_firestorm",5,4},
+        {"mp_golmudrailway",3,0},{"mp_golmudrailway",4,1},{"mp_golmudrailway",5,2},{"mp_golmudrailway",6,3},{"mp_golmudrailway",7,4},{"mp_golmudrailway",24,5},{"mp_golmudrailway",25,6},
+        {"mp_isolated",3,0},{"mp_isolated",4,1},{"mp_isolated",69,2},{"mp_isolated",5,3},{"mp_isolated",6,4},{"mp_isolated",7,5},{"mp_isolated",70,6},{"mp_isolated",45,7},{"mp_isolated",44,8},
+        {"mp_outskirts",3,0},{"mp_outskirts",4,1},{"mp_outskirts",5,2},{"mp_outskirts",6,3},{"mp_outskirts",7,4},
+        {"mp_plaza",3,0},{"mp_plaza",4,1},{"mp_plaza",5,2},{"mp_plaza",6,3},{"mp_plaza",7,4},
+        {"mp_subsurface",3,0},{"mp_subsurface",4,1},{"mp_subsurface",5,2},{"mp_subsurface",6,3},{"mp_subsurface",7,4},
+        {"mp_tungsten",3,0},{"mp_tungsten",4,1},{"mp_tungsten",6,2},{"mp_tungsten",5,3},{"mp_tungsten",23,4},
+    };
+    for (const Mapping& mapping : mappings)
+        if (!std::strcmp(level, mapping.level) && root == mapping.root) return mapping.flag;
+    return -1;
+}
+
+static bool polygon_contains_xz(const bf6_gm_object& object, float x, float z)
+{
+    if (!object.world_points || object.point_count < 3) return false;
+    bool inside = false;
+    for (int i = 0, j = object.point_count - 1; i < object.point_count; j = i++) {
+        const float xi = object.world_points[i * 3], zi = object.world_points[i * 3 + 2];
+        const float xj = object.world_points[j * 3], zj = object.world_points[j * 3 + 2];
+        if (((zi > z) != (zj > z)) &&
+            (x < (xj - xi) * (z - zi) / (zj - zi) + xi)) inside = !inside;
+    }
+    return inside;
+}
+
+static const char* conquest_polygon_override(const char* level, int flag)
+{
+    /* Golmud E overlaps a larger sector polygon whose centre is closer to the
+     * capturepoint. The smaller game polygon matches the audited capture area. */
+    if (!std::strcmp(level, "mp_golmudrailway") && flag == 4)
+        return "36d4f960-d137-46b8-b862-558941af3393";
+    return nullptr;
+}
+
 int main(int argc, char** argv)
 {
     if (argc != 5) {
@@ -66,95 +115,114 @@ int main(int argc, char** argv)
     bf6_level_gamemode_layout(context, argv[2], argv[3], objects.data(), count,
                               &layout, error, sizeof(error));
 
-    /* Wake Island's authored objective letters do not follow world X order.
-     * Retain the classifier's geometry match, including the large G polygon,
-     * then join each polygon back to its nearest installed gem_capturepoint.
-     * The installed conquest partition stores the objectives in ascending GEM
-     * root order (2, 3, 4, 5, 6, 23, 24), which determines A-G. World ordering,
-     * record iteration order, and the classifier's provisional labels do not. */
+    /* The classifier deliberately starts with geometric heuristics. For the
+     * supported Conquest maps, replace that provisional result with the
+     * installed partition's gem_capturepoint identities. Community templates
+     * are used only to audit root-to-letter naming; every emitted position,
+     * polygon, spawn and raw identity remains installed-game data. */
     std::vector<std::string> adjusted_labels((size_t)count);
-    if (!std::strcmp(argv[2], "mp_atoll") && !std::strcmp(argv[3], "conquest")) {
-        int g_index = -1;
-        bool g_was_zone = false;
-        for (int i = 0; i < count; ++i) {
-            const bf6_gm_object& object = objects[(size_t)i];
-            if ((object.role == BF6_GMR_CAPTURE || object.role == BF6_GMR_ZONE) &&
-                object.area_m2 > 11200.f && object.area_m2 < 11300.f &&
-                std::fabs(object.centre[0] - 223.27f) < 2.f &&
-                std::fabs(object.centre[2] - 140.98f) < 2.f) {
-                g_index = i;
-                g_was_zone = object.role == BF6_GMR_ZONE;
-                break;
-            }
+    if (!std::strcmp(argv[3], "conquest")) {
+        struct RootPoint { const bf6_gm_entity* row; int flag; };
+        std::vector<RootPoint> roots;
+        for (const bf6_gm_entity& row : raw) {
+            if (!row.mode || std::strcmp(row.mode, "conquest") || !row.gem_link ||
+                std::strcmp(row.gem_link, "gem_capturepoint")) continue;
+            const int flag = conquest_flag_for_root(argv[2], row.root_order);
+            if (flag >= 0) roots.push_back({&row, flag});
         }
-        if (g_index >= 0 && g_was_zone) {
-            bf6_gm_object& g = objects[(size_t)g_index];
-            g.role = BF6_GMR_CAPTURE;
-            g.flag = 2;
-            ++layout.captures;
-            --layout.zones;
-            ++layout.big_flag_rescued;
+        if (!roots.empty()) {
+            std::vector<int> matched((size_t)count, -1);
+            std::vector<int> old_to_retail(32, -1);
+            for (const RootPoint& root : roots) {
+                int best = -1;
+                float best_distance = INFINITY;
+                float best_area = INFINITY;
+                const char* override_guid = conquest_polygon_override(argv[2], root.flag);
+                for (int i = 0; i < count; ++i) {
+                    const bf6_gm_object& object = objects[(size_t)i];
+                    if (matched[(size_t)i] >= 0 ||
+                        (object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_ZONE) ||
+                        object.area_m2 < 250.f || object.area_m2 > 20000.f) continue;
+                    const bf6_gm_entity& source = raw[(size_t)object.entity];
+                    if (override_guid && source.instance_guid &&
+                        !std::strcmp(source.instance_guid, override_guid)) {
+                        best = i;
+                        best_distance = 0.f;
+                        best_area = object.area_m2;
+                        break;
+                    }
+                    const float dx = object.centre[0] - root.row->xform[9];
+                    const float dz = object.centre[2] - root.row->xform[11];
+                    const float distance = dx * dx + dz * dz;
+                    const bool contains = polygon_contains_xz(
+                        object, root.row->xform[9], root.row->xform[11]);
+                    const float ranked = distance + (contains ? 0.f : 2500.f);
+                    const float best_ranked = best_distance +
+                        (best >= 0 && polygon_contains_xz(objects[(size_t)best],
+                            root.row->xform[9], root.row->xform[11]) ? 0.f : 2500.f);
+                    if (ranked < best_ranked - .01f ||
+                        (std::fabs(ranked - best_ranked) <= .01f && object.area_m2 < best_area)) {
+                        best = i;
+                        best_distance = distance;
+                        best_area = object.area_m2;
+                    }
+                }
+                if (best < 0 || best_distance > 100.f * 100.f) continue;
+                bf6_gm_object& object = objects[(size_t)best];
+                if (object.flag >= 0 && object.flag < (int)old_to_retail.size())
+                    old_to_retail[(size_t)object.flag] = root.flag;
+                if (object.role == BF6_GMR_ZONE) ++layout.big_flag_rescued;
+                matched[(size_t)best] = root.flag;
+            }
+
             for (int i = 0; i < count; ++i) {
                 bf6_gm_object& object = objects[(size_t)i];
-                if (i != g_index && object.flag >= 2 &&
-                    (object.role == BF6_GMR_CAPTURE || object.role == BF6_GMR_SPAWN))
-                    ++object.flag;
-                if (object.role == BF6_GMR_SPAWN && object.flag < 0) {
-                    const float dx = object.centre[0] - g.centre[0];
-                    const float dy = object.centre[1] - g.centre[1];
-                    const float dz = object.centre[2] - g.centre[2];
-                    if (dx * dx + dy * dy + dz * dz <= 30.f * 30.f)
-                        object.flag = 2;
+                if (object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_ZONE) continue;
+                if (matched[(size_t)i] < 0) {
+                    if (object.role == BF6_GMR_CAPTURE) {
+                        object.role = BF6_GMR_ZONE;
+                        object.flag = -1;
+                        adjusted_labels[(size_t)i] = "Zone";
+                        object.label = adjusted_labels[(size_t)i].c_str();
+                    }
+                    continue;
                 }
+                object.role = BF6_GMR_CAPTURE;
+                object.flag = matched[(size_t)i];
+                adjusted_labels[(size_t)i] = std::string("Flag ") + char('A' + object.flag);
+                object.label = adjusted_labels[(size_t)i].c_str();
             }
-        }
-        auto retail_flag_for_root = [](int root) {
-            switch (root) {
-                case 2: return 0;  // A
-                case 3: return 1;  // B
-                case 4: return 2;  // C
-                case 5: return 3;  // D
-                case 6: return 4;  // E
-                case 23: return 5; // F
-                case 24: return 6; // G
-                default: return -1;
-            }
-        };
-        int classified_to_retail[7] = { -1, -1, -1, -1, -1, -1, -1 };
-        for (int i = 0; i < count; ++i) {
-            const bf6_gm_object& object = objects[(size_t)i];
-            if (object.role != BF6_GMR_CAPTURE || object.flag < 0 || object.flag >= 7)
-                continue;
-            float best_distance = INFINITY;
-            int best_retail_flag = -1;
-            for (const bf6_gm_entity& row : raw) {
-                if (!row.mode || std::strcmp(row.mode, "conquest") || !row.gem_link ||
-                    std::strcmp(row.gem_link, "gem_capturepoint")) continue;
-                const int retail_flag = retail_flag_for_root(row.root_order);
-                if (retail_flag < 0) continue;
-                const float dx = object.centre[0] - row.xform[9];
-                const float dy = object.centre[1] - row.xform[10];
-                const float dz = object.centre[2] - row.xform[11];
-                const float distance = dx * dx + dy * dy + dz * dz;
-                if (distance < best_distance) {
-                    best_distance = distance;
-                    best_retail_flag = retail_flag;
+
+            for (int i = 0; i < count; ++i) {
+                bf6_gm_object& spawn = objects[(size_t)i];
+                if (spawn.role != BF6_GMR_SPAWN) continue;
+                int retail = spawn.flag >= 0 && spawn.flag < (int)old_to_retail.size()
+                    ? old_to_retail[(size_t)spawn.flag] : -1;
+                if (retail < 0) {
+                    float nearest = 30.f * 30.f;
+                    for (int j = 0; j < count; ++j) {
+                        if (matched[(size_t)j] < 0) continue;
+                        const bf6_gm_object& capture = objects[(size_t)j];
+                        const float dx = spawn.centre[0] - capture.centre[0];
+                        const float dy = spawn.centre[1] - capture.centre[1];
+                        const float dz = spawn.centre[2] - capture.centre[2];
+                        const float distance = dx * dx + dy * dy + dz * dz;
+                        if (distance <= nearest) { nearest = distance; retail = matched[(size_t)j]; }
+                    }
                 }
+                spawn.flag = retail;
+                adjusted_labels[(size_t)i] = retail >= 0
+                    ? std::string("Flag ") + char('A' + retail) + " Spawn"
+                    : "Spawn Point";
+                spawn.label = adjusted_labels[(size_t)i].c_str();
             }
-            if (best_retail_flag >= 0 && best_distance < 60.f * 60.f)
-                classified_to_retail[object.flag] = best_retail_flag;
-        }
-        for (int i = 0; i < count; ++i) {
-            bf6_gm_object& object = objects[(size_t)i];
-            if ((object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_SPAWN) ||
-                object.flag < 0 || object.flag >= 7) continue;
-            const int retail_flag = classified_to_retail[object.flag];
-            if (retail_flag < 0) continue;
-            object.flag = retail_flag;
-            adjusted_labels[(size_t)i] = std::string("Flag ") +
-                char('A' + object.flag) +
-                (object.role == BF6_GMR_SPAWN ? " Spawn" : "");
-            object.label = adjusted_labels[(size_t)i].c_str();
+
+            layout.captures = 0;
+            layout.zones = 0;
+            for (const bf6_gm_object& object : objects) {
+                if (object.role == BF6_GMR_CAPTURE) ++layout.captures;
+                else if (object.role == BF6_GMR_ZONE) ++layout.zones;
+            }
         }
     }
 

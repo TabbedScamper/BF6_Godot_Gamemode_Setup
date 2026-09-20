@@ -4,12 +4,15 @@ extends SceneTree
 const Builder = preload("res://addons/bf6_gamemode_setup/gamemode_builder.gd")
 const DATA_DIR := "C:/BF6_Dev/BF6_Godot_Gamemode_Setup/data"
 const CATALOG := DATA_DIR + "/layout_catalog.json"
+const CONQUEST_IDENTITIES := "C:/BF6_Dev/BF6_Godot_Gamemode_Setup/tests/conquest_objective_identities.json"
 
 var failures := 0
 
 
 func _init() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOG))
+	var conquest_identities: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(CONQUEST_IDENTITIES))
 	var tested := 0
 	for level in (catalog.get("maps", {}) as Dictionary):
 		var map: Dictionary = catalog.maps[level]
@@ -84,8 +87,10 @@ func _init() -> void:
 							"fd455bd8-e5f7-4bec-8fd7-cb171926fa58",
 							"7da73b7d-0f84-4842-9afc-d9fef5abde13")
 						_check_capstone_flyer_overrides(built, filename)
+					if mode == "conquest" and conquest_identities.has(level):
+						_check_conquest_flag_mapping(built, manifest, filename,
+							conquest_identities[level] as Array)
 					if level == "mp_atoll" and mode == "conquest":
-						_check_atoll_flag_mapping(built, manifest, filename)
 						_check_atoll_hq_areas(built, filename)
 						_check_combat_area(built, filename,
 							"0139a1cf-8515-44a9-b56e-adf3bbe57833")
@@ -198,16 +203,8 @@ func _collect_vehicle_types(node: Node, seen: Dictionary) -> void:
 		_collect_vehicle_types(child, seen)
 
 
-func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: String) -> void:
-	var retail_guids := {
-		0: "0110efce-cec2-4619-ab13-59957dcf397c", # A, GEM root 2
-		1: "5119911c-3e48-4f74-adc3-296a5fd026af", # B, GEM root 3
-		2: "e1d6a53b-b739-4a0d-97bc-4ab3f214c3b2", # C, GEM root 4
-		3: "f82ac26e-80d4-441b-8487-509af6833c37", # D, GEM root 5
-		4: "d000740b-5b9a-48db-bec4-1aaa7a2c02a4", # E, GEM root 6
-		5: "e931291b-2785-47b1-b67e-72045e63a9b1", # F, GEM root 23
-		6: "dc35642b-df23-44be-b375-222ada842bf7", # G, GEM root 24
-	}
+func _check_conquest_flag_mapping(root: Node, manifest: Dictionary, filename: String,
+		expected_guids: Array) -> void:
 	var seen := 0
 	for value in manifest.get("objects", []):
 		var row := value as Dictionary
@@ -215,20 +212,22 @@ func _check_atoll_flag_mapping(root: Node, manifest: Dictionary, filename: Strin
 			continue
 		var source_flag := int(row.get("flag", -1))
 		seen += 1
-		if str((row.get("raw", {}) as Dictionary).get("instance_guid", "")) != \
-				str(retail_guids.get(source_flag, "")):
+		if source_flag < 0 or source_flag >= expected_guids.size() or \
+				str((row.get("raw", {}) as Dictionary).get("instance_guid", "")) != \
+				str(expected_guids[source_flag]):
 			failures += 1
-			print("FAIL ", filename, ": Atoll manifest flag identity is wrong for ",
+			print("FAIL ", filename, ": Conquest manifest flag identity is wrong for ",
 				String.chr(65 + source_flag))
 		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + source_flag)) as Node3D
 		var expected := Vector3(float(row.centre[0]), float(row.centre[1]), float(row.centre[2]))
 		if capture == null or not capture.position.is_equal_approx(expected):
 			failures += 1
-			print("FAIL ", filename, ": Atoll flag ", String.chr(65 + source_flag),
+			print("FAIL ", filename, ": Conquest flag ", String.chr(65 + source_flag),
 				" was remapped after manifest classification")
-	if seen != 7:
+	if seen != expected_guids.size():
 		failures += 1
-		print("FAIL ", filename, ": Atoll must contain seven retail capture identities")
+		print("FAIL ", filename, ": Conquest capture identity count ", seen, "/",
+			expected_guids.size())
 
 
 func _check_atoll_hq_areas(root: Node, filename: String) -> void:
