@@ -83,10 +83,11 @@ func _init() -> void:
 						print("FAIL ", filename, ": required auto-spawn disabled ",
 							bad_required_auto_spawn)
 					if mode in ["conquest", "carrierstrike", "escalation"]:
-						for team_name in ["Team1", "Team2"]:
-							if built.get_node_or_null("Vehicles/%s" % team_name) == null:
+						for vehicle_path in ["HQ/Team1", "HQ/Team2", "Objectives/Team1",
+								"Objectives/Team2", "Objectives/Shared", "Emplacements"]:
+							if built.get_node_or_null("Vehicles/%s" % vehicle_path) == null:
 								failures += 1
-								print("FAIL ", filename, ": missing vehicle team folder ", team_name)
+								print("FAIL ", filename, ": missing vehicle folder ", vehicle_path)
 					if level == "mp_capstone" and mode == "conquest":
 						_check_capstone_vehicle_mapping(built, filename)
 						if _count_name_prefix(built, "CapturePoint") != 6:
@@ -133,6 +134,9 @@ func _init() -> void:
 					_check_objective_vehicle_faction_pairs(built, filename)
 					_check_capture_provenance(built, manifest, filename)
 					_check_hq_teams(built, filename)
+					_check_vehicle_folders(built, filename)
+					_check_objective_tree_order(built, filename)
+					_check_expected_flight_boundary(built, manifest, filename)
 					var packed := PackedScene.new()
 					if packed.pack(root) != OK:
 						failures += 1
@@ -204,6 +208,68 @@ func _check_hq_teams(node: Node, filename: String) -> void:
 			print("FAIL ", filename, ": invalid HQ team ", team, " on ", node.name)
 	for child in node.get_children():
 		_check_hq_teams(child, filename)
+
+
+func _check_vehicle_folders(root: Node, filename: String) -> void:
+	_check_vehicle_folder_node(root, root, filename)
+
+
+func _check_vehicle_folder_node(root: Node, node: Node, filename: String) -> void:
+	var relative := str(root.get_path_to(node))
+	if node.has_meta("bf6_runtime_association"):
+		var association := str(node.get_meta("bf6_runtime_association"))
+		var expected := "Vehicles/HQ/" if association.begins_with("HQ") else \
+			"Vehicles/Objectives/" if association.begins_with("CapturePoint") else ""
+		if expected != "" and not relative.begins_with(expected):
+			failures += 1
+			print("FAIL ", filename, ": vehicle folder mismatch ", relative,
+				" for ", association)
+	var scene_name := str(node.scene_file_path).get_file()
+	if scene_name in ["StationaryEmplacementSpawner.tscn",
+			"VEH_Stationary_AutomaticAA.tscn"] and \
+			not relative.begins_with("Vehicles/Emplacements/"):
+		failures += 1
+		print("FAIL ", filename, ": emplacement outside category ", relative)
+	for child in node.get_children():
+		_check_vehicle_folder_node(root, child, filename)
+
+
+func _check_objective_tree_order(root: Node, filename: String) -> void:
+	var objectives := root.get_node_or_null("Objectives")
+	if objectives == null:
+		return
+	var previous := ""
+	for child in objectives.get_children():
+		if not str(child.name).begins_with("CapturePoint"):
+			continue
+		var current := str(child.name)
+		if previous != "" and current < previous:
+			failures += 1
+			print("FAIL ", filename, ": objective scene tree is not alphabetical")
+			return
+		previous = current
+
+
+func _check_expected_flight_boundary(root: Node, manifest: Dictionary,
+		filename: String) -> void:
+	if str((manifest.get("source", {}) as Dictionary).get("mode", "")) != "conquest":
+		return
+	var air_classes := [4, 5, 6, 7, 12, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+	var zone_count := 0
+	var has_aircraft := false
+	for value in manifest.get("objects", []):
+		var row := value as Dictionary
+		if int(row.get("role", 0)) == 3:
+			zone_count += 1
+		elif int(row.get("role", 0)) == 6 and air_classes.has(
+				int((row.get("raw", {}) as Dictionary).get("gem_selector", -1))):
+			has_aircraft = true
+	if not has_aircraft or zone_count < 4:
+		return
+	var combat := root.get_node_or_null("Play Area/CombatArea")
+	if combat == null or combat.get("SurroundingVolume") == null:
+		failures += 1
+		print("FAIL ", filename, ": aircraft layout has no surrounding flight boundary")
 
 
 func _count_name_prefix(node: Node, prefix: String) -> int:
