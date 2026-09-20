@@ -27,7 +27,7 @@ Aircraft-carrier previews are mode-specific. Tsuru Reef receives carriers only f
 
 Selecting **Off** hides layouts without deleting them or discarding edits. The plugin will not overwrite an unrelated `Conquest` node.
 
-**Andys Template Addons** adds the community builder's optional `TeamSwitcher`, `AI Spawns`, and `EndGameCamera` branches to the selected generated layout. It preserves the template's node names and ObjIds, links each AI spawner to its team's generated HQ infantry spawns, and places the editable objects at the origin for manual positioning.
+**Andys Template Addons** adds the community builder's optional `TeamSwitcher`, `AI Spawns`, and `EndGameCamera` branches to the selected generated layout. It preserves the template's node names, ObjIds, and team-switch child offsets, links each AI spawner to its team's generated HQ infantry spawns, and places the editable parent objects at the origin for manual positioning.
 
 ## Notes
 
