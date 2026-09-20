@@ -5,10 +5,30 @@ const Builder = preload("gamemode_builder.gd")
 const Fetch = preload("layout_fetch.gd")
 const VehicleSkin = preload("vehicle_skin.gd")
 const TemplateAddons = preload("template_addons.gd")
+const MODE_DESCRIPTIONS := {
+	"conquest": "Two teams capture and hold persistent objectives across the map. Tickets drain from deaths and enemy-controlled flags; vehicles can belong to HQs or objectives.",
+	"breakthrough": "Attackers capture every objective in the active sector to advance the frontline. Defenders hold each sector; objective labels restart as A and B within each sector.",
+	"rush": "Attackers arm and destroy M-COM stations while defenders defuse them. Destroying every M-COM in a sector advances the fight to the next sector.",
+	"escalation": "Two teams capture territory while the set of active control points shrinks over successive stages, concentrating the battle toward the final objectives.",
+	"domination": "A fast, infantry-focused territory mode. Teams capture and hold several persistent control points to reach the score limit.",
+	"kingofthehill": "Teams contest one active hill at a time. The hill moves during the match, so its candidate areas are not simultaneous Conquest flags.",
+	"koth": "Teams contest one active hill at a time. The hill moves during the match, so its candidate areas are not simultaneous Conquest flags.",
+	"teamdeathmatch": "Two infantry teams race to the kill target. There are no capture, M-COM, or bomb objectives.",
+	"squaddeathmatch": "Four squads race to the kill target in a compact infantry fight. There are no map objectives to capture.",
+	"strikepoint": "Small teams play short elimination rounds around a central capture objective. Players have limited lives and the battlefield resets between rounds.",
+	"sabotage": "Teams alternate attacking and defending destructible cargo sites. The winner destroys more sites, or destroys the same number faster, across both rounds.",
+	"obliteration": "Both teams fight over one bomb and carry it to enemy M-COM targets. The bomb pickup and M-COMs are objectives, not capture points.",
+	"squadobliteration": "A smaller squad-focused version of Obliteration: secure the shared bomb and destroy the opposing squad's M-COM targets.",
+	"carrierstrike": "Land, naval, and air forces open a route to the opposing aircraft carrier, then attack the carrier's final objective to destroy it.",
+	"operations": "Attackers capture sector objectives and push through connected battle phases while defenders fall back and hold the next line.",
+	"gauntlet": "Squads compete through a randomized sequence of objective missions. Low-scoring squads are eliminated after each round until the final two remain.",
+	"payload": "Teams fight along an escort route around a moving payload objective. The route and phase objects differ from static capture-point modes.",
+}
 
 var _dock: VBoxContainer
 var _map_label: Label
 var _layout: OptionButton
+var _mode_description: Label
 var _status: Label
 var _clear_button: Button
 var _template_addons_button: Button
@@ -19,7 +39,8 @@ var _fetch: Node
 var _listed_map := ""
 var _rows: Array = []
 var _busy := false
-var _vehicle_scan_elapsed := 0.0
+var _inspector: EditorInspector
+var _selection: EditorSelection
 
 
 func _enter_tree() -> void:
@@ -29,11 +50,22 @@ func _enter_tree() -> void:
 	_create_dock()
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock)
 	scene_changed.connect(_on_scene_changed)
-	set_process(true)
+	_inspector = get_editor_interface().get_inspector()
+	_selection = get_editor_interface().get_selection()
+	if _inspector != null:
+		_inspector.property_edited.connect(_on_inspector_property_edited)
+	if _selection != null:
+		_selection.selection_changed.connect(_on_editor_selection_changed)
 	_refresh_map()
 
 
 func _exit_tree() -> void:
+	if _inspector != null and _inspector.property_edited.is_connected(
+			_on_inspector_property_edited):
+		_inspector.property_edited.disconnect(_on_inspector_property_edited)
+	if _selection != null and _selection.selection_changed.is_connected(
+			_on_editor_selection_changed):
+		_selection.selection_changed.disconnect(_on_editor_selection_changed)
 	if _dock != null:
 		remove_control_from_docks(_dock)
 		_dock.queue_free()
@@ -63,6 +95,11 @@ func _create_dock() -> void:
 	_layout.item_selected.connect(_on_layout_selected)
 	row.add_child(_layout)
 	_dock.add_child(row)
+	_mode_description = Label.new()
+	_mode_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_mode_description.custom_minimum_size = Vector2(220, 0)
+	_mode_description.text = "Select a game mode to see how its objectives work."
+	_dock.add_child(_mode_description)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.custom_minimum_size = Vector2(220, 0)
@@ -108,22 +145,42 @@ func _on_scene_changed(_scene: Node) -> void:
 	_rows.clear()
 	_layout.clear()
 	_layout.add_item("Off")
+	_mode_description.text = "Select a game mode to see how its objectives work."
 	_refresh_map()
 	call_deferred("_sync_vehicle_skins")
 
 
-func _process(delta: float) -> void:
-	_vehicle_scan_elapsed += delta
-	if _vehicle_scan_elapsed < 0.25:
-		return
-	_vehicle_scan_elapsed = 0.0
-	_sync_vehicle_skins()
-
-
 func _sync_vehicle_skins() -> void:
+	# A single pass is required when a scene opens because preview children are
+	# editor-only and therefore are not saved. After that, inspector signals
+	# update only the selected node; there is no per-frame scene-tree polling.
 	var root := _root()
 	if root != null:
 		VehicleSkin.sync_tree(root)
+
+
+func _on_inspector_property_edited(property: StringName) -> void:
+	if property != &"VehicleType" and property != &"StationaryEmplacementType":
+		return
+	# The property value is committed before this signal, but defer the visual
+	# swap so the inspector finishes its own edit transaction first.
+	call_deferred("_sync_selected_vehicle_skins")
+
+
+func _on_editor_selection_changed() -> void:
+	# This also repairs a missing preview after undo/redo without walking every
+	# vehicle in the scene. Ordinary selection changes are O(selected nodes).
+	call_deferred("_sync_selected_vehicle_skins")
+
+
+func _sync_selected_vehicle_skins() -> void:
+	if _selection == null:
+		return
+	var root := _root()
+	if root == null:
+		return
+	for selected in _selection.get_selected_nodes():
+		VehicleSkin.sync_node(selected as Node, root)
 
 
 func _refresh_map() -> void:
@@ -155,6 +212,7 @@ func _fill_layouts() -> void:
 		for file in (entry as Dictionary).get("files", []):
 			bytes += int((file as Dictionary).get("bytes", 0))
 		_layout.add_item("%s  (%s)" % [str(entry.get("name", "Layout")), String.humanize_size(bytes)])
+		_layout.set_item_tooltip(_layout.item_count - 1, _description_for_entry(entry))
 	_listed_map = map
 	_status.text = "%d published layout(s) for %s." % [_rows.size(), map]
 	_busy = false
@@ -164,14 +222,16 @@ func _on_layout_selected(index: int) -> void:
 	if _busy:
 		return
 	if index == 0:
+		_mode_description.text = "Game-mode layout generation is off."
 		Builder.hide_all(_root())
 		_status.text = "Game-mode layouts hidden."
 		return
 	if index - 1 >= _rows.size():
 		return
+	var entry: Dictionary = _rows[index - 1]
+	_mode_description.text = _description_for_entry(entry)
 	_busy = true
 	_layout.disabled = true
-	var entry: Dictionary = _rows[index - 1]
 	_status.text = "Downloading and verifying %s…" % str(entry.get("name", "layout"))
 	var paths: Dictionary = await _fetch.ensure_layout(entry)
 	if paths.is_empty():
@@ -190,6 +250,13 @@ func _on_layout_selected(index: int) -> void:
 	_layout.disabled = false
 	_busy = false
 	_update_cache_button()
+
+
+func _description_for_entry(entry: Dictionary) -> String:
+	var key := str(entry.get("key", "")).to_lower()
+	var mode := key.get_slice("/", 1) if key.contains("/") else key
+	return str(MODE_DESCRIPTIONS.get(mode,
+		"Uses the installed game's authored spatial layout for this mode."))
 
 
 func _report_build_progress(message: String, current: int, total: int) -> void:

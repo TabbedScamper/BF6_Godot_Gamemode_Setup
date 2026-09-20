@@ -121,6 +121,9 @@ int main(int argc, char** argv)
      * are used only to audit root-to-letter naming; every emitted position,
      * polygon, spawn and raw identity remains installed-game data. */
     std::vector<std::string> adjusted_labels((size_t)count);
+    std::vector<const bf6_gm_entity*> capture_sources((size_t)count, nullptr);
+    std::vector<float> capture_binding_distance((size_t)count, -1.f);
+    std::vector<std::string> capture_binding_methods((size_t)count);
     if (!std::strcmp(argv[3], "conquest")) {
         struct RootPoint { const bf6_gm_entity* row; int flag; };
         std::vector<RootPoint> roots;
@@ -144,6 +147,15 @@ int main(int argc, char** argv)
                         (object.role != BF6_GMR_CAPTURE && object.role != BF6_GMR_ZONE) ||
                         object.area_m2 < 250.f || object.area_m2 > 20000.f) continue;
                     const bf6_gm_entity& source = raw[(size_t)object.entity];
+                    if (root.row->gem_shape && source.shape_asset &&
+                        !std::strcmp(root.row->gem_shape, source.shape_asset)) {
+                        best = i;
+                        const float dx = object.centre[0] - root.row->xform[9];
+                        const float dz = object.centre[2] - root.row->xform[11];
+                        best_distance = dx * dx + dz * dz;
+                        best_area = object.area_m2;
+                        break;
+                    }
                     if (override_guid && source.instance_guid &&
                         !std::strcmp(source.instance_guid, override_guid)) {
                         best = i;
@@ -173,6 +185,14 @@ int main(int argc, char** argv)
                     old_to_retail[(size_t)object.flag] = root.flag;
                 if (object.role == BF6_GMR_ZONE) ++layout.big_flag_rescued;
                 matched[(size_t)best] = root.flag;
+                capture_sources[(size_t)best] = root.row;
+                capture_binding_distance[(size_t)best] = std::sqrt(best_distance);
+                const bf6_gm_entity& matched_source = raw[(size_t)object.entity];
+                capture_binding_methods[(size_t)best] =
+                    root.row->gem_shape && matched_source.shape_asset &&
+                    !std::strcmp(root.row->gem_shape, matched_source.shape_asset)
+                    ? "installed_gem_shape_asset_identity"
+                    : "installed_gem_to_nearest_containing_polygon";
             }
 
             for (int i = 0; i < count; ++i) {
@@ -189,6 +209,15 @@ int main(int argc, char** argv)
                 }
                 object.role = BF6_GMR_CAPTURE;
                 object.flag = matched[(size_t)i];
+                /* A capture GEM and its polygon are distinct authored records.
+                 * The SDK node belongs at the GEM transform (including its
+                 * authored height); its child volume keeps the polygon's
+                 * world points and is rebased by the Godot builder. */
+                if (capture_sources[(size_t)i]) {
+                    object.centre[0] = capture_sources[(size_t)i]->xform[9];
+                    object.centre[1] = capture_sources[(size_t)i]->xform[10];
+                    object.centre[2] = capture_sources[(size_t)i]->xform[11];
+                }
                 adjusted_labels[(size_t)i] = std::string("Flag ") + char('A' + object.flag);
                 object.label = adjusted_labels[(size_t)i].c_str();
             }
@@ -251,6 +280,20 @@ int main(int argc, char** argv)
         }
         if (o.has_ground) out << ",\"ground_y\":" << o.ground_y;
         if (o.has_land) { out << ",\"land\":"; floats(out, o.land, 3); }
+        if (capture_sources[(size_t)i]) {
+            const bf6_gm_entity& cp = *capture_sources[(size_t)i];
+            out << ",\"capture_binding\":{\"method\":";
+            text(out, capture_binding_methods[(size_t)i].c_str());
+            out
+                << ",\"distance_m\":" << capture_binding_distance[(size_t)i]
+                << ",\"instance_guid\":"; text(out, cp.instance_guid);
+            out << ",\"partition\":"; text(out, cp.partition);
+            out << ",\"root_order\":" << cp.root_order << ",\"transform\":";
+            floats(out, cp.xform, 12);
+            out << ",\"gem_shape\":"; text(out, cp.gem_shape);
+            out << ",\"gem_shape_property\":" << cp.gem_shape_property;
+            out << '}';
+        }
         out << ",\"raw\":{\"kind\":" << r.kind << ",\"type\":"; text(out, r.type_name);
         out << ",\"layer\":"; text(out, r.layer);
         out << ",\"partition\":"; text(out, r.partition);
@@ -260,7 +303,11 @@ int main(int argc, char** argv)
         out << ",\"transform\":"; floats(out, r.xform, 12);
         if (r.kind == BF6_GM_OBB) { out << ",\"half_extents\":"; floats(out, r.half_extents, 3); }
         out << ",\"gem_blueprint\":"; text(out, r.gem_link);
-        out << ",\"gem_selector\":" << r.gem_value << "}}";
+        out << ",\"gem_selector\":" << r.gem_value;
+        out << ",\"gem_shape\":"; text(out, r.gem_shape);
+        out << ",\"gem_shape_property\":" << r.gem_shape_property;
+        out << ",\"shape_asset\":"; text(out, r.shape_asset);
+        out << "}}";
     }
     int extras = 0;
     for (int i = 0; i < raw_count; ++i) {

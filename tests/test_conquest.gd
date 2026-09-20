@@ -56,7 +56,7 @@ func _init() -> void:
 			mesh_fluff += 1
 	check_equal("capture count", captures.size(), 9)
 	check_equal("spawn count", spawns.size(), 155)
-	check_equal("vehicle count", vehicles.size(), 55)
+	check_equal("vehicle count", vehicles.size(), 52)
 	check_equal("collision/static-body fluff", collision_fluff, 0)
 	check_equal("mesh fluff", mesh_fluff, 0)
 	check_true("official SpawnPoint scene", not str(spawns[0].scene_file_path).is_empty())
@@ -82,24 +82,24 @@ func _init() -> void:
 		check_near("%s 45-second respawn" % vehicle.name, float(vehicle.get("P_DefaultRespawnTime")), 45.0, 0.001)
 		check_equal("%s abandonment damage" % vehicle.name, vehicle.get("P_ApplyDamageToAbandonVehicle"), true)
 	check_equal("retail category/faction vehicle census", vehicle_census,
-		{3: 2, 5: 2, 7: 1, 9: 4, 10: 3, 12: 2, 13: 4, 14: 1,
-		15: 1, 16: 1, 17: 2, 18: 1, 19: 2, 20: 2, 21: 10, 22: 6,
-		23: 6, 24: 1, 26: 2, 27: 2})
-	var capture_a_vehicle: Node3D = conquest.get_node("Vehicles/Objectives/A/A_Marauder_Root49_Team1")
+		{3: 2, 5: 2, 7: 1, 9: 2, 10: 6, 12: 3, 13: 2, 14: 1,
+		15: 1, 16: 1, 17: 2, 18: 1, 19: 2, 20: 3, 21: 10, 22: 4,
+		23: 4, 24: 1, 26: 2, 27: 2})
+	var capture_a_vehicle: Node3D = conquest.get_node("Vehicles/Objectives/A/A_Flyer60_Root49_Team1")
 	check_equal("A Team1 Blockly vehicle ObjId", int(capture_a_vehicle.get("ObjId")), 600)
 	check_equal("A Team2 Blockly vehicle ObjId", int(conquest.get_node(
-		"Vehicles/Objectives/A/A_Marauder_Pax_Root49_Team2").get("ObjId")), 601)
+		"Vehicles/Objectives/A/A_Vector_Root49_Team2").get("ObjId")), 601)
 	var expected_vehicle_ids := {
 		"B/B_M2Bradley_Root20_Team1": 610,
 		"B/B_CV90_Root20_Team2": 611,
-		"D/D_DirtBike_Root56_Team1": 630,
-		"D/D_DirtBike_Pax_Root56_Team2": 631,
+		"D/D_Marauder_Root41_Team1": 630,
+		"D/D_Marauder_Pax_Root41_Team2": 631,
 		"E/E_AH6M_Root59_Team1": 640,
 		"E/E_AH6M_Pax_Root59_Team2": 641,
-		"F/F_DirtBike_Root61_Team1": 650,
-		"F/F_DirtBike_Pax_Root61_Team2": 651,
-		"H/H_Flyer60_Root55_Team1": 670,
-		"H/H_Vector_Root55_Team2": 671,
+		"F/F_Marauder_Root48_Team1": 650,
+		"F/F_Marauder_Pax_Root48_Team2": 651,
+		"H/H_Marauder_Root50_Team1": 670,
+		"H/H_Marauder_Pax_Root50_Team2": 671,
 		"I/I_M2Bradley_Root40_Team1": 680,
 		"I/I_CV90_Root40_Team2": 681,
 	}
@@ -163,6 +163,8 @@ func _init() -> void:
 	for stationary in conquest.get_node("Extras/StationaryEmplacements").get_children():
 		var stationary_type := int(stationary.get("StationaryEmplacementType"))
 		stationary_census[stationary_type] = int(stationary_census.get(stationary_type, 0)) + 1
+		check_equal("%s auto-spawn enabled" % stationary.name,
+			stationary.get("P_AutoSpawnEnabled"), true)
 		var stationary_skin: Node = null
 		for child in stationary.get_children():
 			if child.has_meta("bf6_vehicle_skin"):
@@ -173,7 +175,7 @@ func _init() -> void:
 		if stationary_skin != null:
 			check_equal("%s skin stays editor-only" % stationary.name,
 				stationary_skin.owner, null)
-	check_equal("retail stationary type census", stationary_census, {0: 1, 1: 2})
+	check_equal("retail stationary class -> SDK type census", stationary_census, {0: 2, 2: 1})
 	check_equal("resupply count", conquest.get_node("Extras/VehicleResupplys").get_child_count(), 2)
 	for station in conquest.get_node("Extras/VehicleResupplys").get_children():
 		var station_model: Node = null
@@ -198,6 +200,11 @@ func _init() -> void:
 			aa.get("ProtectionAreaVolume") != null)
 		var hq_key := str(aa.get_meta("bf6_protection_hq", ""))
 		check_true("%s linked to verified HQ" % aa.name, hq_key in ["HQ1", "HQ2"])
+		var owner_team := int(aa.get("OwnerTeam"))
+		check_equal("%s owner team" % aa.name, owner_team, 1 if hq_key == "HQ1" else 2)
+		check_true("%s team visible in tree" % aa.name,
+			str(aa.name).contains("Team%d" % owner_team))
+		check_true("%s stable readable name" % aa.name, not str(aa.name).begins_with("@"))
 		var hq_node_name := "TEAM_1_HQ" if hq_key == "HQ1" else "TEAM_2_HQ"
 		check_equal("%s uses nearest HQ area" % aa.name,
 			aa.get("ProtectionAreaVolume"), conquest.get_node(hq_node_name).get("HQArea"))

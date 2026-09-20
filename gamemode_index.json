@@ -11,8 +11,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_abbasid_breakthrough.layout.json",
-                                                                      "bytes":  195015,
-                                                                      "sha256":  "45dd2b20fef006261716b6a434b818c02819a858b0a0f58ce1b82efa63269383"
+                                                                      "bytes":  210532,
+                                                                      "sha256":  "829f178bd2337c9b23dc25e16d118e077488915743d805690318d4d36586e947"
                                                                   }
                                                               ]
                                                 },
@@ -25,8 +25,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_abbasid_conquest.layout.json",
-                                                                  "bytes":  119589,
-                                                                  "sha256":  "f8267188304134e7d5548669b41b41231d201af5e775eb6a22086b58c43ac096"
+                                                                  "bytes":  132251,
+                                                                  "sha256":  "50114304a2e6e523fe46756c14f403b0ecfb6b136922538603201d686c828a9f"
                                                               }
                                                           ]
                                             },
@@ -39,8 +39,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_abbasid_domination.layout.json",
-                                                                    "bytes":  39746,
-                                                                    "sha256":  "66396f4f48c93a4f54a13226d8b0e322cf45892467a0114ea1c93805c2a331cc"
+                                                                    "bytes":  42873,
+                                                                    "sha256":  "b58799e1bc9e51bea6523b20d81af2a76941b8fa3e8afc394bdd9545dc58342b"
                                                                 }
                                                             ]
                                               },
@@ -53,8 +53,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_abbasid_escalation.layout.json",
-                                                                    "bytes":  146323,
-                                                                    "sha256":  "3e9e6b3a115da05aa432db1bd05a9b0c11983c2d9f51beb9ef92df8a2aa6a5fb"
+                                                                    "bytes":  157887,
+                                                                    "sha256":  "9674bcccabcb037f7399a8ad81d9c4e4be09df16cefdbe1db9095eb229c650a0"
                                                                 }
                                                             ]
                                               },
@@ -67,8 +67,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_abbasid_kingofthehill.layout.json",
-                                                                       "bytes":  67959,
-                                                                       "sha256":  "27422c1c58c233c1d3607876b5e10cb9e821099830c6cf173eec8eb095379b21"
+                                                                       "bytes":  73387,
+                                                                       "sha256":  "d7b7c479534db4b9012859ee6036c285f95f199df1e94b0f26f510c56b2c6dff"
                                                                    }
                                                                ]
                                                  },
@@ -81,8 +81,8 @@
                                                "files":  [
                                                              {
                                                                  "name":  "mp_abbasid_payload.layout.json",
-                                                                 "bytes":  38867,
-                                                                 "sha256":  "c5aa501f5027c5c4fc9a52ecc3fde0f989acccaf7ddd8e67899349ec9f1202cc"
+                                                                 "bytes":  41286,
+                                                                 "sha256":  "2f2c089eada71444ef0614703762f077c6833fc9fb7d6df15bb74a463a2a6cf9"
                                                              }
                                                          ]
                                            },
@@ -95,8 +95,8 @@
                                             "files":  [
                                                           {
                                                               "name":  "mp_abbasid_rush.layout.json",
-                                                              "bytes":  62538,
-                                                              "sha256":  "da121144b05eaf9b4198debb230e339610440064af86b7a8a2b4cba37093a458"
+                                                              "bytes":  67140,
+                                                              "sha256":  "4a6e45241324316eebe9087914bef3283a9fd46f5d98ac7f2adc78cad561635b"
                                                           }
                                                       ]
                                         },
@@ -109,8 +109,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_abbasid_sabotage.layout.json",
-                                                                  "bytes":  14778,
-                                                                  "sha256":  "7c371f540e78fb73433ce8f5fc597512fdca047354053c92260216aed20ec736"
+                                                                  "bytes":  15722,
+                                                                  "sha256":  "b7deb7cbf4baa0192fa5a3d14efb2ff9a1cef022c83a4f710a0157a512e0006a"
                                                               }
                                                           ]
                                             },
@@ -123,8 +123,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_abbasid_squaddeathmatch.layout.json",
-                                                                         "bytes":  62844,
-                                                                         "sha256":  "c0268793b94c3cf00bdc29e16a79ebd07ee7206b10883057f2c865e97adb7590"
+                                                                         "bytes":  68036,
+                                                                         "sha256":  "20ba4a1884be8a87504507d01d77f9712b7eef8dbc79fa9f0cec4f0b388779fc"
                                                                      }
                                                                  ]
                                                    },
@@ -137,8 +137,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_abbasid_squadobliteration.layout.json",
-                                                                           "bytes":  28154,
-                                                                           "sha256":  "f5daacdf38cd391376a0872cfcfb7b203eca47d7607513015eb964a58ca7cf18"
+                                                                           "bytes":  30160,
+                                                                           "sha256":  "5ecc2e54d3ec746a42d80ea8b9c782b96f913ef614b9dfcd3a5361fa7b8a8710"
                                                                        }
                                                                    ]
                                                      },
@@ -151,8 +151,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_abbasid_strikepoint.layout.json",
-                                                                     "bytes":  20117,
-                                                                     "sha256":  "6a5e9b482445582cf99567d7c117af190f5e5f5b1d329e7295a2d0cf454a6be5"
+                                                                     "bytes":  21533,
+                                                                     "sha256":  "a30955913c19289689544eae960f6baae33cbedf990e8ebc461634121c05e728"
                                                                  }
                                                              ]
                                                },
@@ -165,8 +165,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_abbasid_teamdeathmatch.layout.json",
-                                                                        "bytes":  25601,
-                                                                        "sha256":  "ffcb9b12bba98e3fb71af3a77ba3877ba82cbc6c17246e221444d54750ac286b"
+                                                                        "bytes":  27607,
+                                                                        "sha256":  "008f9742b1484d13aad9eadd65c4b582ca724fc2050ab8ec0cd04dceb31829f9"
                                                                     }
                                                                 ]
                                                   },
@@ -179,8 +179,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_aftermath_breakthrough.layout.json",
-                                                                        "bytes":  127775,
-                                                                        "sha256":  "4df71188efcf9724551ea460c65b6748ca58218e89023c8424225eb905cbce06"
+                                                                        "bytes":  136920,
+                                                                        "sha256":  "4ae4655cc9f111355d53fa1868573bb815aea2f854eec5aba18f0b1098fee653"
                                                                     }
                                                                 ]
                                                   },
@@ -193,8 +193,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_aftermath_conquest.layout.json",
-                                                                    "bytes":  112316,
-                                                                    "sha256":  "5a29ee3b3ef8a1d2e3eace73c3eaf294cdd076fccb1d0d8e5f148e267811ab30"
+                                                                    "bytes":  123793,
+                                                                    "sha256":  "1ed990f6537ef78fe94da1d93dd50656b8c809c73d6f42a6f232b9695134c596"
                                                                 }
                                                             ]
                                               },
@@ -207,8 +207,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_aftermath_domination.layout.json",
-                                                                      "bytes":  32107,
-                                                                      "sha256":  "69866a5e6e941b6d2ec08f7eb13b1c8bb215cd409faf1b13b99791a961c6fe0d"
+                                                                      "bytes":  34585,
+                                                                      "sha256":  "2a2b6cafedc267fcee793ffa0d5db318372b7c4197aa756d67cc5727bbddbb34"
                                                                   }
                                                               ]
                                                 },
@@ -221,8 +221,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_aftermath_kingofthehill.layout.json",
-                                                                         "bytes":  80838,
-                                                                         "sha256":  "ac5409d143f955512d0dd4af81a00010eb6a8ce8d70cb7eb4c2e723a9435efc8"
+                                                                         "bytes":  87446,
+                                                                         "sha256":  "01c8d4cee5b977e2fe1bb37ddbfc0d303b93f41da419eb01257fe07ce68fc6ab"
                                                                      }
                                                                  ]
                                                    },
@@ -235,8 +235,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_aftermath_rush.layout.json",
-                                                                "bytes":  58675,
-                                                                "sha256":  "bb1990935a558088cb742e140c2e111b80b05bf4120e7d2550f44dde4618be96"
+                                                                "bytes":  62628,
+                                                                "sha256":  "597ae85acfa28e2c6cb9234071ea97dcfc6f0951dbb9aac0c987cc4d7f4c8a7a"
                                                             }
                                                         ]
                                           },
@@ -249,8 +249,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_aftermath_sabotage.layout.json",
-                                                                    "bytes":  17369,
-                                                                    "sha256":  "2fbc4cdd65650ab287d5adbfe2fc68db16923b149d05dff0a0d46211163575f4"
+                                                                    "bytes":  18490,
+                                                                    "sha256":  "db2b4d047ba96e03af07ee17abf741652aa94ac508c3a65f4e3b2e3954bfd024"
                                                                 }
                                                             ]
                                               },
@@ -263,8 +263,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_aftermath_squaddeathmatch.layout.json",
-                                                                           "bytes":  39563,
-                                                                           "sha256":  "d2017f6da488825e43283abb28e3064067fef82a5a55b3f778303dad7ebfc936"
+                                                                           "bytes":  42808,
+                                                                           "sha256":  "a256998ea2b8c948570cbbe113e5f3456d0a2ef3a40944eec0d7123434315512"
                                                                        }
                                                                    ]
                                                      },
@@ -277,8 +277,8 @@
                                                            "files":  [
                                                                          {
                                                                              "name":  "mp_aftermath_squadobliteration.layout.json",
-                                                                             "bytes":  28988,
-                                                                             "sha256":  "6c363ca2fde3b2e278b1e08f89e33661408b34d09d8c038d9d05fce0e5de0555"
+                                                                             "bytes":  30994,
+                                                                             "sha256":  "ac3891e795c7042e1c4c88bbfc7dfc488a11a5b35413e182e8ac1734e8edc478"
                                                                          }
                                                                      ]
                                                        },
@@ -291,8 +291,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_aftermath_strikepoint.layout.json",
-                                                                       "bytes":  5888,
-                                                                       "sha256":  "56e4d07f4a4c1b79767589276052160f5890306fda6ceac8b84351f549b7d159"
+                                                                       "bytes":  6124,
+                                                                       "sha256":  "a4201394ecabd57fb8872fff0f28786389609d0fe76fba02515afc4984fd510a"
                                                                    }
                                                                ]
                                                  },
@@ -305,8 +305,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_aftermath_teamdeathmatch.layout.json",
-                                                                          "bytes":  30817,
-                                                                          "sha256":  "2166e75c4c15eb9f2535111f8f3a6a2a396679a3e6232c82c0314b0878d7348b"
+                                                                          "bytes":  33236,
+                                                                          "sha256":  "e37b9917dc27b14c6d791f09847cf0f9966c1cc9c662a10b985316a426540433"
                                                                       }
                                                                   ]
                                                     },
@@ -319,8 +319,8 @@
                                                              "files":  [
                                                                            {
                                                                                "name":  "mp_aftermath_portal_breakthrough.layout.json",
-                                                                               "bytes":  132342,
-                                                                               "sha256":  "f7a2de6b2e519c49ee87a9778a2045983e6f6c29678c5814341216065c466dc8"
+                                                                               "bytes":  141487,
+                                                                               "sha256":  "abe1fba6a56ace6cd316bc76884c4f673ec778ebcf86446d99d4b7590bd6bc95"
                                                                            }
                                                                        ]
                                                          },
@@ -333,8 +333,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_aftermath_portal_conquest.layout.json",
-                                                                           "bytes":  116691,
-                                                                           "sha256":  "03dcf35228350cb8d9f2b1b5047187250ea2584f9f000587a6289eee4b2cac9d"
+                                                                           "bytes":  128238,
+                                                                           "sha256":  "0009d29c41c731351ab4bfa7cc15490b599b119c49571c024139152846f61082"
                                                                        }
                                                                    ]
                                                      },
@@ -347,8 +347,8 @@
                                                            "files":  [
                                                                          {
                                                                              "name":  "mp_aftermath_portal_domination.layout.json",
-                                                                             "bytes":  33290,
-                                                                             "sha256":  "3351a8f1ce207fab2c474d46a86e0005626d581e4bcbb027949630e8c71ab0b8"
+                                                                             "bytes":  35768,
+                                                                             "sha256":  "95cbb685a1772a8013eee80c8e5b5eb4a371ca7c378dc33f26bb40ad34b1f0be"
                                                                          }
                                                                      ]
                                                        },
@@ -361,8 +361,8 @@
                                                               "files":  [
                                                                             {
                                                                                 "name":  "mp_aftermath_portal_kingofthehill.layout.json",
-                                                                                "bytes":  83986,
-                                                                                "sha256":  "4b76136884ef6f9c4e47561f3ebd64e3337938dbdf0aa88216346068ed9db4e3"
+                                                                                "bytes":  90594,
+                                                                                "sha256":  "3d5cba0c148cf926fb13e3e5c76c4a4a923d91331b3a7e763decc61b9c2dce88"
                                                                             }
                                                                         ]
                                                           },
@@ -375,8 +375,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_aftermath_portal_rush.layout.json",
-                                                                       "bytes":  60784,
-                                                                       "sha256":  "d1d2f8bab4ad203dd10c2ab0b1a472302315044918f15df5cece530a47784eb8"
+                                                                       "bytes":  64737,
+                                                                       "sha256":  "e86407310d034ec377c02ee4e1ffe84ddc19768ac833e76a66c64c695fa57621"
                                                                    }
                                                                ]
                                                  },
@@ -389,8 +389,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_aftermath_portal_sabotage.layout.json",
-                                                                           "bytes":  17965,
-                                                                           "sha256":  "6916be612ac1b9d9f64846add9f7ceccac9941006b7a60f0030e597347ee1409"
+                                                                           "bytes":  19086,
+                                                                           "sha256":  "bfeb129cf76fea8cbe9af85c59bf07adf02a649635cc0d8c5d0afcb30784c7bb"
                                                                        }
                                                                    ]
                                                      },
@@ -403,8 +403,8 @@
                                                                 "files":  [
                                                                               {
                                                                                   "name":  "mp_aftermath_portal_squaddeathmatch.layout.json",
-                                                                                  "bytes":  41109,
-                                                                                  "sha256":  "c3373fbc2f2688193d6c2916a0928060bfa1b7e73851c76bc42cd606b4f9a8c3"
+                                                                                  "bytes":  44354,
+                                                                                  "sha256":  "8c7418faec7449d0544b6115006bb4d194d7609a512e83bb5dd8d44f19d143e5"
                                                                               }
                                                                           ]
                                                             },
@@ -417,8 +417,8 @@
                                                             "files":  [
                                                                           {
                                                                               "name":  "mp_aftermath_portal_strikepoint.layout.json",
-                                                                              "bytes":  6065,
-                                                                              "sha256":  "63e3c3a355b9606f9cfc0ce47ffbb3c6ae4feecb71e912d41cbf45723474645d"
+                                                                              "bytes":  6301,
+                                                                              "sha256":  "6bbac9281d0f767486f3981832506720e5965f92b5ed31c2d2cae19660d1665e"
                                                                           }
                                                                       ]
                                                         },
@@ -431,8 +431,8 @@
                                                                "files":  [
                                                                              {
                                                                                  "name":  "mp_aftermath_portal_teamdeathmatch.layout.json",
-                                                                                 "bytes":  31957,
-                                                                                 "sha256":  "6b8345a6dda1b07de027527c3281fd6ce5ac58a377d4f33e73100f102a130c6d"
+                                                                                 "bytes":  34376,
+                                                                                 "sha256":  "64189ca20442878fe899527a489f970b1ae69b8ef4ebc8831f5ec30715c580ab"
                                                                              }
                                                                          ]
                                                            },
@@ -446,8 +446,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_atoll_breakthrough.layout.json",
-                                                                    "bytes":  352413,
-                                                                    "sha256":  "301df70bbd64a9bf82c3f9cdbca38ddc59aea5073babd2db9f984afd81170a15"
+                                                                    "bytes":  381146,
+                                                                    "sha256":  "3a35d820753f74807d7df06b367a4acb148ac5f539be064f8cf6b8c1522f963c"
                                                                 },
                                                                 {
                                                                     "name":  "mp_atoll_breakthrough_carriers.glb",
@@ -466,8 +466,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_atoll_conquest.layout.json",
-                                                                "bytes":  128675,
-                                                                "sha256":  "9207968bcb47176a3e5e57b01103316641c1ba4ad4e41c2b233a656d14aaa65c"
+                                                                "bytes":  142624,
+                                                                "sha256":  "e4810bd4052bf0d378939a4bf5e564d316a40c80319c8a66c905fe582fb892ac"
                                                             },
                                                             {
                                                                 "name":  "mp_atoll_conquest_carriers.glb",
@@ -485,8 +485,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_atoll_domination.layout.json",
-                                                                  "bytes":  17287,
-                                                                  "sha256":  "f240280d1c83ca3be39d0eb0c287ddd66f1973f50e9226b37d19184d298cf96c"
+                                                                  "bytes":  18703,
+                                                                  "sha256":  "d83021ad2f4200a9cd3158138e4c220cfb11aeffa2c072aeff1f28daee6dbda1"
                                                               }
                                                           ]
                                             },
@@ -500,8 +500,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_atoll_escalation.layout.json",
-                                                                  "bytes":  94767,
-                                                                  "sha256":  "7921309694d9a51039d4d89ade32b352d35368d72960c6401b91d675553d52b1"
+                                                                  "bytes":  101906,
+                                                                  "sha256":  "220ee54b26881fff7abe9c4b2d1898756e07018c325c0414b9026af531d11a9f"
                                                               },
                                                               {
                                                                   "name":  "mp_atoll_escalation_carriers.glb",
@@ -519,8 +519,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_atoll_kingofthehill.layout.json",
-                                                                     "bytes":  4283,
-                                                                     "sha256":  "59dda58132673f9add056a3905cf9f8c18a43c6974f16e3481671a91a5733d02"
+                                                                     "bytes":  4519,
+                                                                     "sha256":  "0e030c5fa5160a83668224ee9b5246a0d182b204ea9974d23e415c8a4eb7079c"
                                                                  }
                                                              ]
                                                },
@@ -533,8 +533,8 @@
                                           "files":  [
                                                         {
                                                             "name":  "mp_atoll_koth.layout.json",
-                                                            "bytes":  29470,
-                                                            "sha256":  "1e352a1636d5e390eb8cdd8783b0ba09f993e554c72af0bef5fcb849a08fdcc4"
+                                                            "bytes":  32066,
+                                                            "sha256":  "c355c284ada0a5b5a56edd8509084e3dc101d4c65fa2de452b554424c9625a9a"
                                                         }
                                                     ]
                                       },
@@ -547,8 +547,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_atoll_payload.layout.json",
-                                                               "bytes":  16988,
-                                                               "sha256":  "cf228d748b1cb23273f759ff528505d345b37f4de25842c47b9ea1f39f6106bc"
+                                                               "bytes":  18168,
+                                                               "sha256":  "6d72e3a3cba6c237764965ed9c70068c517c40fc553cf5f48e52b7b8584dfbd5"
                                                            }
                                                        ]
                                          },
@@ -561,8 +561,8 @@
                                           "files":  [
                                                         {
                                                             "name":  "mp_atoll_rush.layout.json",
-                                                            "bytes":  114986,
-                                                            "sha256":  "ca675700149e17ed953efc52c9a7047e1173a1f1a73bca3ba8580a2e6f48c617"
+                                                            "bytes":  124013,
+                                                            "sha256":  "26507b01cce352fc89e0b617a421df90dace3c9f9cf2a0ae3c6467ec9ca89530"
                                                         }
                                                     ]
                                       },
@@ -575,8 +575,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_atoll_sabotage.layout.json",
-                                                                "bytes":  12677,
-                                                                "sha256":  "366a5b02128b687af117a8e1163534cf39e8236190f225f9eb62a57285023a1d"
+                                                                "bytes":  13562,
+                                                                "sha256":  "31fa840ea8eb21c1cb238c7d4a3663eb512f2ed48930c324a3d21396703dbad7"
                                                             }
                                                         ]
                                           },
@@ -589,8 +589,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_atoll_squaddeathmatch.layout.json",
-                                                                       "bytes":  17957,
-                                                                       "sha256":  "dcd4c95d250f00ac8ce55c6eac2132120b8d5fa8bb92583f6130f39b0ffb430d"
+                                                                       "bytes":  19432,
+                                                                       "sha256":  "d2a3d6321ebb79d38c1304f9aea53b7f507f8018f37bc12b15c84ff153d79921"
                                                                    }
                                                                ]
                                                  },
@@ -603,8 +603,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_atoll_strikepoint.layout.json",
-                                                                   "bytes":  5120,
-                                                                   "sha256":  "a6da433cb04b320fead464ed2ba8170082b6ec934d127e53791406a8071e4d66"
+                                                                   "bytes":  5297,
+                                                                   "sha256":  "4aca1aa501f6a08393e7077ce63952fb0350ac690d1d57427fb52198a919d328"
                                                                }
                                                            ]
                                              },
@@ -617,8 +617,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_atoll_teamdeathmatch.layout.json",
-                                                                      "bytes":  18958,
-                                                                      "sha256":  "10d88cc076ddb9dcb3be2ae8be79eab1ea5500ebb10f3d2ea9a72ac596d3249c"
+                                                                      "bytes":  20551,
+                                                                      "sha256":  "44ddd70df6581e9713541dbde0aa9c24e4e1da981449cc3ed0a8b33d8fcc533f"
                                                                   }
                                                               ]
                                                 },
@@ -631,8 +631,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_badlands_breakthrough.layout.json",
-                                                                       "bytes":  106635,
-                                                                       "sha256":  "b6842527dbe2d348412438d2f1c4d4f07a98c3286d7fd22aa345070d5be28cc6"
+                                                                       "bytes":  114482,
+                                                                       "sha256":  "d366583f446f291b074303dcee485affc7437c0eff094085e9bdd77fb598084f"
                                                                    }
                                                                ]
                                                  },
@@ -645,8 +645,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_badlands_conquest.layout.json",
-                                                                   "bytes":  127690,
-                                                                   "sha256":  "85e9b8048d63a000192415a81ba770e4cb13596e8e2bff6ec9556e1563c8ffa1"
+                                                                   "bytes":  140459,
+                                                                   "sha256":  "4517aab5c8f85241b10eee267293e31d9d787d695ea885add3697a990f2c4436"
                                                                }
                                                            ]
                                              },
@@ -659,8 +659,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_badlands_domination.layout.json",
-                                                                     "bytes":  54852,
-                                                                     "sha256":  "ec456f13560ee617f299240615d24dcc27eca94ec546a529d5bc6ed463ebb243"
+                                                                     "bytes":  58864,
+                                                                     "sha256":  "c93ef0bd3d24fb56f975a9836d98db8dc7673bec261aecff5c2a599a22cfb5a3"
                                                                  }
                                                              ]
                                                },
@@ -673,8 +673,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_badlands_kingofthehill.layout.json",
-                                                                        "bytes":  59875,
-                                                                        "sha256":  "66357313703fa37f0b192f501ba1f07219999465bd2f2c0f0d17b151c8ec2032"
+                                                                        "bytes":  64831,
+                                                                        "sha256":  "ed8dda9add1ad715960c2a381fb7be17a7cff6ae6cedddfc5dcae29a71ddc69d"
                                                                     }
                                                                 ]
                                                   },
@@ -687,8 +687,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_badlands_payload.layout.json",
-                                                                  "bytes":  17390,
-                                                                  "sha256":  "824ef7d03c120459e4d07b97886b17cc60e3f2d6afff4f870ae913674de2f83d"
+                                                                  "bytes":  18570,
+                                                                  "sha256":  "1c1f8397ec3d443cd1bf13268141ac1370382974c93a0c9420f9e584612d078e"
                                                               }
                                                           ]
                                             },
@@ -701,8 +701,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_badlands_rush.layout.json",
-                                                               "bytes":  62141,
-                                                               "sha256":  "a110f03100bb3f0ded9580f22b8438451b583a5572bf96b5a4679d9c6165ca27"
+                                                               "bytes":  66448,
+                                                               "sha256":  "3c213ce6479a59a90dc813827d4b26320d6e15b0710acaf9c05e4962e23317d1"
                                                            }
                                                        ]
                                          },
@@ -715,8 +715,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_badlands_sabotage.layout.json",
-                                                                   "bytes":  29874,
-                                                                   "sha256":  "0d9be8a2170c6412a1723902fbd4db2a617757745be08ea2d7b76eef8be5b158"
+                                                                   "bytes":  31880,
+                                                                   "sha256":  "ce7c51d9dca81e157d0fa9f87847d4ec783238456fe5430a75049def42eb36b7"
                                                                }
                                                            ]
                                              },
@@ -729,8 +729,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_badlands_squaddeathmatch.layout.json",
-                                                                          "bytes":  39925,
-                                                                          "sha256":  "6d0aef4704f6bba460860ba79bbce58a7809f84ab84d3170f2654d9379078d43"
+                                                                          "bytes":  43052,
+                                                                          "sha256":  "91b0e8b8fe518cf7af2f840f4dce81a3a184811ea490dd1a63732dea8fd8bbcf"
                                                                       }
                                                                   ]
                                                     },
@@ -743,8 +743,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_badlands_strikepoint.layout.json",
-                                                                      "bytes":  33917,
-                                                                      "sha256":  "5fb3c4d1b910268c22420b3764df6228b141e2725b501dd2553ec4b796fe3205"
+                                                                      "bytes":  36336,
+                                                                      "sha256":  "097987094eb3e671bba97c6f721af09d1fb80fd46f89d65252ba9e16c0231a7d"
                                                                   }
                                                               ]
                                                 },
@@ -757,8 +757,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_badlands_teamdeathmatch.layout.json",
-                                                                         "bytes":  49328,
-                                                                         "sha256":  "882b80057fb93649badb7778f1081d14b8d606a62b5adf3a92c26bbf2315964b"
+                                                                         "bytes":  53104,
+                                                                         "sha256":  "9a2aa8d5842a750e180cce03ac4dfff0c5f3a80075591e855fa45f5234c1efdd"
                                                                      }
                                                                  ]
                                                    },
@@ -771,8 +771,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_battery_conquest.layout.json",
-                                                                  "bytes":  110060,
-                                                                  "sha256":  "e5c35f12c40f48bb41e0bd009c8389895574b4e4ed6bc71b494fc752d05e44b0"
+                                                                  "bytes":  121214,
+                                                                  "sha256":  "9a91be47f54ddef20cb4953755eead8b61192770258c90448df3969cbf9ba026"
                                                               }
                                                           ]
                                             },
@@ -785,8 +785,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_battery_domination.layout.json",
-                                                                    "bytes":  24778,
-                                                                    "sha256":  "229756f5946d4e578b0a9763f8e9295482db87e82c330ac7f9903db16362cb6d"
+                                                                    "bytes":  26607,
+                                                                    "sha256":  "b1b65de682e15d1b287d6342b98358f505932f96fd0f6c1f3a32352943ca9a0f"
                                                                 }
                                                             ]
                                               },
@@ -799,8 +799,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_battery_escalation.layout.json",
-                                                                    "bytes":  82375,
-                                                                    "sha256":  "f45b1206bf986cca400917ca498aa72a47ff75d65556aeedbcdbbd9cfcc2c32e"
+                                                                    "bytes":  88039,
+                                                                    "sha256":  "88bd6faf9d3a51d9fc30189dca1c8b7eb4704f8ffec89287dfeba1eb0b1cd821"
                                                                 }
                                                             ]
                                               },
@@ -813,8 +813,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_battery_kingofthehill.layout.json",
-                                                                       "bytes":  48096,
-                                                                       "sha256":  "49693a5349726d78e608bc52f74a22e47093f62dee1da25d1c4f5bf22ae06740"
+                                                                       "bytes":  52108,
+                                                                       "sha256":  "e9630fed2954116cd9312cf93223d34b8ed170a7e04055ea2633a3c09b5cb1d3"
                                                                    }
                                                                ]
                                                  },
@@ -827,8 +827,8 @@
                                                "files":  [
                                                              {
                                                                  "name":  "mp_battery_payload.layout.json",
-                                                                 "bytes":  29151,
-                                                                 "sha256":  "60d53c6058ee1227ee77bc6c3d066cb4c891dcf8273ef07b0142ef658e29bb92"
+                                                                 "bytes":  30567,
+                                                                 "sha256":  "99a0a955c020251d0077b3dfe416341bf039db74ba5e3e8d87d97537bc2e0a54"
                                                              }
                                                          ]
                                            },
@@ -841,8 +841,8 @@
                                             "files":  [
                                                           {
                                                               "name":  "mp_battery_rush.layout.json",
-                                                              "bytes":  44429,
-                                                              "sha256":  "73c5ae0750a1dd7faa098d3c03f21bdab3e59d8d3e3450eb8307ca9f2ba506ce"
+                                                              "bytes":  47143,
+                                                              "sha256":  "700dbcbe90f8cb5a2321fb3e3add590c61d087ccd31b3494eb803a9365368ca8"
                                                           }
                                                       ]
                                         },
@@ -855,8 +855,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_battery_sabotage.layout.json",
-                                                                  "bytes":  18168,
-                                                                  "sha256":  "5d39173afca47a39589e7502139df4f69c802a51f34a1f65824ee708e1331465"
+                                                                  "bytes":  19230,
+                                                                  "sha256":  "5cec72824ca57f682a8517ddb6d913435d4d3a9933de66cb04356f1bc5284402"
                                                               }
                                                           ]
                                             },
@@ -869,8 +869,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_battery_squaddeathmatch.layout.json",
-                                                                         "bytes":  27371,
-                                                                         "sha256":  "b891c23757e844cce62252bca91dc123b075a320c6150a25e1c0bc41499fc9f7"
+                                                                         "bytes":  29436,
+                                                                         "sha256":  "90bb344a785f91d4dec34947782578144468efb785875c4b5f89c06714679627"
                                                                      }
                                                                  ]
                                                    },
@@ -883,8 +883,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_battery_squadobliteration.layout.json",
-                                                                           "bytes":  29064,
-                                                                           "sha256":  "a615ea47085cf16467a9bf974e31c3fa3d77dc10a074f41046e24c9b28e9aa65"
+                                                                           "bytes":  31070,
+                                                                           "sha256":  "492d0688dcecdbcc8ef36d2be7eba764b272a13cb46c28be8beda5f7982d52a2"
                                                                        }
                                                                    ]
                                                      },
@@ -897,8 +897,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_battery_strikepoint.layout.json",
-                                                                     "bytes":  5399,
-                                                                     "sha256":  "f92814d80540aade16f62dbdf5eb1173fc1a54484d7a8489d390c1889850af9b"
+                                                                     "bytes":  5517,
+                                                                     "sha256":  "759c2f618323898f422cb614e94577bd2ae251a02d78a89afee2f411631eb038"
                                                                  }
                                                              ]
                                                },
@@ -911,8 +911,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_battery_teamdeathmatch.layout.json",
-                                                                        "bytes":  23865,
-                                                                        "sha256":  "9172a68fb72330aa90e60e69803ed6e44bdfd6811fe53dba9eaa0c55b7fe496c"
+                                                                        "bytes":  25871,
+                                                                        "sha256":  "948c764b22ba78d4416806184ef0ac836a384673cab2e65b567d35600fd6a5cf"
                                                                     }
                                                                 ]
                                                   },
@@ -925,8 +925,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_capstone_breakthrough.layout.json",
-                                                                       "bytes":  214426,
-                                                                       "sha256":  "66839364ff5d426a7f31a3ac6be6ab5603a980282c689b53c4100edeced2ca51"
+                                                                       "bytes":  231123,
+                                                                       "sha256":  "3d982a1d5ee43aedf2a2550506fa77c37f4b18857252fc10fc2d3e8321f8c131"
                                                                    }
                                                                ]
                                                  },
@@ -939,8 +939,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_capstone_conquest.layout.json",
-                                                                   "bytes":  152236,
-                                                                   "sha256":  "d0762056197905c9e285068ec47c03a4ac7b328c309730dc4df34c0f7a1b1ec0"
+                                                                   "bytes":  167521,
+                                                                   "sha256":  "8863a24fbd0c3fdc7f9a292619c0c1850492f1c6b17dbebc5d2cffb3f0e471bf"
                                                                }
                                                            ]
                                              },
@@ -953,8 +953,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_capstone_domination.layout.json",
-                                                                     "bytes":  21227,
-                                                                     "sha256":  "6296f164424bc691f904443b118d21939e4ff74501242b0e2aa12d24d61d097e"
+                                                                     "bytes":  22761,
+                                                                     "sha256":  "749d34acc26535ae6e025df7960e30b7bef5254a588c686e7935a196733e7f3b"
                                                                  }
                                                              ]
                                                },
@@ -967,8 +967,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_capstone_escalation.layout.json",
-                                                                     "bytes":  118120,
-                                                                     "sha256":  "9a99d8f6c7ba5d894a8268a633ca85bc46b891594d429c4f53e309785f07e52e"
+                                                                     "bytes":  126793,
+                                                                     "sha256":  "28c0fb77ebc651e1508ba72588794921da2dcf82ff445f8b89c47399cfcc7852"
                                                                  }
                                                              ]
                                                },
@@ -981,8 +981,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_capstone_kingofthehill.layout.json",
-                                                                        "bytes":  54613,
-                                                                        "sha256":  "8ea812a6dc9596f24a5c0b732971b068ec22f5eb49c72a2c3cf1ea84c3937730"
+                                                                        "bytes":  59038,
+                                                                        "sha256":  "384e4f739fea39ce2eaaf37a8a908cdc4e2df041c16b275f56d103e26969a4f0"
                                                                     }
                                                                 ]
                                                   },
@@ -995,8 +995,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_capstone_operations.layout.json",
-                                                                     "bytes":  210975,
-                                                                     "sha256":  "ee40f50a8ed05e3edd9434fb47c15d43d48847fa255dcc38b79963f008ee4c5c"
+                                                                     "bytes":  227967,
+                                                                     "sha256":  "afd501ade29314e790c6dad798919267da1e53110f1d507165e9aa457a05c809"
                                                                  }
                                                              ]
                                                },
@@ -1009,8 +1009,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_capstone_payload.layout.json",
-                                                                  "bytes":  43404,
-                                                                  "sha256":  "e9a95c82476f8f676097c8c1c12a4c642ccbb9927ddff256be34cc0e723c9bf1"
+                                                                  "bytes":  46472,
+                                                                  "sha256":  "31bcef7bad0a0a064748ee13b3cbd272243d5ec489494576e241aee5a4d7388c"
                                                               }
                                                           ]
                                             },
@@ -1023,8 +1023,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_capstone_rush.layout.json",
-                                                               "bytes":  85951,
-                                                               "sha256":  "74d7369e2c97e2d3db9f457e57b7f890c2e31a4f44c352d3b04537a4d947a6fb"
+                                                               "bytes":  91320,
+                                                               "sha256":  "90811ede57b40746a9bd5b136e6110bc1dc1f98c42c2f0df1b9b31b6ed418ebc"
                                                            }
                                                        ]
                                          },
@@ -1037,8 +1037,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_capstone_squaddeathmatch.layout.json",
-                                                                          "bytes":  64195,
-                                                                          "sha256":  "cd52f05392e215fde3d382437bf42f52f84a54a653d03f3ebfb879bc32166f5b"
+                                                                          "bytes":  69564,
+                                                                          "sha256":  "43d6d34691f3d7cab812af2dacfebe2f39bd37fe6275e02125dcd955f933bae4"
                                                                       }
                                                                   ]
                                                     },
@@ -1051,8 +1051,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_capstone_strikepoint.layout.json",
-                                                                      "bytes":  4709,
-                                                                      "sha256":  "efbc68f077ccf37216090d5c904f1b85163982b9a6df8465f3719a18e5272531"
+                                                                      "bytes":  4827,
+                                                                      "sha256":  "ad6f572ee9045378f85a15999dff392add80fc7de14a7f38f80f60a2a0c09dee"
                                                                   }
                                                               ]
                                                 },
@@ -1065,8 +1065,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_capstone_teamdeathmatch.layout.json",
-                                                                         "bytes":  20231,
-                                                                         "sha256":  "18c047f0501c4e87ee09595a463eb621bca03ea2838869fce554cf16ccce32e4"
+                                                                         "bytes":  21824,
+                                                                         "sha256":  "02c430f0c74824593dccdd3df49b2f8afcc47571f434c1888034bae85761fe12"
                                                                      }
                                                                  ]
                                                    },
@@ -1079,8 +1079,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_contaminated_breakthrough.layout.json",
-                                                                           "bytes":  258681,
-                                                                           "sha256":  "5b823c42b50f444f8782053510a849e58db698194c4ab5bf2ba1f5d1cea78955"
+                                                                           "bytes":  278800,
+                                                                           "sha256":  "595b0b80a51c9abe6eb134a5423ce7b1b38dc9c3b365cf06d7309752efcdbd5c"
                                                                        }
                                                                    ]
                                                      },
@@ -1093,8 +1093,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_contaminated_conquest.layout.json",
-                                                                       "bytes":  166208,
-                                                                       "sha256":  "e0fbff7f989c6c9d4a7cebadae0b9857a12eb94700cb849d032ce8f7d07579cf"
+                                                                       "bytes":  182775,
+                                                                       "sha256":  "d24ee793c1daddbfde1d9e581071099b0fb93462450e93e623dac3c76310d519"
                                                                    }
                                                                ]
                                                  },
@@ -1107,8 +1107,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_contaminated_domination.layout.json",
-                                                                         "bytes":  29649,
-                                                                         "sha256":  "8cc681f205f0455f3c673e78f3ffec08ea0e1af23e3009add3070a7ba943ce2d"
+                                                                         "bytes":  32068,
+                                                                         "sha256":  "511bc22567737ddcacbfbdf45c267d2b653bd3ad9a067c9ae60e5e512371fb51"
                                                                      }
                                                                  ]
                                                    },
@@ -1121,8 +1121,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_contaminated_escalation.layout.json",
-                                                                         "bytes":  149935,
-                                                                         "sha256":  "220636ff3e6bd401b63a81f077067eba6352dc98637faab8fb53e1cf45abdff7"
+                                                                         "bytes":  160909,
+                                                                         "sha256":  "d2fae271d4d7866202aa469c17424f108d707bc0e8c56b886c6241407abd80ce"
                                                                      }
                                                                  ]
                                                    },
@@ -1135,8 +1135,8 @@
                                                           "files":  [
                                                                         {
                                                                             "name":  "mp_contaminated_kingofthehill.layout.json",
-                                                                            "bytes":  4194,
-                                                                            "sha256":  "9dd8e6f39727e3f42699ecbd11186bb1bb0fb5e0298bfc0a10ac2482d6ae4a3b"
+                                                                            "bytes":  4489,
+                                                                            "sha256":  "7a34eefd0e0c03e53ba10e056bd36cd825244076382bb86127d393ac55c1b159"
                                                                         }
                                                                     ]
                                                       },
@@ -1149,8 +1149,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_contaminated_koth.layout.json",
-                                                                   "bytes":  44600,
-                                                                   "sha256":  "e2a27fdd22453857dd6d4bf424334886d037bdf660cfa6a844648de4981a1757"
+                                                                   "bytes":  48435,
+                                                                   "sha256":  "6152144acfc43040223a158ef790749a6b24cc79a9a29eb617b1802e993d5017"
                                                                }
                                                            ]
                                              },
@@ -1163,8 +1163,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_contaminated_obliteration.layout.json",
-                                                                           "bytes":  80524,
-                                                                           "sha256":  "8bdb64706d65f1d6d998dad8552dcc99d91106f82184f3c0cdb2af5a7ef8f7b4"
+                                                                           "bytes":  86424,
+                                                                           "sha256":  "b239b234025637273296b003bbc8c7b9ac12d3fda602d84770f45ee1ff2d6f71"
                                                                        }
                                                                    ]
                                                      },
@@ -1177,8 +1177,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_contaminated_operations.layout.json",
-                                                                         "bytes":  62166,
-                                                                         "sha256":  "e80fec2965312cbf93e0d2df12d797614b328cb23003fa98e21bbc52478e5116"
+                                                                         "bytes":  66650,
+                                                                         "sha256":  "fd0a8a56a8cb21979d3c4f4e65dc6beb99d5bce66562bb6cc750ecfbb803d57e"
                                                                      }
                                                                  ]
                                                    },
@@ -1191,8 +1191,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_contaminated_payload.layout.json",
-                                                                      "bytes":  32859,
-                                                                      "sha256":  "9e6d7b82c7ab8f6310337edb04950c450d186e2a11abfbdfbae254295867efb5"
+                                                                      "bytes":  35396,
+                                                                      "sha256":  "afeafd6f7dc1e0fcb308e9813795370835170f841e86b172d68783a55f400ac9"
                                                                   }
                                                               ]
                                                 },
@@ -1205,8 +1205,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_contaminated_rush.layout.json",
-                                                                   "bytes":  16791,
-                                                                   "sha256":  "8192cb58531a7d7178c4d3bcc468d47c42935a98c2e74a82c16c3e2b5f28b871"
+                                                                   "bytes":  17794,
+                                                                   "sha256":  "7988edcedcaa3a60d5fe348bd188020fcf9cc82e626d234d523a3c034bf1396d"
                                                                }
                                                            ]
                                              },
@@ -1219,8 +1219,8 @@
                                                             "files":  [
                                                                           {
                                                                               "name":  "mp_contaminated_squaddeathmatch.layout.json",
-                                                                              "bytes":  35384,
-                                                                              "sha256":  "c6a3555b0596cf3ff3370468147481f53d9a311c2a01a5103f588dfe11bb18e3"
+                                                                              "bytes":  38334,
+                                                                              "sha256":  "7180e178f035d7f9682bf9f2e0a26cfc53c79f9116437131b6bde39b6ecb6131"
                                                                           }
                                                                       ]
                                                         },
@@ -1233,8 +1233,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_contaminated_strikepoint.layout.json",
-                                                                          "bytes":  2899,
-                                                                          "sha256":  "2f885e97bfbac30382425fad75aa85da6c65ea0f352b885bbeffda2f19c483d9"
+                                                                          "bytes":  2958,
+                                                                          "sha256":  "5fb4a558e527c64f7d0ce39f006ab878490da2b1a14f0ee7156e6f649e8e9acf"
                                                                       }
                                                                   ]
                                                     },
@@ -1247,8 +1247,8 @@
                                                            "files":  [
                                                                          {
                                                                              "name":  "mp_contaminated_teamdeathmatch.layout.json",
-                                                                             "bytes":  13665,
-                                                                             "sha256":  "a78caa79b9e859bb86ee7b20e59c815a93321c3bf34a570d67ca9387e5b34aaf"
+                                                                             "bytes":  14786,
+                                                                             "sha256":  "8e9c81f01381f397d01926f30c913f9e011c35d4ca750f678c6b547f10e8ce04"
                                                                          }
                                                                      ]
                                                        },
@@ -1261,8 +1261,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_dumbo_breakthrough.layout.json",
-                                                                    "bytes":  145766,
-                                                                    "sha256":  "81f295453f9732b0ede15387a168a37aa01c7d21e17b23c9390fe2de7a309393"
+                                                                    "bytes":  157861,
+                                                                    "sha256":  "bdfa075a73996f0e0603a5e9f8904a95ee6bc31d5ad44e668da5f351b6d4c4b5"
                                                                 }
                                                             ]
                                               },
@@ -1275,8 +1275,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_dumbo_conquest.layout.json",
-                                                                "bytes":  178775,
-                                                                "sha256":  "c748d6996ade21e6c34c910121a5b6300082e0412a5efe0c31968ea316d8d2a3"
+                                                                "bytes":  195346,
+                                                                "sha256":  "075f054a2f48488045e161781642257d07279e6e25079abfa3bc4e537a137539"
                                                             }
                                                         ]
                                           },
@@ -1289,8 +1289,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_dumbo_domination.layout.json",
-                                                                  "bytes":  21315,
-                                                                  "sha256":  "c9924236ccc11b3a98caa61c009b2beb7ae6983675a33b43ec9c8d858e39c8c8"
+                                                                  "bytes":  22967,
+                                                                  "sha256":  "6013920317b2a4468e4df762cd9c18646745205b0b5a132481bc8c15719e917b"
                                                               }
                                                           ]
                                             },
@@ -1303,8 +1303,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_dumbo_escalation.layout.json",
-                                                                  "bytes":  97380,
-                                                                  "sha256":  "7f88093952ff112d0018b0d64ea37b1a874601f0d1be7fde0e3f6c9900f01f81"
+                                                                  "bytes":  105109,
+                                                                  "sha256":  "a6de2e3ec3952f682c9106f8b338afb881ecea1b6e6ab7a50d3c5d1cba8db4e7"
                                                               }
                                                           ]
                                             },
@@ -1317,8 +1317,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_dumbo_kingofthehill.layout.json",
-                                                                     "bytes":  64589,
-                                                                     "sha256":  "9b585d1fe857aa3ff492ee3bce09262d8b695453b30f94148290d0f69eb108b5"
+                                                                     "bytes":  70017,
+                                                                     "sha256":  "34102d0384fe6705b63cbabed2942bbb1787bacaebc409c68e1e87d888127cad"
                                                                  }
                                                              ]
                                                },
@@ -1331,8 +1331,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_dumbo_payload.layout.json",
-                                                               "bytes":  31326,
-                                                               "sha256":  "2ca1129a7c9c9498305b8cf9c592cbb1e052dd3887ad8433fb300782844a6cc0"
+                                                               "bytes":  33509,
+                                                               "sha256":  "738cafdd537f36e2ca5727210395c6d710d2d1a465f9058374d2f59f18d900fc"
                                                            }
                                                        ]
                                          },
@@ -1345,8 +1345,8 @@
                                           "files":  [
                                                         {
                                                             "name":  "mp_dumbo_rush.layout.json",
-                                                            "bytes":  52731,
-                                                            "sha256":  "792b69f6b7ca903702f665c52a66b329a5eb73167a2a1e2e07b689ba03b7a6f3"
+                                                            "bytes":  56920,
+                                                            "sha256":  "3595f4bea7026c53366f45c95e04eddc3b257426b183bc8b0194aa7ae7ceba7a"
                                                         }
                                                     ]
                                       },
@@ -1359,8 +1359,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_dumbo_sabotage.layout.json",
-                                                                "bytes":  18290,
-                                                                "sha256":  "8fb31e6d85f4c0e48e1043224646fa7f88fcfe39bcfbf47a26882a22f3258aa9"
+                                                                "bytes":  19529,
+                                                                "sha256":  "50e20e84b08e2eec5889e6c572a94058f7868fe737dbda0bf9308c40381ff4f8"
                                                             }
                                                         ]
                                           },
@@ -1373,8 +1373,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_dumbo_squaddeathmatch.layout.json",
-                                                                       "bytes":  30872,
-                                                                       "sha256":  "f8f37ed08fffd4a83f64586ccc5d77526e2df495a52598fe9a78ef14a2d9141d"
+                                                                       "bytes":  33409,
+                                                                       "sha256":  "0d44e3059aa14c1c7c15d0c3919918009c201e681310f526419b5858e86c8a1d"
                                                                    }
                                                                ]
                                                  },
@@ -1387,8 +1387,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_dumbo_strikepoint.layout.json",
-                                                                   "bytes":  20486,
-                                                                   "sha256":  "8e0e152673ddb1b0fe9f94ea792756ff688d2db99cacfb8cbdb9a34f1f92132d"
+                                                                   "bytes":  21902,
+                                                                   "sha256":  "0e7eb3d69306e96c741205a930a61293d09627e4aa177eea20f79af0cda48e17"
                                                                }
                                                            ]
                                              },
@@ -1401,8 +1401,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_dumbo_teamdeathmatch.layout.json",
-                                                                      "bytes":  19950,
-                                                                      "sha256":  "f91ca9292d919799e9413ab7fd49101ca4de4a6e8718e73bb09d538b9d388dbd"
+                                                                      "bytes":  21484,
+                                                                      "sha256":  "916e4446a82a0ea9faf03d64f5b76e74bc68c4c10e23c40859a64d93ab74a77f"
                                                                   }
                                                               ]
                                                 },
@@ -1415,8 +1415,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_eastwood_breakthrough.layout.json",
-                                                                       "bytes":  171627,
-                                                                       "sha256":  "b311ae690f74d91bace423dd64249736dc6d28852a279026d92ac512a7d1820b"
+                                                                       "bytes":  183958,
+                                                                       "sha256":  "58e0aea992a6a51e055eb7eb95458e6b1a6159dd57f9513623db15dab1a460d1"
                                                                    }
                                                                ]
                                                  },
@@ -1429,8 +1429,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_eastwood_conquest.layout.json",
-                                                                   "bytes":  141831,
-                                                                   "sha256":  "bcf5b23cb700ade5e4bf2edc2fcc54135ff580fc1cd6c3c5f826ca6515f4ec72"
+                                                                   "bytes":  155871,
+                                                                   "sha256":  "8fb08d64d160af8499c9257b426df670fefb7f184f89ecdf5a29ed6a23f89d6c"
                                                                }
                                                            ]
                                              },
@@ -1443,8 +1443,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_eastwood_domination.layout.json",
-                                                                     "bytes":  20571,
-                                                                     "sha256":  "77e9ba0b6ed2cafc6b7a76e4667323c6e65f45c89f757e0205e45c846c056e85"
+                                                                     "bytes":  22046,
+                                                                     "sha256":  "858fa962e6b05a0b1dd53241d6fd8b7aebcd0339eeac2d7a4c6ab814f90e9e56"
                                                                  }
                                                              ]
                                                },
@@ -1457,8 +1457,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_eastwood_escalation.layout.json",
-                                                                     "bytes":  227763,
-                                                                     "sha256":  "984958e70cafbc589e53744219428db1fb7ee3370a748ff37aa32640b775a9a8"
+                                                                     "bytes":  245463,
+                                                                     "sha256":  "a1aba3aa18e1094288a0c83199095c5910622d289276713a8d5b4e2c66b65b50"
                                                                  }
                                                              ]
                                                },
@@ -1471,8 +1471,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_eastwood_kingofthehill.layout.json",
-                                                                        "bytes":  84982,
-                                                                        "sha256":  "98602eec3de8dd34d46ca074a5374b644c28943d94f1fc26ff690d78b338645d"
+                                                                        "bytes":  92062,
+                                                                        "sha256":  "6520aa92daa8430b790ff8d93fc9483f758032039b98bb3d1fa21d6f5ef5de73"
                                                                     }
                                                                 ]
                                                   },
@@ -1485,8 +1485,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_eastwood_obliteration.layout.json",
-                                                                       "bytes":  78814,
-                                                                       "sha256":  "5c71ce7ea2e4f674f5ec185f9c003edccb1b703c51d56757a859e6a42586201c"
+                                                                       "bytes":  84596,
+                                                                       "sha256":  "c9fac8e94b80a58668113751dd17f9394549cc953d7ead43ccb950dc016b8c2a"
                                                                    }
                                                                ]
                                                  },
@@ -1499,8 +1499,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_eastwood_rush.layout.json",
-                                                               "bytes":  68791,
-                                                               "sha256":  "ca75011053f0e1794276aec9272d8c328859e6e9f5f80914bee758a016c330a1"
+                                                               "bytes":  72626,
+                                                               "sha256":  "5907282c07a86536b490f606782d4910eeec963a3c609915299f13de2e4fb1d0"
                                                            }
                                                        ]
                                          },
@@ -1513,8 +1513,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_eastwood_sabotage.layout.json",
-                                                                   "bytes":  20471,
-                                                                   "sha256":  "bac866b92647ec12a697e6f1db50fcef47089db09ca25366ad3b71515690db61"
+                                                                   "bytes":  21651,
+                                                                   "sha256":  "c443f27c36c722a25712348da20a1b750be9181eb82c2a8b1a20d9bb835faa8e"
                                                                }
                                                            ]
                                              },
@@ -1527,8 +1527,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_eastwood_squaddeathmatch.layout.json",
-                                                                          "bytes":  20026,
-                                                                          "sha256":  "bae08cb68e65d139858c2bf09852506b794f2d381e4f78c1092093d26de258f6"
+                                                                          "bytes":  21560,
+                                                                          "sha256":  "68837dec3f91cd411b448e9a311131247125dfe5f9eddbc887d01303edef2089"
                                                                       }
                                                                   ]
                                                     },
@@ -1541,8 +1541,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_eastwood_strikepoint.layout.json",
-                                                                      "bytes":  9810,
-                                                                      "sha256":  "5bbd09a9ed790efc60692432a661db44f7b4ad020f86f914edea0a1cc5417b10"
+                                                                      "bytes":  10223,
+                                                                      "sha256":  "5d9e7f3959129d1a50a0c729c47ec5ca5d3aaf4522bf630e051ad1c2ed99aef7"
                                                                   }
                                                               ]
                                                 },
@@ -1555,8 +1555,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_eastwood_teamdeathmatch.layout.json",
-                                                                         "bytes":  37498,
-                                                                         "sha256":  "d5578344107abd53a8e1eed96261100a6a868633bdef9bbace62a63c033fa942"
+                                                                         "bytes":  40389,
+                                                                         "sha256":  "7cea8273cd1eb5fc7397263e7dd3e1b8f71d656cb309a5a3e9826321c10c50af"
                                                                      }
                                                                  ]
                                                    },
@@ -1569,8 +1569,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_firestorm_breakthrough.layout.json",
-                                                                        "bytes":  158182,
-                                                                        "sha256":  "0b1162bfd1f5e2818f38655ce2d233f440d38b907a6293232aa390229f55e5ef"
+                                                                        "bytes":  171044,
+                                                                        "sha256":  "e3b4df7128feff96781d004a420a0cedf4030c8cb8ca3d9c57c551d7b0c9ed00"
                                                                     }
                                                                 ]
                                                   },
@@ -1583,8 +1583,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_firestorm_conquest.layout.json",
-                                                                    "bytes":  136138,
-                                                                    "sha256":  "aef1d499153c38282823b3ad9227a0252e142dd59e08228fd0c98fe2e8a170f6"
+                                                                    "bytes":  149801,
+                                                                    "sha256":  "25682678b7517c0698fdd92eded35d28ba2ba96ad610800f2bc07a0af0b6e087"
                                                                 }
                                                             ]
                                               },
@@ -1597,8 +1597,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_firestorm_domination.layout.json",
-                                                                      "bytes":  22661,
-                                                                      "sha256":  "37b2f402859fe628042e2c8a07db41758404c4b3f50e499b5ebeedeb0f56c067"
+                                                                      "bytes":  24372,
+                                                                      "sha256":  "cd1790b34bd2842b2d3c270eb5b8b3107cac7151114c48390b76929191d1d2e5"
                                                                   }
                                                               ]
                                                 },
@@ -1611,8 +1611,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_firestorm_escalation.layout.json",
-                                                                      "bytes":  199197,
-                                                                      "sha256":  "8c1226a5ee3443651af0a95b06896d64f80df36ef6b36dca54e3f0865e193856"
+                                                                      "bytes":  214832,
+                                                                      "sha256":  "b510b24f2590512b5346b333b967736d86e8d8221172d77a4a8dbe79fa138bb1"
                                                                   }
                                                               ]
                                                 },
@@ -1625,8 +1625,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_firestorm_kingofthehill.layout.json",
-                                                                         "bytes":  60188,
-                                                                         "sha256":  "cafac657278c0b5bf15a6ae0ff619fd97ef688363f49fb5e79f4107d0eb80fcb"
+                                                                         "bytes":  65262,
+                                                                         "sha256":  "ce935d3fa92e1418a22cb91849ceca96371adb05a702df29c79e46be37ecb91c"
                                                                      }
                                                                  ]
                                                    },
@@ -1639,8 +1639,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_firestorm_rush.layout.json",
-                                                                "bytes":  59081,
-                                                                "sha256":  "2c2b60c2d6f09abe07dbac3aa9189df08cd0bb73086fefb0701c0ad33ef69a29"
+                                                                "bytes":  63801,
+                                                                "sha256":  "92350db3bcd1cb9b89c8fc9627756e8e8629e31515b82eeb1475dbc34987fd28"
                                                             }
                                                         ]
                                           },
@@ -1653,8 +1653,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_firestorm_squaddeathmatch.layout.json",
-                                                                           "bytes":  27900,
-                                                                           "sha256":  "c59523b88648b5f143768c337647c83fd0a7b7a0276cc066a9df2b89b42f1a1d"
+                                                                           "bytes":  30083,
+                                                                           "sha256":  "ca14a0751bbe852235bdc44567233aab40aedde4ed8f20c80793481ef8e30ede"
                                                                        }
                                                                    ]
                                                      },
@@ -1667,8 +1667,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_firestorm_strikepoint.layout.json",
-                                                                       "bytes":  4899,
-                                                                       "sha256":  "a060dafd5774d1478b4f2474e26ef83a1ab853839f9c1bea52f127e93c3f4b7d"
+                                                                       "bytes":  5017,
+                                                                       "sha256":  "1963b8df314ebd0618433d5b1a9f47f498cdb63f1eee253c46758110f6edfe49"
                                                                    }
                                                                ]
                                                  },
@@ -1681,8 +1681,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_firestorm_teamdeathmatch.layout.json",
-                                                                          "bytes":  17964,
-                                                                          "sha256":  "ca3301cba0461d5fd17d9d12a733ea1772de38bcd0967a227eab7f33e680998a"
+                                                                          "bytes":  19321,
+                                                                          "sha256":  "c0c3be204c99c7072907fa2cd128096d482cad077a5ff7310fdc5662087f56b8"
                                                                       }
                                                                   ]
                                                     },
@@ -1695,8 +1695,8 @@
                                                           "files":  [
                                                                         {
                                                                             "name":  "mp_golmudrailway_breakthrough.layout.json",
-                                                                            "bytes":  232886,
-                                                                            "sha256":  "98670cd0cfcb5eaf9cd5f68ffc6afe41bf26529c4a5a0792508498053860976c"
+                                                                            "bytes":  250822,
+                                                                            "sha256":  "e49c5cd65ef8de8094f3c4ec6fb31609f408b97c7122341fc5a8aa6737c6403d"
                                                                         }
                                                                     ]
                                                       },
@@ -1709,8 +1709,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_golmudrailway_conquest.layout.json",
-                                                                        "bytes":  195276,
-                                                                        "sha256":  "229aa737e76cf225f3321887ff22c8c3fe87d37d4ccbac343612b6e2c63813f3"
+                                                                        "bytes":  213888,
+                                                                        "sha256":  "ca46854cdc4c77c18d9ea6a6c4e714f69a6890063f620735936bb7376ebba920"
                                                                     }
                                                                 ]
                                                   },
@@ -1723,8 +1723,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_golmudrailway_domination.layout.json",
-                                                                          "bytes":  22881,
-                                                                          "sha256":  "9b11b311942ec39c7f8dcf7c1e7c096fe0eeda3ddca0af7bc5bedbeb8c734ee3"
+                                                                          "bytes":  24592,
+                                                                          "sha256":  "bb1f0337a490959ea5f9c599aa3592bb5c16c2fc71c716d69df6eabf35a76c7c"
                                                                       }
                                                                   ]
                                                     },
@@ -1737,8 +1737,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_golmudrailway_escalation.layout.json",
-                                                                          "bytes":  153304,
-                                                                          "sha256":  "71626b7e24328ececd50d0a340f8919ae96b80dd9aab874e78068be12a89efed"
+                                                                          "bytes":  164433,
+                                                                          "sha256":  "d86e6679bce84b4425383b3c15f8617ec6ef11696a4723882c3a316ee6393c22"
                                                                       }
                                                                   ]
                                                     },
@@ -1751,8 +1751,8 @@
                                                           "files":  [
                                                                         {
                                                                             "name":  "mp_golmudrailway_obliteration.layout.json",
-                                                                            "bytes":  115581,
-                                                                            "sha256":  "b697de34c2bcbd19d0bf2351adb123b6fee10fcfc33a29f5dbef140d388b344c"
+                                                                            "bytes":  123900,
+                                                                            "sha256":  "d747e2fc933e942bd41113061830e40b2f8a34267e02e2d0a5c62ed6f42bdbcd"
                                                                         }
                                                                     ]
                                                       },
@@ -1765,8 +1765,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_golmudrailway_rush.layout.json",
-                                                                    "bytes":  129932,
-                                                                    "sha256":  "fd42e0bd744c0564bf42e15fab478675ad9eda45e6e5ab5268b4d07a656b003b"
+                                                                    "bytes":  139962,
+                                                                    "sha256":  "50d417a774e6a32a746b235d2b497c5c8b413c947cca8ee639bf31d3cd979e39"
                                                                 }
                                                             ]
                                               },
@@ -1779,8 +1779,8 @@
                                                              "files":  [
                                                                            {
                                                                                "name":  "mp_golmudrailway_squaddeathmatch.layout.json",
-                                                                               "bytes":  29167,
-                                                                               "sha256":  "622596c53379e82a74a2bf20b8bae13c637920e2ce748edc109ee9f8b7173ef8"
+                                                                               "bytes":  31291,
+                                                                               "sha256":  "a96935d6b6485ec46b42e9de57cd7c7b51a7f37f510b51727d02362d5868881e"
                                                                            }
                                                                        ]
                                                          },
@@ -1793,8 +1793,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_golmudrailway_strikepoint.layout.json",
-                                                                           "bytes":  4929,
-                                                                           "sha256":  "5e8d3416f6f44c7c77701f52c4f54489945440c2b21779d5cdbcbe7b79c60a9c"
+                                                                           "bytes":  5106,
+                                                                           "sha256":  "693b3606481adb01d067c95f09079d03ee4506388f0f5860c3c2ef062133e5f7"
                                                                        }
                                                                    ]
                                                      },
@@ -1807,8 +1807,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_isolated_breakthrough.layout.json",
-                                                                       "bytes":  243185,
-                                                                       "sha256":  "d94d4ea959783db735a2aaeaa2d4ba65386f5b6f48c19a9ebf7ae09261586ecd"
+                                                                       "bytes":  261298,
+                                                                       "sha256":  "412f858092ba1190f21020b289832b2ce27785ff9dc2d597942920d48f110f38"
                                                                    }
                                                                ]
                                                  },
@@ -1822,8 +1822,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_isolated_carrierstrike.layout.json",
-                                                                        "bytes":  165631,
-                                                                        "sha256":  "f96e7bb96ea832dd89819d6f61bd716c1dffdf262eb635c4dcaae23f3554750e"
+                                                                        "bytes":  179024,
+                                                                        "sha256":  "66b00755c10159acfcde3d65a16f2199308b14f52eb5c84ed60db2a4070f7f24"
                                                                     },
                                                                     {
                                                                         "name":  "mp_isolated_carrierstrike_carriers.glb",
@@ -1841,8 +1841,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_isolated_conquest.layout.json",
-                                                                   "bytes":  162711,
-                                                                   "sha256":  "2471b9786c88522dec7d4fefdd126ae5eef80fa5a316d70c4c839dd07f5d9517"
+                                                                   "bytes":  179962,
+                                                                   "sha256":  "0c06a6fb9b48c440de07ec828759c885b2d4b9fd8bd5789e974f5d5e78a84c03"
                                                                }
                                                            ]
                                              },
@@ -1855,8 +1855,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_isolated_domination.layout.json",
-                                                                     "bytes":  21693,
-                                                                     "sha256":  "7fbe23c2db7374cf05c6be94ed770bc4a4be08f2432b22d47fb3e33061921ef2"
+                                                                     "bytes":  23345,
+                                                                     "sha256":  "1582fbbd07b502e905b174b8ffcee2d4eecf1bf8b7103e741273520233a3540d"
                                                                  }
                                                              ]
                                                },
@@ -1869,8 +1869,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_isolated_escalation.layout.json",
-                                                                     "bytes":  72171,
-                                                                     "sha256":  "e757a0bc0ffe2be0facf895d98b680958480ec09cca8e324ac8eebf3fe997802"
+                                                                     "bytes":  77304,
+                                                                     "sha256":  "9070c2599772161c07ebd7e6b491058ddd7cc4a83fcbb0617b086b2ed608a07e"
                                                                  }
                                                              ]
                                                },
@@ -1883,8 +1883,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_isolated_gauntlet.layout.json",
-                                                                   "bytes":  20698,
-                                                                   "sha256":  "5f79e0bd0341d239e396c9df2bf874604fb8f62fef955e43a7eb7c9c6468a012"
+                                                                   "bytes":  21937,
+                                                                   "sha256":  "31c43d3096cba32a98f16098b89fc2b5b43e435a12aff998b54e9518168467f6"
                                                                }
                                                            ]
                                              },
@@ -1897,8 +1897,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_isolated_koth.layout.json",
-                                                               "bytes":  50736,
-                                                               "sha256":  "eb82c4ce95f99e76b66bddfce45f3d987671438250c70c91950c3812d318c00b"
+                                                               "bytes":  55161,
+                                                               "sha256":  "695ea9e1ad77488f8db3fee2b0ac77bf534c9beceb24e5fbdf2cb1ee8c899705"
                                                            }
                                                        ]
                                          },
@@ -1911,8 +1911,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_isolated_rush.layout.json",
-                                                               "bytes":  56842,
-                                                               "sha256":  "d30c6c2227827829633b388c6471455ab036608003fd988add4346182443b13e"
+                                                               "bytes":  60972,
+                                                               "sha256":  "7eddd09b72d439f62ff99728897858ad09edbffd4f6757771404b47265ecd4a8"
                                                            }
                                                        ]
                                          },
@@ -1925,8 +1925,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_isolated_sabotage.layout.json",
-                                                                   "bytes":  19497,
-                                                                   "sha256":  "542e6fb25d7d0ec24c17196347238462e43a71673b9b0e6a572ee3eed355f6ad"
+                                                                   "bytes":  20677,
+                                                                   "sha256":  "e26d15861425d14c97943b198be28741e765af65b925804a6c8e1580eae8f5f8"
                                                                }
                                                            ]
                                              },
@@ -1939,8 +1939,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_isolated_squaddeathmatch.layout.json",
-                                                                          "bytes":  50133,
-                                                                          "sha256":  "6d90a9267da5fbbfeac02c44d20854fc230535b3de50dfca72a11624746c77e5"
+                                                                          "bytes":  54322,
+                                                                          "sha256":  "0ccff6f3e5321fb40570c0218829a7960c6961d7ecb7a3203c021481130ac6e4"
                                                                       }
                                                                   ]
                                                     },
@@ -1953,8 +1953,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_isolated_strikepoint.layout.json",
-                                                                      "bytes":  3349,
-                                                                      "sha256":  "f1a7592c0842bb277db79b8b9b7cf902bd4de074e775cf86f97abe3bbc85d4c4"
+                                                                      "bytes":  3467,
+                                                                      "sha256":  "666d85469e8f34e55ff7646c739133f1742724604bb8e10e87b8b4764a7a6dea"
                                                                   }
                                                               ]
                                                 },
@@ -1967,8 +1967,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_isolated_teamdeathmatch.layout.json",
-                                                                         "bytes":  21047,
-                                                                         "sha256":  "f29be06978bafb02314de7683cb11ec38f56d75429f80e01c5e3c8a00d8a041c"
+                                                                         "bytes":  22758,
+                                                                         "sha256":  "d2999cc1425c5792f383503f6fb6ed0e93d30b63c4b962a904c5414753935373"
                                                                      }
                                                                  ]
                                                    },
@@ -1981,8 +1981,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_limestone_domination.layout.json",
-                                                                      "bytes":  16514,
-                                                                      "sha256":  "5eb89846434d282f09cb00ee326590ca5a602eb89392894eec5abea0f05ef502"
+                                                                      "bytes":  17753,
+                                                                      "sha256":  "1a063dd4f289753827ab9fa3339e68a5c682872b1748a3a7150c4233540130d8"
                                                                   }
                                                               ]
                                                 },
@@ -1995,8 +1995,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_limestone_kingofthehill.layout.json",
-                                                                         "bytes":  40774,
-                                                                         "sha256":  "a43074508cc5f022664ca8a6c6ddfce152e1de126eeabbc44b6a457a2c55501c"
+                                                                         "bytes":  44019,
+                                                                         "sha256":  "344366e316185f96a6c58de6c0b19b14878c527d4aa96a791e33e313c061e108"
                                                                      }
                                                                  ]
                                                    },
@@ -2009,8 +2009,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_limestone_sabotage.layout.json",
-                                                                    "bytes":  16335,
-                                                                    "sha256":  "ea5c204dde21ac4230de2a3fd31f7eccb387297c8b4e724041a603ba2326d169"
+                                                                    "bytes":  17220,
+                                                                    "sha256":  "0f7f4481e2fbb7a4990b5cee53c7b41c022621d1e4eb978fab93a51f3fab495a"
                                                                 }
                                                             ]
                                               },
@@ -2023,8 +2023,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_limestone_squaddeathmatch.layout.json",
-                                                                           "bytes":  26396,
-                                                                           "sha256":  "b2b1807a52b7d11795c8bf7006a701092a9837867e9be0b8b589d75ada0404ad"
+                                                                           "bytes":  28579,
+                                                                           "sha256":  "f5b4f55aeffa1414e09f548ae2c601498b5a9e5f26ab3f3de23923a6ab46db8c"
                                                                        }
                                                                    ]
                                                      },
@@ -2037,8 +2037,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_limestone_strikepoint.layout.json",
-                                                                       "bytes":  2627,
-                                                                       "sha256":  "5c93df5d8f3cf80f36cc979b5a75611d5c3ad3ffe3f97665b517d91fa5d3f954"
+                                                                       "bytes":  2686,
+                                                                       "sha256":  "c3139991a06392aa0a7ab9665ed8132f948f1d1653b70129e8fe442b60f45d70"
                                                                    }
                                                                ]
                                                  },
@@ -2051,8 +2051,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_limestone_teamdeathmatch.layout.json",
-                                                                          "bytes":  19227,
-                                                                          "sha256":  "e188f15c072c09d27333e84e95a19f2e619b1c141041ff954b0a02f3ee847b03"
+                                                                          "bytes":  20820,
+                                                                          "sha256":  "dbc42b60608d1feeddfa7aadeab0017c3c90a3b200130537528b49aac10268db"
                                                                       }
                                                                   ]
                                                     },
@@ -2065,8 +2065,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_outskirts_breakthrough.layout.json",
-                                                                        "bytes":  136405,
-                                                                        "sha256":  "da1cd79102f2c5b8096cb73af3e118a9ac724d0abcc4427b3c335a74475f1f33"
+                                                                        "bytes":  146789,
+                                                                        "sha256":  "14e921670f98a5ad883b52ca2e8d2b8f637fadc4b15bf12b651ddaed44f48e5d"
                                                                     }
                                                                 ]
                                                   },
@@ -2079,8 +2079,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_outskirts_conquest.layout.json",
-                                                                    "bytes":  113149,
-                                                                    "sha256":  "ee51db86ad46002a5aabc927bb9a483362edd77d7fcc8a75f29516c009db9e22"
+                                                                    "bytes":  124760,
+                                                                    "sha256":  "9c178d03288478aec5c00256819de55057cf919edc9544580cde8514348bcfa1"
                                                                 }
                                                             ]
                                               },
@@ -2093,8 +2093,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_outskirts_domination.layout.json",
-                                                                      "bytes":  29977,
-                                                                      "sha256":  "44783d41e602c6deb45e3eb95486f4d0efdd1914e3f32c92d972a5a9bee51978"
+                                                                      "bytes":  32219,
+                                                                      "sha256":  "94f56ea86ed883a732dd4f2795dfad3e6af6bb5fc91c7b2ac80656026536f38c"
                                                                   }
                                                               ]
                                                 },
@@ -2107,8 +2107,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_outskirts_escalation.layout.json",
-                                                                      "bytes":  155897,
-                                                                      "sha256":  "1eb4382aa9a6a23fe9a8166388a38bbd31885c73c66eb9e02f598a9c19de04bc"
+                                                                      "bytes":  166860,
+                                                                      "sha256":  "c33bed9a9f7e7e629f68a2b5e943da7a086286da3999f32e0bf1faa51a8f0a34"
                                                                   }
                                                               ]
                                                 },
@@ -2121,8 +2121,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_outskirts_kingofthehill.layout.json",
-                                                                         "bytes":  62853,
-                                                                         "sha256":  "86b394165baf3303fa632d1ba5c607b7393b1f0516938d22e0e3b7a17663a98a"
+                                                                         "bytes":  67927,
+                                                                         "sha256":  "f4b70ac7e93d79063280745f1b3eca96b267430d68a70965d683506b0e02869f"
                                                                      }
                                                                  ]
                                                    },
@@ -2135,8 +2135,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_outskirts_payload.layout.json",
-                                                                   "bytes":  36609,
-                                                                   "sha256":  "1a714592ab6e902abc3b28ef7f5604f3fd3a11d810c4cea34f88bd75a8f6ecee"
+                                                                   "bytes":  38969,
+                                                                   "sha256":  "37f89ed24f5c19c2df8515f6190952033cf99f94acefcfc53551c981668fdb6d"
                                                                }
                                                            ]
                                              },
@@ -2149,8 +2149,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_outskirts_rush.layout.json",
-                                                                "bytes":  67208,
-                                                                "sha256":  "dcce991fead78b3193a5caaf59764670e8db95829dd383d0a883efa9b906fb83"
+                                                                "bytes":  72164,
+                                                                "sha256":  "9b003701dcb503764545c58f88c379a4015b85b28a01e2cff1a4959a8c2e7053"
                                                             }
                                                         ]
                                           },
@@ -2163,8 +2163,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_outskirts_squaddeathmatch.layout.json",
-                                                                           "bytes":  31852,
-                                                                           "sha256":  "6610d5756c28a7fb80f5545f4525c96783d5ffa766ceb2a46eaf4a387cd884e3"
+                                                                           "bytes":  34271,
+                                                                           "sha256":  "fadec1291f8c725c007af8eedd354b20524c45e905fb1e2e98bad19abb87d807"
                                                                        }
                                                                    ]
                                                      },
@@ -2177,8 +2177,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_outskirts_strikepoint.layout.json",
-                                                                       "bytes":  21244,
-                                                                       "sha256":  "e9684feb534742d1a9e59a3c057ddb6958574f39e688805efe775a4d3678fe2f"
+                                                                       "bytes":  22601,
+                                                                       "sha256":  "96842909f2c591abcf017a0009f7206983c4451ad3cf3815798a5e039b184e9d"
                                                                    }
                                                                ]
                                                  },
@@ -2191,8 +2191,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_outskirts_teamdeathmatch.layout.json",
-                                                                          "bytes":  23134,
-                                                                          "sha256":  "8c8f346a4eca331b77fc3dcfc52247b2c6205b43be357a97e052a8c0b8c3d16e"
+                                                                          "bytes":  25022,
+                                                                          "sha256":  "0f99b58d4d840acf3f9b15242161ede1e5c749d7dac543ff25c7a1bcb432d05b"
                                                                       }
                                                                   ]
                                                     },
@@ -2205,8 +2205,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_plaza_breakthrough.layout.json",
-                                                                    "bytes":  115783,
-                                                                    "sha256":  "de4ea3bb34e5b8a97bfd16ffb15df86c06245ea94e0c38867b9b7cea449407a2"
+                                                                    "bytes":  123748,
+                                                                    "sha256":  "8116c0179ab80aa6ddfa5d60abd834fe920fc439e0c7b9e7c2eba77d9cae4f28"
                                                                 }
                                                             ]
                                               },
@@ -2219,8 +2219,8 @@
                                               "files":  [
                                                             {
                                                                 "name":  "mp_plaza_conquest.layout.json",
-                                                                "bytes":  78889,
-                                                                "sha256":  "c1665852214833a82130c42cb0c0417323ce45b68013109b85a955c6fef23b65"
+                                                                "bytes":  87481,
+                                                                "sha256":  "9b6a27d9650f5a20ac6b7dc9000f2637a63d7dfcff232f6e6cf24a6586a5033f"
                                                             }
                                                         ]
                                           },
@@ -2233,8 +2233,8 @@
                                                 "files":  [
                                                               {
                                                                   "name":  "mp_plaza_domination.layout.json",
-                                                                  "bytes":  20682,
-                                                                  "sha256":  "93f6481536d9cca75b1562fca473d23a78a5a16634012ae777487a879d603679"
+                                                                  "bytes":  22216,
+                                                                  "sha256":  "3f6c5cc37afc4b118b7ae4ba9fdba058431f28c47fa77917ded1ff4f45b9c38f"
                                                               }
                                                           ]
                                             },
@@ -2247,8 +2247,8 @@
                                           "files":  [
                                                         {
                                                             "name":  "mp_plaza_koth.layout.json",
-                                                            "bytes":  51622,
-                                                            "sha256":  "bfc170ba22cd24a285a1a356f22a7277d7dd71dfedac278aaf1d4b506c07abd9"
+                                                            "bytes":  56224,
+                                                            "sha256":  "8b8dc928239dfca97f0005c9ec78c994283236c11606b370ecb7052c31dcffd1"
                                                         }
                                                     ]
                                       },
@@ -2261,8 +2261,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_plaza_payload.layout.json",
-                                                               "bytes":  17069,
-                                                               "sha256":  "b9fe898edbffdefbd647eda7a5bbddd38ba0803f1768743e9a4cecf3bbcd6600"
+                                                               "bytes":  18249,
+                                                               "sha256":  "1831c89f49847d7065b3b07a5ec125e43f915df4b62ea64402322fed866e5c6d"
                                                            }
                                                        ]
                                          },
@@ -2275,8 +2275,8 @@
                                           "files":  [
                                                         {
                                                             "name":  "mp_plaza_rush.layout.json",
-                                                            "bytes":  64926,
-                                                            "sha256":  "340250bbe9da998ea3f1bff883b6fe07c98bacd55bf735c5e363cd329d2f1eeb"
+                                                            "bytes":  69410,
+                                                            "sha256":  "f6184064c543c2f13b92ce745cab7049734415d816fce3cf80c5d48616ac997b"
                                                         }
                                                     ]
                                       },
@@ -2289,8 +2289,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_plaza_squaddeathmatch.layout.json",
-                                                                       "bytes":  23831,
-                                                                       "sha256":  "f28518a5572bf7e16110ed0f5856abd012421cc275a60130a6f46921c98eb2f0"
+                                                                       "bytes":  25601,
+                                                                       "sha256":  "f3d5793b4dd9a7753dba9e6bef434ba71e0b4f10934973066bcd90b561def2f0"
                                                                    }
                                                                ]
                                                  },
@@ -2303,8 +2303,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_plaza_squadobliteration.layout.json",
-                                                                         "bytes":  26700,
-                                                                         "sha256":  "f0104206c47afb9e65c1792e703a793e9f3ac44328b1d3fbaa90b2bf9b38867c"
+                                                                         "bytes":  28588,
+                                                                         "sha256":  "86e69d02aa83e8b044925becabc90b0ec174c6022334f80e7fa30505eb7091bf"
                                                                      }
                                                                  ]
                                                    },
@@ -2317,8 +2317,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_plaza_strikepoint.layout.json",
-                                                                   "bytes":  5007,
-                                                                   "sha256":  "9e6d2af60136e53b7f4b2a40cc830719ee5d90370c1efdaa0c4ccfb11b4ba2ab"
+                                                                   "bytes":  5184,
+                                                                   "sha256":  "6e0cd7a462b1586d801850424da20ceddf9e866654bfb2cb5a32cd6ca23e567f"
                                                                }
                                                            ]
                                              },
@@ -2331,8 +2331,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_plaza_teamdeathmatch.layout.json",
-                                                                      "bytes":  13345,
-                                                                      "sha256":  "f42cfd64a67c603676f7c041079d981c08ea3feb29dcf3b8ff5dd8f493eac5f7"
+                                                                      "bytes":  14466,
+                                                                      "sha256":  "327b1751df3041f795c7f6717cd6fbc3ff987eb2f8682a0210f0311049753063"
                                                                   }
                                                               ]
                                                 },
@@ -2345,8 +2345,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_subsurface_breakthrough.layout.json",
-                                                                         "bytes":  125963,
-                                                                         "sha256":  "1fe481cbf08232aa2f1b2b9b08eabe08d430ddcf2d69049a2b357664e8f3b4f4"
+                                                                         "bytes":  135816,
+                                                                         "sha256":  "c3b75b9fbb5ab493f7fb274ca244fdefd3e558990f935c6f2a8bd19269fb130b"
                                                                      }
                                                                  ]
                                                    },
@@ -2359,8 +2359,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_subsurface_conquest.layout.json",
-                                                                     "bytes":  99916,
-                                                                     "sha256":  "60413b61360e5585127dbbbb430b3f012be05119ad64f5e58b65a563a46d2aa8"
+                                                                     "bytes":  110478,
+                                                                     "sha256":  "80ea413bd9ce51c9e13041c74e0d08acbdcf83298c31a54c83869435fa6c8397"
                                                                  }
                                                              ]
                                                },
@@ -2373,8 +2373,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_subsurface_domination.layout.json",
-                                                                       "bytes":  21221,
-                                                                       "sha256":  "4c75a2093dcafb1d273e9429e96d5ade9662d6caf8eeadd7e9593f0fe9f1a6f4"
+                                                                       "bytes":  22814,
+                                                                       "sha256":  "69292d5219a4c315110b73123c1c4812f65c1bf3abf2a4aaa4f59f7f3b2b10df"
                                                                    }
                                                                ]
                                                  },
@@ -2387,8 +2387,8 @@
                                                "files":  [
                                                              {
                                                                  "name":  "mp_subsurface_koth.layout.json",
-                                                                 "bytes":  53708,
-                                                                 "sha256":  "2a96de825817b388d533461957824413e6e2f045723c9fdc5bd115eb0b01710a"
+                                                                 "bytes":  58546,
+                                                                 "sha256":  "44ec69aaf740ad8ada0f6d7994e0db9062e845af4e39dbf9687d1c4233a5ab28"
                                                              }
                                                          ]
                                            },
@@ -2401,8 +2401,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_subsurface_operations.layout.json",
-                                                                       "bytes":  6668,
-                                                                       "sha256":  "0e3fbeb18933f2d540aab0f7834a1bd5cb32ba39abfab0998ee9c9c46cf0d8d3"
+                                                                       "bytes":  7022,
+                                                                       "sha256":  "bdba89ced3c5c382d2b4c2d083cc9c5cec8d72042260728be622cbfa28bb40a5"
                                                                    }
                                                                ]
                                                  },
@@ -2415,8 +2415,8 @@
                                                   "files":  [
                                                                 {
                                                                     "name":  "mp_subsurface_payload.layout.json",
-                                                                    "bytes":  17113,
-                                                                    "sha256":  "3fde22c472e3a8c27c15928c55564a6c48fd06a983a930b2cd8544a8982d35ad"
+                                                                    "bytes":  18293,
+                                                                    "sha256":  "dd85cd61b6f3c696a1e3a2c155f9162fba0d27fe5f2d453b8d7ad668c1e45118"
                                                                 }
                                                             ]
                                               },
@@ -2429,8 +2429,8 @@
                                                "files":  [
                                                              {
                                                                  "name":  "mp_subsurface_rush.layout.json",
-                                                                 "bytes":  52673,
-                                                                 "sha256":  "f1b333e26aa2165e97dcccf4b2f99b0cd32390433aa5fde69b6fa20a4ecd3d5a"
+                                                                 "bytes":  56567,
+                                                                 "sha256":  "0693f92caf7684698cb8dbd934d6f61bf792a3f0557ac88b99f85c89f039f922"
                                                              }
                                                          ]
                                            },
@@ -2443,8 +2443,8 @@
                                                           "files":  [
                                                                         {
                                                                             "name":  "mp_subsurface_squaddeathmatch.layout.json",
-                                                                            "bytes":  50409,
-                                                                            "sha256":  "c0923ac873019c9a1c4ee5b9df24967de30443a28525fc71b8bd55328d60c766"
+                                                                            "bytes":  54657,
+                                                                            "sha256":  "9206a22bb962d51e0e0314febd03abaf8d4499764035bcbfb1e9cd88d8f24857"
                                                                         }
                                                                     ]
                                                       },
@@ -2457,8 +2457,8 @@
                                                       "files":  [
                                                                     {
                                                                         "name":  "mp_subsurface_strikepoint.layout.json",
-                                                                        "bytes":  11095,
-                                                                        "sha256":  "a9840996d49c831bad7a21419040d0719c20c6c8de4560dadcb7b7d70c99568d"
+                                                                        "bytes":  11862,
+                                                                        "sha256":  "d7eb2c6a529c42e8fe3e677028f0d5500f3ae5a87cad9d6f46e23f6605d211fa"
                                                                     }
                                                                 ]
                                                   },
@@ -2471,8 +2471,8 @@
                                                          "files":  [
                                                                        {
                                                                            "name":  "mp_subsurface_teamdeathmatch.layout.json",
-                                                                           "bytes":  17711,
-                                                                           "sha256":  "f25328249b7f7a4a77b242942e4378859be320a1e55713145e749b2a0860c62f"
+                                                                           "bytes":  19068,
+                                                                           "sha256":  "245a335119301e2577c3cc89132bb7522533c2c30e7e1bf58435ac27ac213fe2"
                                                                        }
                                                                    ]
                                                      },
@@ -2485,8 +2485,8 @@
                                                      "files":  [
                                                                    {
                                                                        "name":  "mp_tungsten_breakthrough.layout.json",
-                                                                       "bytes":  221127,
-                                                                       "sha256":  "a066f84ea87117c9f3114c25f94e81a1950eee8b1de48dfb1afe0fd0a7655224"
+                                                                       "bytes":  239181,
+                                                                       "sha256":  "6db4771ed8ca308c70b66f64c46fa4d0fd5d327a226c365595833d376d82cd2b"
                                                                    }
                                                                ]
                                                  },
@@ -2499,8 +2499,8 @@
                                                  "files":  [
                                                                {
                                                                    "name":  "mp_tungsten_conquest.layout.json",
-                                                                   "bytes":  144127,
-                                                                   "sha256":  "ad82fdf291c1932ed2e1941ff8f3ae3538252cecdcfa858b0e3ee58e2409dd54"
+                                                                   "bytes":  158421,
+                                                                   "sha256":  "3d6ca2e4a0f9bfb8039b6290bd88ec4cf6e5c3be0b5c8441242f8499ec31c7fb"
                                                                }
                                                            ]
                                              },
@@ -2513,8 +2513,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_tungsten_domination.layout.json",
-                                                                     "bytes":  39074,
-                                                                     "sha256":  "8f319508eb66753061ec64959f4d0b375e6a60f6505b7afa9d790806db8385c9"
+                                                                     "bytes":  42142,
+                                                                     "sha256":  "56ab0dea1d446a7a212c0760a1da29be38df9ad9d1fb8809833a3f8ae807295d"
                                                                  }
                                                              ]
                                                },
@@ -2527,8 +2527,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_tungsten_escalation.layout.json",
-                                                                     "bytes":  156432,
-                                                                     "sha256":  "7d1d785ab7d0d41e54e9711e38a6903b425a90ed3e12fc2652de8312cc51d1aa"
+                                                                     "bytes":  167937,
+                                                                     "sha256":  "78dadcc767d73617d25487b23a54658d143274e16deb91f48bb1a269ba292192"
                                                                  }
                                                              ]
                                                },
@@ -2541,8 +2541,8 @@
                                                    "files":  [
                                                                  {
                                                                      "name":  "mp_tungsten_operations.layout.json",
-                                                                     "bytes":  200556,
-                                                                     "sha256":  "14c46e11e3bf36f1effff131755290ad169d9bc8a5370bd215253bd284394df2"
+                                                                     "bytes":  217489,
+                                                                     "sha256":  "fad852fb205e51329882b3ae8f08a35e01badcc9f85e64eb17b86103ba75515c"
                                                                  }
                                                              ]
                                                },
@@ -2555,8 +2555,8 @@
                                              "files":  [
                                                            {
                                                                "name":  "mp_tungsten_rush.layout.json",
-                                                               "bytes":  76266,
-                                                               "sha256":  "6cde3afa827bb5977f274fb0f1fead932745184d1458944deb25074802610c07"
+                                                               "bytes":  82284,
+                                                               "sha256":  "db6625d8ca86c66c30fe8570df6aed3cec8c94de09f0f4c5ad54f464ac5e7c67"
                                                            }
                                                        ]
                                          },
@@ -2569,8 +2569,8 @@
                                                         "files":  [
                                                                       {
                                                                           "name":  "mp_tungsten_squaddeathmatch.layout.json",
-                                                                          "bytes":  35805,
-                                                                          "sha256":  "2c29e946e2647cff6737c71d8d6cc8d5a16d3d061a81ad3bd9880265356c0d70"
+                                                                          "bytes":  38637,
+                                                                          "sha256":  "a74ffda22a476bd705442c5b721c00b12e52bb95d0ca009b1686d91aa29d12c7"
                                                                       }
                                                                   ]
                                                     },
@@ -2583,8 +2583,8 @@
                                                     "files":  [
                                                                   {
                                                                       "name":  "mp_tungsten_strikepoint.layout.json",
-                                                                      "bytes":  4028,
-                                                                      "sha256":  "2ed99b4c3bc2088596054d3caa383602f407f7f9b7dd86d3d15997474c1b8236"
+                                                                      "bytes":  4146,
+                                                                      "sha256":  "517e178dad66c5ea3cd7a51b5901d3f573c9c5f19540563d67228c809cef2340"
                                                                   }
                                                               ]
                                                 },
@@ -2597,8 +2597,8 @@
                                                        "files":  [
                                                                      {
                                                                          "name":  "mp_tungsten_teamdeathmatch.layout.json",
-                                                                         "bytes":  18579,
-                                                                         "sha256":  "39155e1fceaed36a13d562d04a8764dfa20834d191b9ba326ef9436417a5d557"
+                                                                         "bytes":  20054,
+                                                                         "sha256":  "12dee5d80b77845f2fd5b8b877dcb4ab4f077fbda5b363c748d22707119ba1c4"
                                                                      }
                                                                  ]
                                                    }

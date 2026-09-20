@@ -30,40 +30,44 @@ const VEHICLE_NAMES := [
 	"RCB_90_Patrol_Boat", "RCB_90_Patrol_Boat_Pax", "F_74A_Seacat",
 	"F_74A_Seacat_Pax", "FA_81F_Super_Spectre", "FA_81F_Super_Spectre_Pax",
 ]
-# Retail gameplay layers store a spawn-category selector, not the Portal SDK's
-# concrete VehicleType. Paired entries are the shipped Team 1 / Team 2 choices.
-const VEHICLE_CATEGORY_TYPES := {
-	0: [0, 1], # Tank
-	1: [17, 3], # IFV
-	2: [4, 2], # Mobile AA
-	3: [12, 20], # APC
-	4: [15, 18], # Fighter plane
-	5: [16, 14], # Attack plane
-	6: [8, 6], # Attack helicopter
-	7: [5, 19], # Transport helicopter
-	8: [22, 23], # Dirt bike
-	9: [10], # Quad bike
-	10: [11], # Golf cart
-	11: [21], # RHIB
-	12: [7, 24], # Scout helicopter
-	13: [13, 9], # Light transport
-	14: [26, 27], # Patrol boat
-	15: [30, 31], # Multirole plane
-	16: [28, 29], # Naval fighter plane
-	# Carrier Strike also authors carrier launch pads. Portal has no launch
-	# animation type, so these retain the pad transform with its aircraft type.
-	21: [28, 29],
-	22: [30],
-	23: [31],
+# AD_Objective_Conquest maps the GEM's 0x783E16EC value to one of these retail
+# class prefabs.  Each class prefab's lpf_vehiclespawner_factionpicker then
+# selects a concrete vehicle for Team 1 or Team 2.  The numbers below are the
+# resulting ModBuilder_Enum_VehicleList values, not guesses based on selector
+# order.  Single-entry classes are shared or already faction-specific.
+const VEHICLE_CLASS_NAMES := {
+	0: "LightTransport", 1: "IFV", 2: "Tank", 3: "MobileAA",
+	4: "AttackPlane", 5: "FighterPlane", 6: "AttackHelicopter",
+	7: "TransportHelicopter", 8: "QuadBike", 9: "APC", 10: "GolfCart",
+	11: "RHIB", 12: "ScoutHelicopter", 13: "DirtBike", 14: "PatrolBoat",
+	15: "MultirolePlane", 16: "NavalFighterPlane",
+	17: "F16CarrierLaunch", 18: "F22CarrierLaunch", 19: "JAS39CarrierLaunch",
+	20: "SU57CarrierLaunch", 21: "F14CarrierLaunch",
+	22: "FA18CarrierLaunchNATO", 23: "FA18CarrierLaunchPAX",
 }
-# Some retail modes override the generic spawn category for an individual pad.
-# Key these corrections by the installed instance identity so a map-specific
-# choice never changes legitimate uses of the same category elsewhere.
-const VEHICLE_RECORD_TYPE_OVERRIDES := {
-	# Liberation Peak Team 1 HQ light-transport pads.
-	"31426ce7-ee3a-4827-8a12-6d4034036fde": 13, # Flyer 60
-	"fccb3aae-d90b-4606-852c-f10dccd337fb": 13, # Flyer 60
+const VEHICLE_CLASS_TYPES := {
+	0: [13, 9],  # LightTransport: Flyer60 / Vector
+	1: [17, 3],  # IFV: M2Bradley / CV90
+	2: [0, 1],   # Tank: Abrams / Leopard
+	3: [2, 4],   # MobileAA: Cheetah / Gepard
+	4: [16, 14], # AttackPlane: F16 / JAS39
+	5: [15, 18], # FighterPlane: F22 / SU57
+	6: [8, 6],   # AttackHelicopter: AH64 / Eurocopter
+	7: [5, 19],  # TransportHelicopter: UH60 / UH60_Pax
+	8: [10],     # Quadbike
+	9: [12, 20], # APC: Marauder / Marauder_Pax
+	10: [11],    # GolfCart
+	11: [21],    # RHIB
+	12: [7, 24], # ScoutHelicopter: AH6M / AH6M_Pax
+	13: [22, 23],# DirtBike / DirtBike_Pax
+	14: [26, 27],# PatrolBoat / PatrolBoat_Pax
+	15: [30, 31],# Super Spectre / Super Spectre Pax
+	16: [28, 29],# Seacat / Seacat Pax
+	17: [16], 18: [15], 19: [14], 20: [18], 21: [28], 22: [30], 23: [31],
 }
+# AD_Objective_Conquest orders the stationary classes HMG, AntiTank, AntiAir,
+# while the Portal enum orders BGM71TOW, GDF009, M2MG.
+const STATIONARY_SELECTOR_TYPES := {0: 2, 1: 0, 2: 1}
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
@@ -110,6 +114,10 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 2:
 			continue
+		# Rush objectives are MCOMs. Its small unowned polygons are boundary
+		# data, not CapturePoint gameplay objects.
+		if mode == "rush":
+			continue
 		var flag := _normalized_flag(level, mode, row)
 		if flag < 0:
 			continue
@@ -117,6 +125,16 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		capture.position = _vec3(row.get("centre", []))
 		capture.set("ObjId", 200 + flag)
 		capture.set_meta(PROVENANCE_META, _source(row))
+		var capture_binding := row.get("capture_binding", {}) as Dictionary
+		if not capture_binding.is_empty():
+			capture.set_meta("bf6_capture_instance_guid",
+				str(capture_binding.get("instance_guid", "")))
+			capture.set_meta("bf6_capture_root_order",
+				int(capture_binding.get("root_order", -1)))
+			capture.set_meta("bf6_capture_volume_binding",
+				str(capture_binding.get("method", "")))
+			capture.set_meta("bf6_capture_volume_distance_m",
+				float(capture_binding.get("distance_m", -1.0)))
 		captures_root.add_child(capture)
 		capture.owner = map_root
 		var area := _polygon(row, "Area-%s" % String.chr(65 + flag), Color(1.0, 0.55, 0.1, 0.42))
@@ -133,18 +151,27 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 100:
 			continue
-		var hq := _scene("hq", "TEAM_%d_HQ" % (hqs.size() + 1))
+		var hq := _scene("hq", "HQ_Root%02d" % _root_order(row))
 		hq.transform = _raw_transform(row)
-		var hq_team := hqs.size() + 1
-		hq.set("Team", hq_team)
-		hq.set("AltTeam", 2 if hq_team == 1 else 1)
-		hq.set("ObjId", hq_team)
 		hq.set_meta(PROVENANCE_META, _source(row))
+		hq.set_meta("bf6_root_order", int((row.get("raw", {}) as Dictionary).get(
+			"root_order", hqs.size())))
 		root.add_child(hq)
 		hq.owner = map_root
 		hqs.append(hq)
 		progress_current += 1
 		_report(progress, "Creating headquarters…", progress_current, progress_total)
+	for hq_index in range(hqs.size()):
+		var hq := hqs[hq_index] as Node3D
+		var hq_team := hq_index + 1 if hqs.size() <= 2 else \
+			_hq_faction_for_point(hqs, hq.position)
+		hq.set("Team", hq_team)
+		hq.set("AltTeam", 2 if hq_team == 1 else 1)
+		hq.set("ObjId", hq_index + 1)
+		hq.name = "TEAM_%d_HQ" % hq_team if hqs.size() <= 2 else \
+			"TEAM_%d_HQ_Root%02d" % [hq_team, int(hq.get_meta("bf6_root_order", hq_index))]
+		hq.set_meta("bf6_faction_assignment", "authored order" if hqs.size() <= 2 else \
+			"nearest endpoint of multi-stage HQ chain")
 	var claimed_zone_sources := {}
 	if mode == "conquest" and _count_role(objects, 3) > hqs.size():
 		claimed_zone_sources = _assign_hq_areas(objects, hqs, map_root)
@@ -154,6 +181,17 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	elif level == "mp_capstone" and mode == "conquest":
 		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
 			map_root, "Zone 4", "Zone 2")
+	elif level == "mp_eastwood" and mode == "conquest":
+		# The retail layer has no explicit CombatArea record.  Its two smallest
+		# enclosing polygons are the HQ areas; the remaining inner/outer pair is
+		# the playable combat volume and its surrounding boundary.
+		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
+			map_root, "Zone 1", "Zone 2")
+	elif level == "mp_battery" and mode == "conquest":
+		# Battery likewise authors the play area as a generic zone.  The two
+		# same-named small zones are consumed by the HQs, leaving Zone 1.
+		_build_combat_area_from_zones(objects, claimed_zone_sources, zones_root,
+			map_root, "Zone 1")
 
 	var loose_spawns: Array = []
 	var spawn_counts := {}
@@ -184,16 +222,21 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var captures_own_loose_spawns := mode in ["conquest", "carrierstrike", "escalation"]
 	for spawn_value in loose_spawns:
 		var spawn := spawn_value as Node3D
-		var point := spawn.global_position
+		# These nodes are assembled before the generated branch enters the scene
+		# tree.  global_position is undefined in that state and Godot returns a
+		# zero transform, which used to send otherwise-authored spawns to arbitrary
+		# objectives.  The folder nodes are identity transforms, so every position
+		# in this pass is already in the common layout coordinate system.
+		var point := spawn.position
 		var nearest_flag := _nearest_capture(captures, point) if not captures.is_empty() else -1
-		var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).global_position) \
+		var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).position) \
 			if nearest_flag >= 0 else INF
 		var hq_index := _nearest_index(hqs, point) if not hqs.is_empty() else -1
-		var hq_distance := point.distance_squared_to((hqs[hq_index] as Node3D).global_position) \
+		var hq_distance := point.distance_squared_to((hqs[hq_index] as Node3D).position) \
 			if hq_index >= 0 else INF
 		if captures_own_loose_spawns and nearest_flag >= 0 and capture_distance <= hq_distance:
 			var capture := captures[nearest_flag] as Node3D
-			spawn.reparent(capture, true)
+			_reparent_from_layout_space(spawn, capture, map_root)
 			var key := "Flag_%s" % String.chr(65 + nearest_flag)
 			var index := int(spawn_counts.get(key, 0)) + 1
 			spawn_counts[key] = index
@@ -202,7 +245,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			_append_spawn_for_team(capture_spawns, nearest_flag, spawn,
 				int(spawn.get_meta("bf6_spawn_team", 0)))
 		elif hq_index >= 0:
-			spawn.reparent(hqs[hq_index], true)
+			_reparent_from_layout_space(spawn, hqs[hq_index], map_root)
 			spawn.name = "Spawn_HQ_%d_%02d" % [hq_index + 1, hq_spawns[hq_index].size() + 1]
 			hq_spawns[hq_index].append(spawn)
 	for flag in captures:
@@ -211,7 +254,6 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	for hq_index in range(hqs.size()):
 		_set_array(hqs[hq_index], "InfantrySpawns", hq_spawns[hq_index])
 
-	var objective_pair_used := {}
 	var hq_vehicle_links: Array = []
 	for _index in range(hqs.size()): hq_vehicle_links.append([])
 	for value in objects:
@@ -219,7 +261,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var role := int(row.get("role", 0))
 		if role == 6:
 			_build_vehicle(row, vehicles_root, vehicle_team_roots, map_root, captures, hqs,
-				objective_pair_used, hq_vehicle_links)
+				hq_vehicle_links)
 		elif role == 7:
 			var resupply := _scene("resupply", str(row.get("label", "Resupply")))
 			resupply.transform = _raw_transform(row)
@@ -228,7 +270,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			resupply.owner = map_root
 			VehicleSkin.sync_resupply(resupply, map_root)
 		elif role == 8:
-			_add_plain(row, "mcom", attachments_root, map_root)
+			if mode != "rush":
+				_add_plain(row, "mcom", attachments_root, map_root)
 		elif role == 9:
 			_add_plain(row, "bomb", attachments_root, map_root)
 		elif role == 10:
@@ -243,11 +286,22 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			attachments_root.add_child(special)
 			special.owner = map_root
 		elif role == 101:
-			var aa := _add_plain(row, "automatic_aa", attachments_root, map_root)
-			if not hqs.is_empty():
-				var nearest: Node = hqs[_nearest_index(hqs, aa.position)]
+			var aa_point := _vec3(row.get("centre", []))
+			var nearest_hq_index := _nearest_index(hqs, aa_point) if not hqs.is_empty() else -1
+			var aa_team := _hq_faction_for_point(hqs, aa_point)
+			var aa := _scene("automatic_aa", _automatic_aa_name(row, aa_team))
+			aa.transform = _raw_transform(row)
+			aa.set_meta(PROVENANCE_META, _source(row))
+			attachments_root.add_child(aa)
+			aa.owner = map_root
+			if aa_team > 0:
+				aa.set("OwnerTeam", aa_team)
+				aa.set_meta("bf6_owner_team", aa_team)
+			if nearest_hq_index >= 0:
+				var nearest: Node = hqs[nearest_hq_index]
 				if nearest.get("HQArea") != null:
 					aa.set("ProtectionAreaVolume", nearest.get("HQArea"))
+					aa.set_meta("bf6_protection_hq", str(nearest.name))
 		if role in [6, 7, 8, 9, 10, 101]:
 			progress_current += 1
 			_report(progress, "Creating vehicles and attachments…", progress_current, progress_total)
@@ -255,10 +309,16 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	for hq_index in range(hqs.size()):
 		_set_array(hqs[hq_index], "VehicleSpawners", hq_vehicle_links[hq_index])
 		hqs[hq_index].set("VehicleSpawnersEnabled", not hq_vehicle_links[hq_index].is_empty())
+	if mode == "rush":
+		_build_rush_objectives(objects, captures_root, map_root, hqs)
 
 	for value in objects:
 		var row := value as Dictionary
 		match int(row.get("role", 0)):
+			2:
+				if mode == "rush":
+					_add_polygon(row, zones_root, map_root,
+						Color(0.55, 0.75, 0.95, 0.35))
 			3:
 				if not claimed_zone_sources.has(_row_key(row)):
 					_add_polygon(row, zones_root, map_root, Color(0.55, 0.75, 0.95, 0.35))
@@ -273,19 +333,26 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				volume.position -= combat.position
 				combat.set("CombatVolume", volume)
 			5:
-				var obb := _scene("obb", str(row.get("label", "Box")))
-				obb.transform = _raw_transform(row)
-				var half: Array = (row.get("raw", {}) as Dictionary).get("half_extents", [])
-				if half.size() == 3:
-					obb.set("size", _vec3(half) * 2.0)
-				obb.set_meta(PROVENANCE_META, _source(row))
-				zones_root.add_child(obb)
-				obb.owner = map_root
+				# Eastwood's generated Conquest volume partition contains fourteen
+				# tiny, unowned OBB records clustered around the two bases.  Nothing
+				# in the gameplay graph assigns them as a play/combat area, so do not
+				# present them to creators as meaningful playable boundaries.
+				if not (level == "mp_eastwood" and mode == "conquest"):
+					var obb := _scene("obb", str(row.get("label", "Box")))
+					obb.transform = _raw_transform(row)
+					var half: Array = (row.get("raw", {}) as Dictionary).get("half_extents", [])
+					if half.size() == 3:
+						obb.set("size", _vec3(half) * 2.0)
+					obb.set_meta(PROVENANCE_META, _source(row))
+					zones_root.add_child(obb)
+					obb.owner = map_root
 		if int(row.get("role", 0)) in [3, 4, 5]:
 			progress_current += 1
 			_report(progress, "Creating gameplay volumes…", progress_current, progress_total)
 
-	if not captures.is_empty():
+	if mode == "breakthrough" and not captures.is_empty():
+		_build_breakthrough_sectors(captures, captures_root, map_root)
+	elif not captures.is_empty():
 		var sector := _scene("sector", "Sector")
 		var ordered: Array = []
 		var ordered_flags: Array = captures.keys()
@@ -315,9 +382,108 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		int(counts.get("spawns", 0)), int(counts.get("vehicles", 0))]
 
 
+static func _build_rush_objectives(objects: Array, objectives_root: Node,
+		owner: Node, hqs: Array) -> void:
+	var rows: Array = []
+	for value in objects:
+		if int((value as Dictionary).get("role", 0)) == 8:
+			rows.append(value)
+	if rows.is_empty():
+		return
+	var attack_origin := Vector3.ZERO
+	if not hqs.is_empty():
+		var first_hq := hqs[0] as Node3D
+		var first_root := int(first_hq.get_meta("bf6_root_order", 2147483647))
+		for value in hqs:
+			var hq := value as Node3D
+			var root_order := int(hq.get_meta("bf6_root_order", 2147483647))
+			if root_order < first_root:
+				first_root = root_order
+				first_hq = hq
+		attack_origin = first_hq.position
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_distance := attack_origin.distance_squared_to(_vec3(a.get("centre", [])))
+		var b_distance := attack_origin.distance_squared_to(_vec3(b.get("centre", [])))
+		if not is_equal_approx(a_distance, b_distance):
+			return a_distance < b_distance
+		return _root_order(a) < _root_order(b))
+	var sectors_root := _folder(objectives_root, "Sectors", owner)
+	for objective_index in range(rows.size()):
+		var sector_index := objective_index / 2
+		var sector_name := "Sector%d" % (sector_index + 1)
+		var sector := sectors_root.get_node_or_null(sector_name) as Node3D
+		if sector == null:
+			sector = _scene("sector", sector_name)
+			sector.set("ObjId", 101 + sector_index)
+			sector.set_meta("bf6_order_basis", "distance from earliest authored HQ")
+			sectors_root.add_child(sector)
+			sector.owner = owner
+		var slot := objective_index % 2
+		var row := rows[objective_index] as Dictionary
+		var mcom := _scene("mcom", "MCOM-%s" % ("A" if slot == 0 else "B"))
+		mcom.transform = _raw_transform(row)
+		mcom.set("ObjId", 201 + objective_index)
+		mcom.set_meta(PROVENANCE_META, _source(row))
+		mcom.set_meta("bf6_rush_sector", sector_index + 1)
+		mcom.set_meta("bf6_rush_slot", slot)
+		sector.add_child(mcom)
+		mcom.owner = owner
+		var sector_mcoms: Array = []
+		var existing = sector.get("MCOMs")
+		if existing != null:
+			for item in existing:
+				if item != null:
+					sector_mcoms.append(item)
+		sector_mcoms.append(mcom)
+		_set_array(sector, "MCOMs", sector_mcoms)
+
+
+static func _build_breakthrough_sectors(captures: Dictionary,
+		objectives_root: Node, owner: Node) -> void:
+	var ordered_flags: Array = captures.keys()
+	ordered_flags.sort()
+	var sectors_root := _folder(objectives_root, "Sectors", owner)
+	for objective_index in range(ordered_flags.size()):
+		var sector_index := objective_index / 2
+		var sector_name := "Sector%d" % (sector_index + 1)
+		var sector := sectors_root.get_node_or_null(sector_name) as Node3D
+		if sector == null:
+			sector = _scene("sector", sector_name)
+			sector.set("ObjId", 101 + sector_index)
+			sectors_root.add_child(sector)
+			sector.owner = owner
+		var capture := captures[ordered_flags[objective_index]] as Node3D
+		var slot := objective_index % 2
+		_reparent_from_layout_space(capture, sector, owner)
+		capture.name = "CapturePoint%s" % ("A" if slot == 0 else "B")
+		capture.set("ObjId", 1100 + sector_index * 100 + slot)
+		capture.set_meta("bf6_breakthrough_source_flag", ordered_flags[objective_index])
+		var sector_captures: Array = []
+		var existing = sector.get("CapturePoints")
+		if existing != null:
+			for item in existing:
+				if item != null:
+					sector_captures.append(item)
+		sector_captures.append(capture)
+		_set_array(sector, "CapturePoints", sector_captures)
+
+
 static func _report(progress: Callable, message: String, current: int, total: int) -> void:
 	if progress.is_valid():
 		progress.call(message, current, total)
+
+
+static func _reparent_from_layout_space(node: Node3D, parent: Node3D,
+		owner: Node) -> void:
+	# node.transform is expressed in the generated layout's coordinate system;
+	# parent.transform maps the new parent into that same system.  Compose the
+	# local transform explicitly so this works before either node is in a tree.
+	var layout_transform := node.transform
+	node.owner = null
+	node.get_parent().remove_child(node)
+	parent.add_child(node)
+	node.transform = parent.transform.affine_inverse() * layout_transform
+	node.owner = owner
 
 
 static func _normalized_flag(level: String, mode: String, row: Dictionary) -> int:
@@ -455,8 +621,7 @@ static func _count_role(objects: Array, role: int) -> int:
 
 
 static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, owner: Node,
-		captures: Dictionary, hqs: Array, pair_used: Dictionary,
-		hq_vehicle_links: Array) -> void:
+		captures: Dictionary, hqs: Array, hq_vehicle_links: Array) -> void:
 	var raw := row.get("raw", {}) as Dictionary
 	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
 	var is_stationary := bool(row.get("stationary", false))
@@ -470,61 +635,116 @@ static func _build_vehicle(row: Dictionary, parent: Node, team_roots: Array, own
 	var belongs_to_hq := not is_stationary and nearest_hq >= 0 and hq_distance < capture_distance
 
 	if is_stationary:
-		var valid_stationary := selector >= 0 and selector < 3
-		var stationary_name: String = ["BGM71TOW", "GDF009", "M2MG"][selector] \
+		var stationary_type := int(STATIONARY_SELECTOR_TYPES.get(selector, -1))
+		var valid_stationary := stationary_type >= 0
+		var stationary_name: String = ["BGM71TOW", "GDF009", "M2MG"][stationary_type] \
 			if valid_stationary else "Unassigned"
-		var stationary := _create_vehicle(row, parent, owner, selector, selector,
+		var stationary := _create_vehicle(row, parent, owner, selector, stationary_type,
 			stationary_name, true, valid_stationary)
+		stationary.set_meta("bf6_vehicle_type_status",
+			"installed activity class -> SDK stationary type")
 		stationary.set_meta("bf6_source_vehicle_record", true)
 		return
 
-	var vehicle_types: Array = VEHICLE_CATEGORY_TYPES.get(selector, [])
+	var vehicle_types: Array = VEHICLE_CLASS_TYPES.get(selector, [])
+	var vehicle_class_name := str(VEHICLE_CLASS_NAMES.get(selector,
+		"UnknownClass%d" % selector))
 	if vehicle_types.is_empty():
 		var unknown := _create_vehicle(row, parent, owner, selector, -1,
-			"UnassignedCategory%d" % selector, false, false)
+			"UnassignedSelector%d" % selector, false, false)
+		if nearest_flag >= 0:
+			unknown.name = _objective_vehicle_name(nearest_flag, 0,
+				"UnassignedSelector%d" % selector, row)
+			unknown.set_meta("bf6_runtime_association", "CapturePoint%s / Shared" %
+				String.chr(65 + nearest_flag))
 		unknown.set_meta("bf6_source_vehicle_record", true)
 		return
 
 	if belongs_to_hq:
-		var team_index := mini(nearest_hq, 1)
-		if selector == 23:
-			team_index = 1
-		var source_guid := str(raw.get("instance_guid", ""))
-		var override_type := int(VEHICLE_RECORD_TYPE_OVERRIDES.get(source_guid, -1))
-		var type_index := mini(team_index, vehicle_types.size() - 1)
-		var vehicle_type := override_type if override_type >= 0 else int(vehicle_types[type_index])
+		var team_index := clampi(int((hqs[nearest_hq] as Node).get("Team")) - 1, 0, 1)
+		var vehicle_type := int(vehicle_types[team_index] if vehicle_types.size() > 1 \
+			else vehicle_types[0])
 		var vehicle := _create_vehicle(row, team_roots[team_index], owner, selector,
 			vehicle_type, VEHICLE_NAMES[vehicle_type], false, true)
-		if override_type >= 0:
-			vehicle.set_meta("bf6_vehicle_type_status", "verified map-specific vehicle override")
+		vehicle.set_meta("bf6_vehicle_class", vehicle_class_name)
+		vehicle.set_meta("bf6_vehicle_type_status",
+			"installed activity class + faction picker -> SDK VehicleType")
 		vehicle.set("P_AutoSpawnEnabled", true)
 		hq_vehicle_links[nearest_hq].append(vehicle)
-		vehicle.set_meta("bf6_runtime_association", "HQ%d / Team%d" % [nearest_hq + 1, team_index + 1])
+		vehicle.set_meta("bf6_runtime_association", "HQ%d / Team%d" % [nearest_hq + 1,
+			team_index + 1])
 		vehicle.set_meta("bf6_source_vehicle_record", true)
 		return
 
-	if vehicle_types.size() == 2 and nearest_flag >= 0:
-		var has_template_ids := not pair_used.has(nearest_flag)
-		for team_index in range(2):
-			var vehicle_type := int(vehicle_types[team_index])
-			var vehicle := _create_vehicle(row, parent, owner, selector, vehicle_type,
-				VEHICLE_NAMES[vehicle_type], false, true)
-			vehicle.set("SpawnIfMatchingTeam", true)
-			vehicle.set("MatchingTeam", team_index + 1)
-			if has_template_ids:
-				vehicle.set("ObjId", 600 + nearest_flag * 10 + team_index)
-			vehicle.set_meta("bf6_runtime_association", "CapturePoint%s / Team%d" % [
-				String.chr(65 + nearest_flag), team_index + 1])
-			if team_index == 0:
-				vehicle.set_meta("bf6_source_vehicle_record", true)
-		if has_template_ids:
-			pair_used[nearest_flag] = true
-		return
+	for index in range(vehicle_types.size()):
+		var vehicle_type := int(vehicle_types[index])
+		var vehicle_team := index + 1 if vehicle_types.size() > 1 else 0
+		var vehicle_parent: Node = team_roots[index] if vehicle_team > 0 else parent
+		var vehicle := _create_vehicle(row, vehicle_parent, owner, selector, vehicle_type,
+			VEHICLE_NAMES[vehicle_type], false, true)
+		vehicle.set_meta("bf6_vehicle_class", vehicle_class_name)
+		vehicle.set_meta("bf6_vehicle_type_status",
+			"installed activity class + faction picker -> SDK VehicleType")
+		if nearest_flag >= 0:
+			vehicle.name = _objective_vehicle_name(nearest_flag, vehicle_team,
+				VEHICLE_NAMES[vehicle_type], row)
+			if vehicle_team > 0:
+				vehicle.set("SpawnIfMatchingTeam", true)
+				vehicle.set("MatchingTeam", vehicle_team)
+			vehicle.set_meta("bf6_runtime_association", "CapturePoint%s / %s" % [
+				String.chr(65 + nearest_flag),
+				"Team%d" % vehicle_team if vehicle_team > 0 else "Shared"])
+		# A faction pair represents one authored retail pad. Mark only its first
+		# SDK variant so manifest census tests continue to count source records.
+		if index == 0:
+			vehicle.set_meta("bf6_source_vehicle_record", true)
 
-	var vehicle_type := int(vehicle_types[0])
-	var shared := _create_vehicle(row, parent, owner, selector, vehicle_type,
-		VEHICLE_NAMES[vehicle_type], false, true)
-	shared.set_meta("bf6_source_vehicle_record", true)
+
+static func _objective_vehicle_name(flag: int, team: int, type_name: String,
+		row: Dictionary) -> String:
+	var ownership := "Team%d" % team if team > 0 else "Shared"
+	return "Objective_%s_%s_%s_Root%02d" % [String.chr(65 + flag), ownership,
+		type_name, _root_order(row)]
+
+
+static func _automatic_aa_name(row: Dictionary, team: int) -> String:
+	var ownership := "Team%d" % team if team > 0 else "Neutral"
+	return "AutomaticAA_%s_Root%02d" % [ownership, _root_order(row)]
+
+
+static func _hq_faction_for_point(hqs: Array, point: Vector3) -> int:
+	if hqs.is_empty():
+		return 0
+	if hqs.size() <= 2:
+		return _nearest_index(hqs, point) + 1
+	# Multi-stage modes retain several HQ positions for each faction. The
+	# earliest authored HQ is Team 1's anchor; the most distant HQ is the other
+	# faction's anchor. Assigning every phase location to its nearer endpoint
+	# keeps AA OwnerTeam in the SDK's valid 1..2 range.
+	var team_1_index := 0
+	var lowest_root := int((hqs[0] as Node).get_meta("bf6_root_order", 2147483647))
+	for index in range(1, hqs.size()):
+		var root_order := int((hqs[index] as Node).get_meta("bf6_root_order", 2147483647))
+		if root_order < lowest_root:
+			lowest_root = root_order
+			team_1_index = index
+	var team_1_anchor := hqs[team_1_index] as Node3D
+	var team_2_index := team_1_index
+	var greatest_distance := -1.0
+	for index in range(hqs.size()):
+		var distance := team_1_anchor.position.distance_squared_to((hqs[index] as Node3D).position)
+		if distance > greatest_distance:
+			greatest_distance = distance
+			team_2_index = index
+	var team_2_anchor := hqs[team_2_index] as Node3D
+	return 1 if point.distance_squared_to(team_1_anchor.position) <= \
+		point.distance_squared_to(team_2_anchor.position) else 2
+
+
+static func _root_order(row: Dictionary) -> int:
+	var raw := row.get("raw", {}) as Dictionary
+	var root_order := int(raw.get("root_order", -1))
+	return root_order if root_order >= 0 else int(raw.get("instance", 0))
 
 
 static func _create_vehicle(row: Dictionary, parent: Node, owner: Node, selector: int,
@@ -535,13 +755,18 @@ static func _create_vehicle(row: Dictionary, parent: Node, owner: Node, selector
 	vehicle.transform = _raw_transform(row)
 	if not is_stationary:
 		vehicle.set("P_DefaultRespawnTime", 45)
+	# Stationary emplacements must exist without a separate spawn request. An
+	# unresolved VehicleType (-1) needs the same behavior so the placeholder is
+	# active and can be configured in the editor.
+	if is_stationary or vehicle_type == -1:
+		vehicle.set("P_AutoSpawnEnabled", true)
 	if resolved:
 		vehicle.set("StationaryEmplacementType" if is_stationary else "VehicleType", vehicle_type)
 	vehicle.set_meta(PROVENANCE_META, _source(row))
 	vehicle.set_meta("bf6_source_instance_guid", str(raw.get("instance_guid", "")))
 	vehicle.set_meta("bf6_retail_selector", selector)
-	vehicle.set_meta("bf6_vehicle_type_status", "retail category resolved through faction picker" \
-		if resolved else "retail category is unresolved; SDK default retained")
+	vehicle.set_meta("bf6_vehicle_type_status", "resolved retail vehicle class" \
+		if resolved else "retail vehicle class is unresolved; SDK default retained")
 	parent.add_child(vehicle)
 	vehicle.owner = owner
 	if resolved:
@@ -647,6 +872,11 @@ static func _nearest_index(nodes: Array, point: Vector3) -> int:
 
 
 static func _source(row: Dictionary) -> String:
+	var binding := row.get("capture_binding", {}) as Dictionary
+	if not binding.is_empty():
+		return "%s capture instance %s root %s; volume from nearest containing installed polygon" % [
+			str(binding.get("partition", "")), str(binding.get("instance_guid", "?")),
+			str(binding.get("root_order", "-"))]
 	var raw := row.get("raw", {}) as Dictionary
 	return "%s instance %s root %s" % [str(raw.get("layer", "")), str(raw.get("instance", "?")), str(raw.get("root_order", "-"))]
 

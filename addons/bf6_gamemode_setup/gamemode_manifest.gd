@@ -49,11 +49,24 @@ func gems(blueprint := "") -> Array:
 	var result: Array = []
 	for value in entities:
 		var row := value as Dictionary
-		if not row.has("gem_blueprint"):
+		var raw := row.get("raw", {}) as Dictionary
+		var blueprint_value: Variant = row.get("gem_blueprint", null)
+		if blueprint_value == null:
+			blueprint_value = raw.get("gem_blueprint", null)
+		var gem_blueprint := "" if blueprint_value == null else str(blueprint_value)
+		if gem_blueprint == "" and int(document.get("schema", 0)) == 2:
+			gem_blueprint = str({2: "gem_capturepoint", 6: "gem_vehiclespawner",
+				7: "gem_vehicleresupplystation", 10: "gem_specialcombatarea",
+				100: "gem_hq", 101: "gem_automaticaa"}.get(int(row.get("role", 0)), ""))
+		if gem_blueprint == "":
 			continue
-		if blueprint == "" or str(row.get("gem_blueprint", "")) == blueprint:
+		if blueprint == "" or gem_blueprint == blueprint:
 			result.append(row)
-	result.sort_custom(func(a: Dictionary, b: Dictionary): return int(a.root_order) < int(b.root_order))
+	result.sort_custom(func(a: Dictionary, b: Dictionary):
+		var ar := a.get("raw", {}) as Dictionary
+		var br := b.get("raw", {}) as Dictionary
+		return int(a.get("root_order", ar.get("root_order", -1))) < \
+			int(b.get("root_order", br.get("root_order", -1))))
 	return result
 
 
@@ -62,8 +75,33 @@ static func vehicle_name(selector: int) -> String:
 
 
 func _validate() -> bool:
-	if int(document.get("schema", 0)) != 1:
+	var schema := int(document.get("schema", 0))
+	if schema == 2:
+		return _validate_layout()
+	if schema != 1:
 		return _fail("unsupported game-data manifest schema")
+	return _validate_legacy()
+
+
+func _validate_layout() -> bool:
+	var source := document.get("source", {}) as Dictionary
+	if str(source.get("kind", "")) != "installed_bf6":
+		return _fail("manifest provenance is not an installed BF6 build")
+	entities = document.get("objects", []) as Array
+	if entities.is_empty():
+		return _fail("layout contains no installed game-data objects")
+	for value in entities:
+		if not (value is Dictionary):
+			return _fail("layout contains a non-object entity")
+		var row := value as Dictionary
+		var raw := row.get("raw", {}) as Dictionary
+		var transform := raw.get("transform", []) as Array
+		if transform.size() != 12:
+			return _fail("layout object has no exact 3x4 transform")
+	return true
+
+
+func _validate_legacy() -> bool:
 	var source := document.get("source", {}) as Dictionary
 	if str(source.get("kind", "")) != "installed_bf6":
 		return _fail("manifest provenance is not an installed BF6 build")

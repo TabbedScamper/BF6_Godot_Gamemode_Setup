@@ -45,18 +45,26 @@ const VEHICLE_NAMES := [
 # concrete VehicleType enum. Each pair below comes from the retail category
 # prefab's faction-picker array, joined to ModBuilder_Enum_VehicleList.
 const VEHICLE_GROUP_TYPES := {
-	0: [12, 20], # APC: Marauder / Marauder_Pax
+	0: [13, 9], # LightTransport: Flyer60 / Vector
 	1: [17, 3], # IFV: M2Bradley / CV90
-	4: [15, 18], # FighterPlane: F22 / SU57
-	5: [16, 14], # AttackPlane: F16 / JAS39
+	2: [0, 1], # Tank: Abrams / Leopard
+	3: [2, 4], # MobileAA: Cheetah / Gepard
+	4: [16, 14], # AttackPlane: F16 / JAS39
+	5: [15, 18], # FighterPlane: F22 / SU57
+	6: [8, 6], # AttackHelicopter: AH64 / Eurocopter
 	7: [5, 19], # TransportHelicopter: UH60 / UH60_Pax
-	8: [22, 23], # DirtBike / DirtBike_Pax
-	9: [10], # Quadbike is shared
+	8: [10], # Quadbike is shared
+	9: [12, 20], # APC: Marauder / Marauder_Pax
+	10: [11], # GolfCart is shared
 	11: [21], # RHIB is shared
 	12: [7, 24], # ScoutHelicopter: AH6M / AH6M_Pax
-	13: [13, 9], # LightTransport: Flyer60 / Vector
+	13: [22, 23], # DirtBike / DirtBike_Pax
 	14: [26, 27], # PatrolBoat / PatrolBoat_Pax
+	15: [30, 31], # Super Spectre / Super Spectre Pax
+	16: [28, 29], # Seacat / Seacat Pax
+	17: [16], 18: [15], 19: [14], 20: [18], 21: [28], 22: [30], 23: [31],
 }
+const STATIONARY_SELECTOR_TYPES := {0: 2, 1: 0, 2: 1}
 const COLORS := {
 	"capture": Color(1.0, 0.55, 0.1, 0.42),
 	"combat": Color(0.2, 0.75, 0.3, 0.3),
@@ -362,13 +370,22 @@ static func _build_attachments(entities: Array, parent: Node, owner: Node,
 			node.set_meta(PROVENANCE_META, _row_source(row))
 			if blueprint == "gem_automaticaa":
 				var hq_key := _nearest_key(hqs, _origin(row))
+				var owner_team := 1 if hq_key == "HQ1" else 2
+				node.name = "AutomaticAA_Team%d_Root%02d" % [owner_team,
+					int(row.get("root_order", 0))]
+				node.set("OwnerTeam", owner_team)
 				var protection = hqs[hq_key].get("HQArea")
 				node.set("ProtectionAreaVolume", protection)
 				node.set_meta("bf6_protection_hq", hq_key)
+				node.set_meta("bf6_owner_team", owner_team)
 			if _has_property(node, "VehicleType") and int(row.get("gem_selector", -1)) >= 0:
 				node.set("VehicleType", int(row.gem_selector))
 			if blueprint == "gem_stationaryspawner":
-				node.set("StationaryEmplacementType", int(row.get("gem_selector", 0)))
+				var retail_selector := int(row.get("gem_selector", -1))
+				var stationary_type := int(STATIONARY_SELECTOR_TYPES.get(retail_selector, -1))
+				if stationary_type >= 0:
+					node.set("StationaryEmplacementType", stationary_type)
+				node.set("P_AutoSpawnEnabled", true)
 			folder.add_child(node)
 			node.owner = owner
 			if blueprint == "gem_stationaryspawner":
@@ -400,6 +417,8 @@ static func _make_vehicle_spawner(row: Dictionary, owner_key: String, vehicle_ty
 	vehicle.transform = _transform(row)
 	vehicle.set("VehicleType", vehicle_type)
 	vehicle.set("P_DefaultRespawnTime", 45)
+	if vehicle_type == -1:
+		vehicle.set("P_AutoSpawnEnabled", true)
 	if template_obj_id > 0:
 		vehicle.set("ObjId", template_obj_id)
 		vehicle.set_meta("bf6_template_obj_id", template_obj_id)

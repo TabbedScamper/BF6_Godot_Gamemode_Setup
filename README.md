@@ -17,7 +17,7 @@ Community scenes are used only to reproduce the compatible hierarchy and Blockly
 
 ## Build a game mode
 
-When a verified layout is available, open the **Game mode** dropdown and select it. The plugin downloads the gameplay layout and optional geometry from the data release, caches them in Godot's user-data directory, creates the game-mode node, and selects it in the Scene dock. Save the map scene when satisfied.
+When a verified layout is available, open the **Game mode** dropdown and select it. The dock shows a plain-language description of that mode's objective flow before building. The plugin downloads the gameplay layout and optional geometry from the data release, caches them in Godot's user-data directory, creates the game-mode node, and selects it in the Scene dock. Save the map scene when satisfied. The mode-specific construction rules and known evidence gaps are documented in [the behavior contract](docs/mode_behavior_contract.md).
 
 The plugin displays build progress in its Godot dock while it creates gameplay objects, vehicle previews, volumes, and optional carrier geometry. Large modes remain synchronous because Godot scene nodes must be authored on the editor thread, but explicit UI redraws keep the progress display visibly updating throughout the build.
 
@@ -36,8 +36,9 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - Volume elevations are preserved from game data. They are not raycast or snapped to terrain.
 - Vehicle and spawn arrays are not capped.
 - Every generated SDK `VehicleSpawner` uses a 45-second `P_DefaultRespawnTime`.
-- Retail vehicle records use spawn-category selectors rather than concrete Portal `VehicleType` values. The builder resolves each category to its shipped Team 1/Team 2 vehicle pair, groups HQ vehicles by team, and creates team-gated objective spawners while retaining the original selector as provenance.
-- Verified mode-specific vehicle choices are keyed to their installed instance identity, so an HQ override does not alter legitimate uses of the same vehicle category at objectives or on other maps.
+- Stationary emplacements and unresolved `VehicleType = -1` spawners enable `P_AutoSpawnEnabled` by default.
+- Vehicle preview skins update from inspector/selection events. The plugin does not repeatedly scan every vehicle spawner while the editor is idle.
+- Retail vehicle GEM field `0x783E16EC` selects a vehicle-class prefab in the installed mode ActivityData. The builder follows that class prefab's faction picker into `ModBuilder_Enum_VehicleList`, assigns the correct concrete SDK vehicle at each HQ, and creates Team 1/Team 2 gated variants for faction-dependent objective pads.
 - Objective spawns are nested under their capture point with stable names. Conquest layouts join polygons to installed `gem_capturepoint` identities and use audited game-root-to-letter mappings instead of world-position ordering. False heuristic captures are demoted, missed game capture volumes are restored, and linked spawns follow the corrected objective. Wake Island includes its 11,251.8 m² G capture volume.
 - Conquest base polygons are assigned directly to each SDK HQ's `HQArea`. Wake Island and Liberation Peak also promote their verified play-area polygons into an SDK `CombatArea` with the corresponding `CombatVolume` and, where present, `SurroundingVolume`.
 - Generated scene trees group gameplay boundaries and the alphabetically linked `Sector` under `Play Area`, while secondary gameplay objects are grouped under `Extras`.

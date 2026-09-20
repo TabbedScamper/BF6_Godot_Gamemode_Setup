@@ -33,15 +33,23 @@ static func sync_tree(root: Node) -> bool:
 	var pending: Array[Node] = [root]
 	while not pending.is_empty():
 		var node := pending.pop_back() as Node
-		if _is_vehicle_spawner(node):
-			changed = sync_spawner(node as Node3D, root) or changed
-		elif _is_stationary_spawner(node):
-			changed = sync_stationary(node as Node3D, root) or changed
-		elif _is_resupply_station(node):
-			changed = sync_resupply(node as Node3D, root) or changed
+		changed = sync_node(node, root) or changed
 		for child in node.get_children():
 			pending.append(child)
 	return changed
+
+
+# Event-driven editor updates call this for the selected node only. Keeping the
+# type dispatch here also ensures the one-time scene-open scan and an inspector
+# edit use exactly the same behavior.
+static func sync_node(node: Node, scene_root: Node) -> bool:
+	if _is_vehicle_spawner(node):
+		return sync_spawner(node as Node3D, scene_root)
+	if _is_stationary_spawner(node):
+		return sync_stationary(node as Node3D, scene_root)
+	if _is_resupply_station(node):
+		return sync_resupply(node as Node3D, scene_root)
+	return false
 
 
 static func sync_spawner(spawner: Node3D, _scene_root: Node) -> bool:
