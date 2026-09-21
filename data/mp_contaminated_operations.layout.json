@@ -1,5 +1,5 @@
 {
-  "schema":3,
+  "schema":4,
   "source":{"kind":"installed_bf6","level":"mp_contaminated","mode":"operations"},
   "objects":[
     {"role":6,"label":"Vehicle 1","flag":-1,"team":0,"area_m2":0,"centre":[-146.341354,322.936523,8.09446526],"height":0,"stationary":false,"by_data":false,"water":false,"gem_link":"gem_vehiclespawner","gem_value":1,"ground_y":323,"raw":{"kind":9,"type":"gem instance (ee2bf4d0)","layer":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","partition":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","instance":3,"root_order":69,"instance_guid":"e2df0e04-245e-425f-86f8-5ac91de6ea1f","blueprint":null,"transform":[0.274099857,0,-0.961700916,0,1.00000012,0,0.961700737,0,0.274099767,-146.341354,322.936523,8.09446526],"gem_blueprint":"gem_vehiclespawner","gem_selector":1,"gem_shape":null,"gem_shape_property":0,"shape_asset":null,"owner_type":null}},
@@ -284,5 +284,8 @@
     {"gem":"gem_reinforcement","selector":-1,"team":0,"enabled":true,"root_order":64,"instance":212,"instance_guid":"ebaba3ff-240a-4bdb-bdcd-e322d1e445be","layer":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","partition":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","transform":[1,0,0,0,1,0,0,0,1,123.961205,309.062347,163.185074],"shape":null,"shape_property":0,"links":[]},
     {"gem":"gem_psygas_activator","selector":-1,"team":0,"enabled":true,"root_order":172,"instance":213,"instance_guid":"9a64dbff-3e45-463d-aaea-7abf596ce90d","layer":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","partition":"game/glaciermp/levels/mp_contaminated/_layers_gameplay/mp_operations0","transform":[1,0,0,0,1,0,0,0,1,144.61795,303.296265,141.557724],"shape":null,"shape_property":0,"links":[]}
   ],
-  "counts":{"objects":76,"spawns":0,"captures":0,"zones":1,"combat":0,"obbs":0,"vehicles":73,"resupply":0,"mcoms":2,"bombs":0,"specialareas":0,"slots":0,"unlinked":0,"extra_hq_aa":6,"dropped":123}
+  "capture_shapes":[
+
+  ],
+  "counts":{"objects":76,"spawns":0,"captures":0,"zones":1,"combat":0,"obbs":0,"vehicles":73,"resupply":0,"mcoms":2,"bombs":0,"specialareas":0,"slots":0,"unlinked":0,"exact_capture_shapes":0,"extra_hq_aa":6,"dropped":123}
 }
