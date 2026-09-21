@@ -21,7 +21,7 @@ When a verified layout is available, open the **Game mode** dropdown and select 
 
 The plugin displays build progress in its Godot dock while it creates gameplay objects, vehicle previews, volumes, and optional carrier geometry. Large modes remain synchronous because Godot scene nodes must be authored on the editor thread, but explicit UI redraws keep the progress display visibly updating throughout the build.
 
-Optional preview geometry is editor-only and can be hidden from the Scene dock. Generated mesh children are rebuilt from the downloaded asset when the scene opens and are not exported with the level.
+Optional preview geometry is editor-only and can be hidden from the Scene dock. Generated mesh children are rebuilt from the downloaded asset when the scene opens and are not exported with the level. Vehicle spawners, stationary emplacements, and Automatic AA use bundled untextured game geometry with a neutral SDK-white material. Verified separate wheels, tank tracks, and mounted parts are assembled into their authored positions; passenger variants reuse the matching canonical vehicle model.
 
 Aircraft-carrier previews are mode-specific. Tsuru Reef receives carriers only for Carrier Strike. Wake Island receives the matching Conquest, Breakthrough, or Escalation carrier layout; its always-visible carrier pieces remain part of the base map. Each downloaded carrier branch is named so it can be hidden manually.
 
@@ -40,6 +40,7 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 - Every generated SDK `VehicleSpawner` uses a 45-second `P_DefaultRespawnTime`.
 - Stationary emplacements and unresolved `VehicleType = -1` spawners enable `P_AutoSpawnEnabled` by default.
 - Vehicle preview skins update from inspector/selection events. The plugin does not repeatedly scan every vehicle spawner while the editor is idle.
+- Vehicle preview assets contain visual meshes only. They add no `StaticBody3D`, collision shape, or physics node to the generated game mode.
 - Retail vehicle GEM field `0x783E16EC` selects a vehicle-class prefab in the installed mode ActivityData. The builder follows that class prefab's faction picker into `ModBuilder_Enum_VehicleList`, assigns the correct concrete SDK vehicle at each HQ, and creates Team 1/Team 2 gated variants for faction-dependent objective pads.
 - Objective spawns are nested under their capture point with stable names. Conquest layouts join polygons to installed `gem_capturepoint` identities and use audited game-root-to-letter mappings instead of world-position ordering. False heuristic captures are demoted, missed game capture volumes are restored, and linked spawns follow the corrected objective. Wake Island includes its 11,251.8 m² G capture volume.
 - Conquest base polygons are assigned directly to each SDK HQ's `HQArea`. Wake Island and Liberation Peak also promote their verified play-area polygons into an SDK `CombatArea` with the corresponding `CombatVolume` and, where present, `SurroundingVolume`.

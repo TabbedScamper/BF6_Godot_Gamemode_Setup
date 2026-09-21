@@ -73,10 +73,11 @@ func _init() -> void:
 			if child.has_meta("bf6_vehicle_skin"):
 				skin = child
 				break
-		check_true("%s has direct SDK vehicle skin" % vehicle.name, skin != null)
+		check_true("%s has direct game vehicle skin" % vehicle.name, skin != null)
 		if skin != null:
-			check_true("%s skin is a normal SDK scene instance" % vehicle.name,
-				str(skin.scene_file_path).begins_with("res://objects/gameplay/vehicles/VEH_"))
+			check_true("%s uses bundled untextured geometry" % vehicle.name,
+				str(skin.scene_file_path).begins_with(
+					"res://addons/bf6_gamemode_setup/assets/vehicles/VEH_"))
 			check_equal("%s skin stays editor-only" % vehicle.name, skin.owner, null)
 		check_equal("%s auto-spawn game default" % vehicle.name, vehicle.get("P_AutoSpawnEnabled"), false)
 		check_near("%s 45-second respawn" % vehicle.name, float(vehicle.get("P_DefaultRespawnTime")), 45.0, 0.001)
@@ -170,9 +171,12 @@ func _init() -> void:
 			if child.has_meta("bf6_vehicle_skin"):
 				stationary_skin = child
 				break
-		check_true("%s has direct SDK emplacement skin" % stationary.name,
+		check_true("%s has direct game emplacement skin" % stationary.name,
 			stationary_skin != null)
 		if stationary_skin != null:
+			check_true("%s uses bundled untextured geometry" % stationary.name,
+				str(stationary_skin.scene_file_path).begins_with(
+					"res://addons/bf6_gamemode_setup/assets/vehicles/VEH_"))
 			check_equal("%s skin stays editor-only" % stationary.name,
 				stationary_skin.owner, null)
 	check_equal("retail stationary class -> SDK type census", stationary_census, {0: 2, 2: 1})
@@ -196,6 +200,16 @@ func _init() -> void:
 		conquest.get_node_or_null("AircraftCarriers"), null)
 	var automatic_aas := conquest.get_node("Extras/AutomaticAAs").get_children()
 	for aa in automatic_aas:
+		var aa_skin: Node = null
+		for child in aa.get_children():
+			if child.has_meta("bf6_vehicle_skin"):
+				aa_skin = child
+				break
+		check_true("%s has direct game model" % aa.name, aa_skin != null)
+		if aa_skin != null:
+			check_equal("%s uses bundled Automatic AA geometry" % aa.name,
+				str(aa_skin.scene_file_path),
+				"res://addons/bf6_gamemode_setup/assets/vehicles/VEH_Stationary_AutomaticAA.glb")
 		check_true("%s protection area assigned" % aa.name,
 			aa.get("ProtectionAreaVolume") != null)
 		var hq_key := str(aa.get_meta("bf6_protection_hq", ""))

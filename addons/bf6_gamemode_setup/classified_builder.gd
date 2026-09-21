@@ -383,6 +383,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 					aa.set("ProtectionAreaVolume", nearest.get("HQArea"))
 					aa.set_meta("bf6_protection_hq", str(nearest.name))
 					aa.set_meta("bf6_protection_binding", "legacy_nearest_hq_fallback")
+			VehicleSkin.sync_automatic_aa(aa, map_root)
 		if role in [6, 7, 8, 9, 10, 101]:
 			progress_current += 1
 			_report(progress, "Creating vehicles and attachments…", progress_current, progress_total)
