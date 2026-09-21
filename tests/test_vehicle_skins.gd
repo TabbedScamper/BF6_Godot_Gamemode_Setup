@@ -49,6 +49,9 @@ func _check_skin(spawner: Node3D, requested_key: String) -> void:
 	var canonical := str(VehicleSkin.MODEL_ALIASES.get(requested_key, requested_key))
 	_check(str(skin.scene_file_path) == "%s/%s.glb" % [VehicleSkin.BUNDLED_DIR, canonical],
 		"%s resolves to %s" % [requested_key, canonical])
+	# Portal's validator allows imported GLB instances only under this reserved
+	# root name. This guards against the modal warning returning on type changes.
+	_check(skin.name == "Mesh", "%s uses the validator-safe GLB root" % requested_key)
 	var census := {"meshes": 0, "bad_materials": 0, "physics": 0}
 	_census(skin, census)
 	_check(int(census.meshes) > 0, "%s contains meshes" % requested_key)

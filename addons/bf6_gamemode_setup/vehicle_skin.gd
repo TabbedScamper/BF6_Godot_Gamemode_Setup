@@ -124,7 +124,10 @@ static func _sync_path(spawner: Node3D, selected: int, expected_path: String,
 	if skin == null:
 		_set_marker_visible(spawner, true)
 		return false
-	skin.name = model_key
+	# Portal's level validator intentionally permits imported GLB instances only
+	# when their root is named Mesh.  Any vehicle/type name here produces a modal
+	# "mesh file should not be directly added" warning on every selection change.
+	skin.name = "Mesh"
 	skin.set_meta(SKIN_META, true)
 	if expected_path.begins_with(BUNDLED_DIR + "/"):
 		_apply_sdk_material(skin)
