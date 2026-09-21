@@ -616,16 +616,67 @@ func _check_mode_objective_contract(root: Node, manifest: Dictionary,
 			failures += 1
 			print("FAIL ", filename, ": destructible objectives ",
 				0 if folder == null else folder.get_child_count(), "/", expected)
+		elif folder != null:
+			_check_sabotage_trigger_contract(folder, manifest, filename)
 	if mode in ["obliteration", "squadobliteration"]:
 		if root.get_node_or_null("Objectives/MCOM Objectives") == null or \
 				root.get_node_or_null("Objectives/Bomb Spawn Candidates") == null:
 			failures += 1
 			print("FAIL ", filename, ": Obliteration objective folders are incomplete")
+	if mode in ["obliteration", "squadobliteration", "carrierstrike"]:
+		_check_review_mcom_contract(root, manifest, filename, mode)
 	if mode in ["escalation", "koth", "kingofthehill", "strikepoint"] and \
 			_count_manifest_gem(manifest, "gem_sector") > 0 and \
 			root.get_node_or_null("Objectives/Runtime Sectors") == null:
 		failures += 1
 		print("FAIL ", filename, ": runtime-fed sector placements are missing")
+
+
+func _check_sabotage_trigger_contract(folder: Node, manifest: Dictionary,
+		filename: String) -> void:
+	var available_polygons := 0
+	for value in manifest.get("objects", []):
+		if int((value as Dictionary).get("role", 0)) == 2 and \
+				((value as Dictionary).get("world_points", []) as Array).size() >= 9:
+			available_polygons += 1
+	var linked := 0
+	for index in range(folder.get_child_count()):
+		var objective := folder.get_child(index)
+		var area := objective.get_node_or_null("ObjectiveArea")
+		var trigger := objective.get_node_or_null("SabotageTrigger_%02d" % (index + 1))
+		if trigger == null:
+			continue
+		linked += 1
+		if area == null or int(trigger.get("ObjId")) != 701 + index or \
+				trigger.get("Area") != area:
+			failures += 1
+			print("FAIL ", filename, ": Sabotage AreaTrigger contract ", index + 1)
+	if linked != mini(folder.get_child_count(), available_polygons):
+		failures += 1
+		print("FAIL ", filename, ": linked Sabotage polygons ", linked, "/",
+			mini(folder.get_child_count(), available_polygons))
+
+
+func _check_review_mcom_contract(root: Node, manifest: Dictionary,
+		filename: String, mode: String) -> void:
+	var folder_name := "Carrier Objectives" if mode == "carrierstrike" else "MCOM Objectives"
+	var folder := root.get_node_or_null("Objectives/" + folder_name)
+	var expected := _count_manifest_gem(manifest, "gem_objective_mcom")
+	if folder == null or folder.get_child_count() != expected:
+		failures += 1
+		print("FAIL ", filename, ": review MCOM count ",
+			0 if folder == null else folder.get_child_count(), "/", expected)
+		return
+	var seen := {}
+	for child in folder.get_children():
+		var label_slot := int(str(child.name).get_slice("_", 1))
+		var object_id := int(child.get("ObjId"))
+		if label_slot < 1 or object_id != 300 + label_slot or seen.has(object_id) or \
+				not child.has_meta("bf6_portal_translation"):
+			failures += 1
+			print("FAIL ", filename, ": review MCOM identity ", child.name,
+				" / ", object_id)
+		seen[object_id] = true
 
 
 func _count_manifest_gem(manifest: Dictionary, gem_name: String) -> int:
