@@ -128,19 +128,20 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		_build_capstone_out_of_bounds(objects, zones_root, map_root)
 
 	var capture_rows: Array = []
-	for value in objects:
-		var candidate := value as Dictionary
-		if int(candidate.get("role", 0)) == 2 and CAPTURE_POINT_MODES.has(mode) and \
-				_normalized_flag(level, mode, candidate) >= 0:
-			capture_rows.append(candidate)
+	if mode in ["breakthrough", "operations"]:
+		capture_rows = _breakthrough_capture_rows(objects, elements)
+	else:
+		for value in objects:
+			var candidate := value as Dictionary
+			if int(candidate.get("role", 0)) == 2 and CAPTURE_POINT_MODES.has(mode) and \
+					_normalized_flag(level, mode, candidate) >= 0:
+				capture_rows.append(candidate)
 	capture_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_flag := _normalized_flag(level, mode, a)
 		var b_flag := _normalized_flag(level, mode, b)
 		return a_flag < b_flag if a_flag != b_flag else _root_order(a) < _root_order(b))
 	for value in capture_rows:
 		var row := value as Dictionary
-		if int(row.get("role", 0)) != 2:
-			continue
 		var flag := _normalized_flag(level, mode, row)
 		if flag < 0:
 			continue
@@ -170,13 +171,20 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		progress_current += 1
 		_report(progress, "Creating objectives…", progress_current, progress_total)
 
+	var hq_rows: Array = []
 	for value in objects:
+		var candidate := value as Dictionary
+		if int(candidate.get("role", 0)) == 100:
+			hq_rows.append(candidate)
+	if mode == "conquest" and hq_rows.size() > 2:
+		hq_rows = _conquest_hqs_with_authored_insertions(hq_rows, elements)
+	for value in hq_rows:
 		var row := value as Dictionary
-		if int(row.get("role", 0)) != 100:
-			continue
 		var hq := _scene("hq", "HQ_Root%02d" % _root_order(row))
 		hq.transform = _raw_transform(row)
 		hq.set_meta(PROVENANCE_META, _source(row))
+		hq.set_meta("bf6_source_instance_guid",
+			str((row.get("raw", {}) as Dictionary).get("instance_guid", "")))
 		hq.set_meta("bf6_root_order", int((row.get("raw", {}) as Dictionary).get(
 			"root_order", hqs.size())))
 		root.add_child(hq)
@@ -196,6 +204,11 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		hq.set_meta("bf6_faction_assignment", "authored order" if hqs.size() <= 2 else \
 			"nearest endpoint of multi-stage HQ chain")
 	var claimed_zone_sources := {}
+	var claimed_capture_sources := {}
+	for value in capture_rows:
+		var capture_row := value as Dictionary
+		if int(capture_row.get("role", 0)) == 3:
+			claimed_capture_sources[_row_key(capture_row)] = true
 	if mode == "conquest" and not hqs.is_empty():
 		claimed_zone_sources = _assign_hq_areas(objects, hqs, map_root)
 	if mode == "conquest":
@@ -386,7 +399,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 					_add_polygon(row, zones_root, map_root,
 						Color(0.55, 0.75, 0.95, 0.35))
 			3:
-				if not claimed_zone_sources.has(_row_key(row)):
+				if not claimed_zone_sources.has(_row_key(row)) and \
+						not claimed_capture_sources.has(_row_key(row)):
 					if level == "mp_dumbo" and mode == "conquest":
 						continue
 					_add_polygon(row, zones_root, map_root, Color(0.55, 0.75, 0.95, 0.35))
@@ -408,7 +422,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				# in the gameplay graph assigns them as a play/combat area, so do not
 				# present them to creators as meaningful playable boundaries.
 				if not (mode == "conquest" and level in ["mp_eastwood", "mp_dumbo",
-						"mp_badlands"]):
+						"mp_badlands", "mp_aftermath", "mp_aftermath_portal"]):
 					var obb := _scene("obb", str(row.get("label", "Box")))
 					obb.transform = _raw_transform(row)
 					var half: Array = (row.get("raw", {}) as Dictionary).get("half_extents", [])
@@ -455,6 +469,45 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	return "Built %s %s: %d game-data objects (%d captures, %d spawns, %d vehicles)" % [
 		level, _pretty(mode), int(counts.get("objects", 0)), captures.size(),
 		int(counts.get("spawns", 0)), int(counts.get("vehicles", 0))]
+
+
+static func _conquest_hqs_with_authored_insertions(hq_rows: Array,
+		elements: Array) -> Array:
+	# A normal Conquest layer has two playable HQs. Some installed layers retain
+	# an inactive gem_hq candidate. Playable records have authored gem_insertion
+	# clusters; do not turn an unlinked candidate into a third faction slot.
+	var insertions: Array[Vector3] = []
+	for value in elements:
+		var element := value as Dictionary
+		if str(element.get("gem", "")) == "gem_insertion":
+			insertions.append(_element_transform(element).origin)
+	var ranked: Array = []
+	for value in hq_rows:
+		var row := value as Dictionary
+		var point := _vec3(row.get("centre", []))
+		var nearby := 0
+		var nearest := INF
+		for insertion in insertions:
+			var distance := point.distance_to(insertion)
+			nearest = minf(nearest, distance)
+			if distance < 80.0:
+				nearby += 1
+		ranked.append({"row": row, "nearby": nearby, "nearest": nearest})
+	ranked.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_nearby := int(a.get("nearby", 0))
+		var b_nearby := int(b.get("nearby", 0))
+		if a_nearby != b_nearby:
+			return a_nearby > b_nearby
+		return float(a.get("nearest", INF)) < float(b.get("nearest", INF)))
+	if ranked.size() < 2 or int((ranked[1] as Dictionary).get("nearby", 0)) == 0:
+		return hq_rows
+	var selected: Array = [
+		(ranked[0] as Dictionary).get("row", {}),
+		(ranked[1] as Dictionary).get("row", {}),
+	]
+	selected.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return _root_order(a) < _root_order(b))
+	return selected
 
 
 static func swap_factions(layout: Node, owner: Node) -> String:
@@ -573,7 +626,7 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 			sector_rows.append({"root_order": index, "transform": [1,0,0,0,1,0,0,0,1,
 				float(index) * 100000.0, 0, 0]})
 	else:
-		_sort_sectors_from_authored_hq_chain(sector_rows, hqs)
+		_sort_mode_elements_by_root_order(sector_rows)
 	var grouped: Array = []
 	for _sector in sector_rows:
 		grouped.append([])
@@ -590,6 +643,7 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 	sectors_root.set_meta("bf6_active_sector_slots", mini(rows.size(), sector_rows.size() * 2))
 	sectors_root.set_meta("bf6_selection_basis",
 		"installed gem_sector placements; nearest authored MCOMs, maximum two per sector")
+	var grouped_hqs := _group_nodes_by_elements(hqs, sector_rows, 2)
 	var objective_index := 0
 	var emitted_sector_index := 0
 	for sector_index in range(sector_rows.size()):
@@ -600,8 +654,7 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 		var sector := _scene("sector", "Sector%d" % (emitted_sector_index + 1))
 		sector.transform = _element_transform(sector_row)
 		sector.set("ObjId", 101 + emitted_sector_index)
-		sector.set_meta("bf6_order_basis",
-			"distance from earliest authored HQ-chain endpoint")
+		sector.set_meta("bf6_order_basis", "installed GEM root order")
 		sector.set_meta("bf6_source_instance_guid", str(sector_row.get("instance_guid", "")))
 		sectors_root.add_child(sector)
 		sector.owner = owner
@@ -621,6 +674,7 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 			sector_mcoms.append(mcom)
 			objective_index += 1
 		_set_array(sector, "MCOMs", sector_mcoms)
+		_set_array(sector, "HQs", grouped_hqs[sector_index] as Array)
 		emitted_sector_index += 1
 
 
@@ -770,7 +824,7 @@ static func _build_deploy_cameras(elements: Array, extras_root: Node,
 static func _build_breakthrough_sectors(captures: Dictionary,
 		objectives_root: Node, owner: Node, elements: Array, hqs: Array) -> void:
 	var sector_rows := _mode_elements(elements, "gem_sector")
-	_sort_sectors_from_authored_hq_chain(sector_rows, hqs)
+	_sort_mode_elements_by_root_order(sector_rows)
 	if sector_rows.is_empty():
 		return
 	var grouped: Array = []
@@ -783,10 +837,16 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 	for flag in ordered_flags:
 		var capture := captures[flag] as Node3D
 		var sector_index := _nearest_element_with_capacity(sector_rows, grouped,
-			capture.position, 2)
+			capture.position, 3)
 		if sector_index >= 0:
 			(grouped[sector_index] as Array).append({"flag": flag, "node": capture})
 	var sectors_root := _folder(objectives_root, "Sectors", owner)
+	sectors_root.set_meta("bf6_authored_capture_controllers",
+		_mode_elements(elements, "gem_capturepoint").size())
+	sectors_root.set_meta("bf6_active_capture_records", captures.size())
+	sectors_root.set_meta("bf6_selection_basis",
+		"one-to-one game capture-controller/polygon join; maximum three objectives per sector")
+	var grouped_hqs := _group_nodes_by_elements(hqs, sector_rows, 2)
 	var emitted_sector_index := 0
 	for sector_index in range(sector_rows.size()):
 		var members := grouped[sector_index] as Array
@@ -796,8 +856,7 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 		var sector := _scene("sector", "Sector%d" % (emitted_sector_index + 1))
 		sector.transform = _element_transform(sector_row)
 		sector.set("ObjId", 101 + emitted_sector_index)
-		sector.set_meta("bf6_order_basis",
-			"distance from earliest authored HQ-chain endpoint")
+		sector.set_meta("bf6_order_basis", "installed GEM root order")
 		sector.set_meta("bf6_source_instance_guid", str(sector_row.get("instance_guid", "")))
 		sectors_root.add_child(sector)
 		sector.owner = owner
@@ -811,10 +870,75 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 			_reparent_from_layout_space(capture, sector, owner)
 			capture.name = "CapturePoint%s" % String.chr(65 + slot)
 			capture.set("ObjId", 1100 + emitted_sector_index * 100 + slot)
+			capture.set("InitialOwner", 2)
 			capture.set_meta("bf6_breakthrough_source_flag", int(member.get("flag", -1)))
 			sector_captures.append(capture)
 		_set_array(sector, "CapturePoints", sector_captures)
+		_set_array(sector, "HQs", grouped_hqs[sector_index] as Array)
 		emitted_sector_index += 1
+
+
+static func _breakthrough_capture_rows(objects: Array, elements: Array) -> Array:
+	# Later Breakthrough phases are commonly emitted as ordinary polygon rows;
+	# only the base-template objectives retain role 2.  The installed
+	# gem_capturepoint transforms identify the live meaning of those polygons.
+	# Match controllers and reasonably-sized authored polygons one-to-one. This
+	# also rejects superseded controllers which share a replacement's polygon.
+	var controllers := _mode_elements(elements, "gem_capturepoint")
+	var polygons: Array = []
+	for value in objects:
+		var row := value as Dictionary
+		if int(row.get("role", 0)) not in [2, 3]:
+			continue
+		if (row.get("world_points", []) as Array).size() < 9:
+			continue
+		if float(row.get("area_m2", INF)) > 25000.0:
+			continue
+		polygons.append(row)
+	var pairs: Array = []
+	for controller_index in range(controllers.size()):
+		var point := _element_transform(controllers[controller_index] as Dictionary).origin
+		for polygon_index in range(polygons.size()):
+			var row := polygons[polygon_index] as Dictionary
+			pairs.append({
+				"controller": controller_index,
+				"polygon": polygon_index,
+				"distance": point.distance_to(_vec3(row.get("centre", []))),
+			})
+	pairs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return float(a.get("distance", INF)) < float(b.get("distance", INF)))
+	var used_controllers := {}
+	var used_polygons := {}
+	var matched: Array = []
+	for value in pairs:
+		var pair := value as Dictionary
+		if float(pair.get("distance", INF)) > 60.0:
+			break
+		var controller_index := int(pair.get("controller", -1))
+		var polygon_index := int(pair.get("polygon", -1))
+		if used_controllers.has(controller_index) or used_polygons.has(polygon_index):
+			continue
+		used_controllers[controller_index] = true
+		used_polygons[polygon_index] = true
+		matched.append(pair)
+	matched.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int((controllers[int(a.get("controller", -1))] as Dictionary).get(
+			"root_order", -1)) < int((controllers[int(b.get("controller", -1))] as Dictionary).get(
+			"root_order", -1)))
+	var rows: Array = []
+	for flag in range(matched.size()):
+		var pair := matched[flag] as Dictionary
+		var controller := controllers[int(pair.get("controller", -1))] as Dictionary
+		var row := (polygons[int(pair.get("polygon", -1))] as Dictionary).duplicate(true)
+		row["flag"] = flag
+		row["capture_binding"] = {
+			"instance_guid": str(controller.get("instance_guid", "")),
+			"root_order": int(controller.get("root_order", -1)),
+			"method": "one_to_one_spatial_gem_capturepoint",
+			"distance_m": float(pair.get("distance", -1.0)),
+		}
+		rows.append(row)
+	return rows
 
 
 static func _mode_elements(elements: Array, gem: String) -> Array:
@@ -827,27 +951,25 @@ static func _mode_elements(elements: Array, gem: String) -> Array:
 	return rows
 
 
-static func _sort_sectors_from_authored_hq_chain(rows: Array, hqs: Array) -> void:
-	if rows.size() < 2:
-		return
-	var endpoint: Node3D = null
-	var first_order := 2147483647
-	for value in hqs:
-		var hq := value as Node3D
-		var order := int(hq.get_meta("bf6_root_order", 2147483647))
-		if order < first_order:
-			first_order = order
-			endpoint = hq
-	if endpoint == null:
-		rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-			return int(a.get("root_order", -1)) < int(b.get("root_order", -1)))
-		return
-	var origin := endpoint.position
+static func _sort_mode_elements_by_root_order(rows: Array) -> void:
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var da := origin.distance_squared_to(_element_transform(a).origin)
-		var db := origin.distance_squared_to(_element_transform(b).origin)
-		return da < db if not is_equal_approx(da, db) else \
-			int(a.get("root_order", -1)) < int(b.get("root_order", -1)))
+		return int(a.get("root_order", -1)) < int(b.get("root_order", -1)))
+
+
+static func _group_nodes_by_elements(nodes: Array, rows: Array, capacity: int) -> Array:
+	var grouped: Array = []
+	for _row in rows:
+		grouped.append([])
+	var ordered := nodes.duplicate()
+	ordered.sort_custom(func(a: Node, b: Node) -> bool:
+		return int(a.get_meta("bf6_root_order", -1)) < \
+			int(b.get_meta("bf6_root_order", -1)))
+	for value in ordered:
+		var node := value as Node3D
+		var index := _nearest_element_with_capacity(rows, grouped, node.position, capacity)
+		if index >= 0:
+			(grouped[index] as Array).append(node)
+	return grouped
 
 
 static func _nearest_element_index(rows: Array, point: Vector3) -> int:

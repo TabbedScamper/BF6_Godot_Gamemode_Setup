@@ -7,8 +7,8 @@ const VehicleSkin = preload("vehicle_skin.gd")
 const TemplateAddons = preload("template_addons.gd")
 const MODE_DESCRIPTIONS := {
 	"conquest": "Two teams capture and hold persistent objectives across the map. Tickets drain from deaths and enemy-controlled flags; vehicles can belong to HQs or objectives.",
-	"breakthrough": "Attackers capture every objective in the active sector to advance the frontline. Defenders hold each sector; objective labels restart as A and B within each sector.",
-	"rush": "Attackers arm and destroy M-COM stations while defenders defuse them. Destroying every M-COM in a sector advances the fight to the next sector.",
+	"breakthrough": "Attackers must hold every objective in the active sector at once to advance the frontline. Team 2 begins as defender; labels restart as A, B, and where authored C in every sector.",
+	"rush": "Attackers arm and destroy every M-COM in the active sector while defenders defuse them. Clearing a sector advances its staged HQs, spawns, and vehicles; attackers lose if their tickets reach zero.",
 	"escalation": "Two teams capture territory while the set of active control points shrinks over successive stages, concentrating the battle toward the final objectives.",
 	"domination": "A fast, infantry-focused territory mode. Teams capture and hold several persistent control points to reach the score limit.",
 	"kingofthehill": "Teams contest one active hill at a time. The hill moves during the match, so its candidate areas are not simultaneous Conquest flags.",
