@@ -399,6 +399,8 @@ static func _build_attachments(entities: Array, parent: Node, owner: Node,
 				VehicleSkin.sync_stationary(node, owner)
 			elif blueprint == "gem_vehicleresupplystation":
 				VehicleSkin.sync_resupply(node, owner)
+			elif blueprint == "gem_automaticaa":
+				VehicleSkin.sync_automatic_aa(node, owner)
 
 
 static func _script_node(kind: String, node_name: String) -> Node3D:

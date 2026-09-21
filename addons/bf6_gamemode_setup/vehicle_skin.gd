@@ -7,6 +7,7 @@ extends RefCounted
 
 const SKIN_META := "bf6_vehicle_skin"
 const TYPE_META := "bf6_vehicle_skin_type"
+const BUNDLED_DIR := "res://addons/bf6_gamemode_setup/assets/vehicles"
 const VEHICLE_KEYS := [
 	"VEH_Abrams", "VEH_Leopard", "VEH_Cheetah", "VEH_CV90", "VEH_Gepard",
 	"VEH_UH60", "VEH_Eurocopter", "VEH_AH6M", "VEH_AH64E", "VEH_Vector",
@@ -22,6 +23,11 @@ const STATIONARY_KEYS := [
 	"VEH_Stationary_GDF009",
 	"VEH_M2MG",
 ]
+const MODEL_ALIASES := {
+	"VEH_RCB_90_Patrol_Boat_Pax": "VEH_RCB_90_Patrol_Boat",
+	"VEH_F_74A_SEACAT_Pax": "VEH_F_74A_SEACAT",
+	"VEH_FA_81F_Super_Spectre_Pax": "VEH_FA_81F_Super_Spectre",
+}
 const RESUPPLY_MODEL := \
 	"res://addons/bf6_gamemode_setup/assets/VehicleResupplyStation_Game.tscn"
 
@@ -47,6 +53,8 @@ static func sync_node(node: Node, scene_root: Node) -> bool:
 		return sync_spawner(node as Node3D, scene_root)
 	if _is_stationary_spawner(node):
 		return sync_stationary(node as Node3D, scene_root)
+	if _is_automatic_aa(node):
+		return sync_automatic_aa(node as Node3D, scene_root)
 	if _is_resupply_station(node):
 		return sync_resupply(node as Node3D, scene_root)
 	return false
@@ -60,6 +68,12 @@ static func sync_spawner(spawner: Node3D, _scene_root: Node) -> bool:
 static func sync_stationary(spawner: Node3D, _scene_root: Node) -> bool:
 	var selected := int(spawner.get("StationaryEmplacementType"))
 	return _sync_model(spawner, selected, STATIONARY_KEYS)
+
+
+static func sync_automatic_aa(spawner: Node3D, _scene_root: Node) -> bool:
+	return _sync_path(spawner, 0,
+		_packaged_model_path("VEH_Stationary_AutomaticAA"),
+		"VEH_Stationary_AutomaticAA")
 
 
 static func sync_resupply(station: Node3D, _scene_root: Node) -> bool:
@@ -79,8 +93,16 @@ static func _sync_model(spawner: Node3D, selected: int, keys: Array) -> bool:
 		return false
 
 	var model_key := str(keys[selected])
-	var expected_path := "res://objects/gameplay/vehicles/%s.tscn" % model_key
+	var expected_path := _packaged_model_path(model_key)
 	return _sync_path(spawner, selected, expected_path, model_key)
+
+
+static func _packaged_model_path(model_key: String) -> String:
+	var canonical := str(MODEL_ALIASES.get(model_key, model_key))
+	var packaged := "%s/%s.glb" % [BUNDLED_DIR, canonical]
+	if ResourceLoader.exists(packaged):
+		return packaged
+	return "res://objects/gameplay/vehicles/%s.tscn" % model_key
 
 
 static func _sync_path(spawner: Node3D, selected: int, expected_path: String,
@@ -104,6 +126,8 @@ static func _sync_path(spawner: Node3D, selected: int, expected_path: String,
 		return false
 	skin.name = model_key
 	skin.set_meta(SKIN_META, true)
+	if expected_path.begins_with(BUNDLED_DIR + "/"):
+		_apply_sdk_material(skin)
 	spawner.add_child(skin)
 	# Visual skin only: keep it outside scene ownership so Portal exports the
 	# VehicleSpawner, not a second placed gameplay vehicle. The editor plug-in
@@ -139,6 +163,25 @@ static func _is_stationary_spawner(node: Node) -> bool:
 static func _is_resupply_station(node: Node) -> bool:
 	return node is Node3D and \
 		str(node.scene_file_path).get_file() == "VehicleResupplyStation.tscn"
+
+
+static func _is_automatic_aa(node: Node) -> bool:
+	return node is Node3D and \
+		str(node.scene_file_path).get_file() == "VEH_Stationary_AutomaticAA.tscn"
+
+
+static func _apply_sdk_material(node: Node) -> void:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = Color(0.92, 0.92, 0.92, 1.0)
+	material.roughness = 0.9
+	_apply_material_recursive(node, material)
+
+
+static func _apply_material_recursive(node: Node, material: Material) -> void:
+	if node is MeshInstance3D:
+		(node as MeshInstance3D).material_override = material
+	for child in node.get_children():
+		_apply_material_recursive(child, material)
 
 
 static func _skin_child(spawner: Node) -> Node3D:

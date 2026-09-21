@@ -10,3 +10,4 @@ Thumbs.db
 source_assets/
 *.glb
 *.gltf
+!addons/bf6_gamemode_setup/assets/vehicles/*.glb
