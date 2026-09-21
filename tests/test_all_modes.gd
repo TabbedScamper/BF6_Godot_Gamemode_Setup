@@ -20,11 +20,14 @@ func _init() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOG))
 	var conquest_identities: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(CONQUEST_IDENTITIES))
+	var requested_modes := OS.get_cmdline_user_args()
 	var tested := 0
 	for level in (catalog.get("maps", {}) as Dictionary):
 		var map: Dictionary = catalog.maps[level]
 		for mode_value in map.get("modes", []):
 			var mode := str(mode_value)
+			if not requested_modes.is_empty() and mode not in requested_modes:
+				continue
 			var filename := "%s_%s.layout.json" % [level, mode]
 			var root := Node3D.new()
 			root.name = str(level).to_upper()
@@ -99,6 +102,8 @@ func _init() -> void:
 						_check_rush_contract(built, manifest, filename)
 					if mode == "breakthrough":
 						_check_breakthrough_sectors(built, manifest, filename)
+					if mode in ["rush", "breakthrough"]:
+						_check_template_compatibility_provenance(built, filename)
 					_check_deploy_cameras(built, manifest, filename)
 					_check_world_horizontal_polygons(built, filename)
 					if level == "mp_atoll" and mode == "conquest":
@@ -266,7 +271,14 @@ func _check_objective_vehicle_id_node(root: Node, node: Node, filename: String) 
 		var team := 1 if association.ends_with("Team1") else \
 			2 if association.ends_with("Team2") else 0
 		var object_id := int(node.get("ObjId"))
-		if team == 0:
+		if node.has_meta("bf6_progressive_phase"):
+			var phase := int(node.get_meta("bf6_progressive_phase"))
+			var minimum := 1150 + phase * 100
+			if object_id < minimum or object_id > minimum + 49:
+				failures += 1
+				print("FAIL ", filename, ": progressive vehicle ObjId ", object_id,
+					" outside ", minimum, "-", minimum + 49)
+		elif team == 0:
 			if object_id != -1 or not bool(node.get("P_AutoSpawnEnabled")):
 				failures += 1
 				print("FAIL ", filename, ": shared objective vehicle contract ", node.name)
@@ -526,6 +538,8 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 		if str(element.get("gem", "")) == "gem_sector" and \
 				not str(element.get("layer", "")).ends_with("/gameplay_global"):
 			authored_sectors += 1
+	if sectors != null:
+		authored_sectors = maxi(sectors.get_child_count() - 2, 0)
 	# Sector.MCOMs is the live Portal contract. Retail may retain dormant or
 	# alternate MCOM GEM placements (MP_Tungsten has 13 unique records while
 	# its Rush layer exposes eight live slots), so raw placement count is only
@@ -539,10 +553,13 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 	var seen_mcoms := 0
 	var previous_root_order := -1
 	if sectors != null:
+		_check_progressive_template_shell(sectors, authored_sectors, filename, "Rush")
 		for sector_index in range(sectors.get_child_count()):
 			var sector := sectors.get_child(sector_index)
+			if sector_index == 0 or sector_index == sectors.get_child_count() - 1:
+				continue
 			var mcoms = sector.get("MCOMs")
-			if mcoms == null or mcoms.size() < 1 or mcoms.size() > 2:
+			if mcoms == null or mcoms.size() > 2:
 				failures += 1
 				print("FAIL ", filename, ": invalid Rush MCOM sector ", sector.name)
 				continue
@@ -553,6 +570,11 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 				if str(mcom.name) != expected_name:
 					failures += 1
 					print("FAIL ", filename, ": Rush MCOM slot name ", mcom.name)
+				var expected_id := 201 + (sector_index - 1) * 2 + slot
+				if int(mcom.get("ObjId")) != expected_id:
+					failures += 1
+					print("FAIL ", filename, ": Rush MCOM ObjId ",
+						mcom.get("ObjId"), "/", expected_id)
 			var source_guid := str(sector.get_meta("bf6_source_instance_guid", ""))
 			var root_order := _element_root_order_for_guid(manifest, source_guid)
 			if root_order < previous_root_order:
@@ -563,6 +585,7 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 					(sector.get("HQs") == null or sector.get("HQs").is_empty()):
 				failures += 1
 				print("FAIL ", filename, ": Rush sector has no staged HQ link ", sector.name)
+			_check_progressive_hq_pair(sector, manifest, filename, "Rush")
 	if seen_mcoms != expected_mcoms:
 		failures += 1
 		print("FAIL ", filename, ": Rush MCOM count ", seen_mcoms, "/", expected_mcoms)
@@ -744,16 +767,26 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 		print("FAIL ", filename, ": Breakthrough objectives have no sectors")
 		return
 	var seen := 0
+	var exact_polygon_memberships := 0
 	var previous_root_order := -1
 	if sectors != null:
-		for sector in sectors.get_children():
+		var authored_sectors := _count_manifest_gem(manifest, "gem_sector")
+		_check_progressive_template_shell(sectors, authored_sectors, filename,
+			"Breakthrough")
+		for sector_index in range(sectors.get_child_count()):
+			var sector := sectors.get_child(sector_index)
+			if sector_index == 0 or sector_index == sectors.get_child_count() - 1:
+				continue
 			var captures = sector.get("CapturePoints")
-			if captures == null or captures.size() < 1 or captures.size() > 3:
+			if captures == null or captures.size() > 3:
 				failures += 1
 				print("FAIL ", filename, ": invalid Breakthrough sector ", sector.name)
 				continue
 			for slot in range(captures.size()):
 				seen += 1
+				if str(captures[slot].get_meta("bf6_sector_binding", "")) == \
+						"installed phase polygon containment":
+					exact_polygon_memberships += 1
 				var expected_name := "CapturePoint%s" % String.chr(65 + slot)
 				if str(captures[slot].name) != expected_name:
 					failures += 1
@@ -764,6 +797,11 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 					print("FAIL ", filename,
 						": Breakthrough objective does not begin owned by Team 2 ",
 						captures[slot].name)
+				var expected_id := 1000 + sector_index * 100 + slot
+				if int(captures[slot].get("ObjId")) != expected_id:
+					failures += 1
+					print("FAIL ", filename, ": Breakthrough capture ObjId ",
+						captures[slot].get("ObjId"), "/", expected_id)
 			var source_guid := str(sector.get_meta("bf6_source_instance_guid", ""))
 			var root_order := _element_root_order_for_guid(manifest, source_guid)
 			if root_order < previous_root_order:
@@ -776,9 +814,122 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 				failures += 1
 				print("FAIL ", filename,
 					": Breakthrough sector has no staged HQ link ", sector.name)
+			_check_progressive_hq_pair(sector, manifest, filename, "Breakthrough")
 	if seen != expected:
 		failures += 1
 		print("FAIL ", filename, ": Breakthrough sector objectives ", seen, "/", expected)
+	var exact_regressions := {
+		"mp_atoll_breakthrough.layout.json": 10,
+		"mp_isolated_breakthrough.layout.json": 7,
+	}
+	if exact_regressions.has(filename) and \
+			exact_polygon_memberships != int(exact_regressions[filename]):
+		failures += 1
+		print("FAIL ", filename, ": exact phase-polygon memberships ",
+			exact_polygon_memberships, "/", exact_regressions[filename])
+
+
+func _check_progressive_template_shell(sectors: Node, authored_phases: int,
+		filename: String, mode_name: String) -> void:
+	var expected_count := authored_phases + 2
+	if sectors.get_child_count() != expected_count:
+		failures += 1
+		print("FAIL ", filename, ": ", mode_name, " Blockly sector shell ",
+			sectors.get_child_count(), "/", expected_count)
+	for index in range(sectors.get_child_count()):
+		var sector := sectors.get_child(index)
+		if str(sector.name) != "Sector%d" % index or int(sector.get("ObjId")) != 100 + index:
+			failures += 1
+			print("FAIL ", filename, ": ", mode_name,
+				" sector identity ", sector.name, " / ", sector.get("ObjId"))
+		var area = sector.get("SectorArea")
+		if area != null:
+			var trigger := sector.get_node_or_null("AreaTrigger")
+			if trigger == null or int(trigger.get("ObjId")) != 600 + index or \
+					trigger.get("Area") != area:
+				failures += 1
+				print("FAIL ", filename, ": ", mode_name,
+					" sector AreaTrigger contract ", sector.name)
+		if index > 0 and index < sectors.get_child_count() - 1:
+			var hqs = sector.get("HQs")
+			if hqs != null:
+				for hq in hqs:
+					if (hq as Node).get_parent() != sector:
+						failures += 1
+						print("FAIL ", filename, ": ", mode_name,
+							" HQ is outside its phase sector ", (hq as Node).name)
+					var team := int((hq as Node).get("Team"))
+					var adjacent := sectors.get_child(index - 1 if team == 1 else index + 1)
+					if adjacent.get("SectorArea") != null and \
+							(hq as Node).get("HQArea") != adjacent.get("SectorArea"):
+						failures += 1
+						print("FAIL ", filename, ": ", mode_name,
+							" HQ area is not the adjacent sector area ", (hq as Node).name)
+	var progressive_vehicles: Array[Node] = []
+	_collect_progressive_vehicles(sectors.get_parent().get_parent(), progressive_vehicles)
+	var used_ids := {}
+	for vehicle in progressive_vehicles:
+		var phase := int(vehicle.get_meta("bf6_progressive_phase", -1))
+		var object_id := int(vehicle.get("ObjId"))
+		var minimum := 1150 + phase * 100
+		if phase < 0 or object_id < minimum or object_id > minimum + 49 or \
+				used_ids.has(object_id):
+			failures += 1
+			print("FAIL ", filename, ": ", mode_name,
+				" progressive vehicle identity ", vehicle.name, " / ", object_id)
+		used_ids[object_id] = true
+
+
+func _check_template_compatibility_provenance(root: Node, filename: String) -> void:
+	if not root.has_meta("bf6_template_compatibility") or \
+			int(root.get_meta("bf6_template_adjustment_count", 0)) <= 0:
+		failures += 1
+		print("FAIL ", filename, ": progressive template adjustments are not disclosed")
+	for branch in ["TeamSwitcher", "AI Spawns", "EndGameCamera"]:
+		if root.get_node_or_null(branch) != null:
+			failures += 1
+			print("FAIL ", filename, ": optional Andy asset leaked into core build: ", branch)
+	var aliases: Array[Node] = []
+	_collect_meta_nodes(root, "bf6_template_hq_alias", aliases)
+	for alias in aliases:
+		if not alias.has_meta("bf6_template_modified") or \
+				str(alias.get_meta("bf6_retail_instance_status", "")).is_empty():
+			failures += 1
+			print("FAIL ", filename, ": HQ alias is not clearly disclosed: ", alias.name)
+
+
+func _collect_progressive_vehicles(node: Node, result: Array[Node]) -> void:
+	if str(node.scene_file_path).get_file() == "VehicleSpawner.tscn" and \
+			node.has_meta("bf6_progressive_phase"):
+		result.append(node)
+	for child in node.get_children():
+		_collect_progressive_vehicles(child, result)
+
+
+func _check_progressive_hq_pair(sector: Node, manifest: Dictionary,
+		filename: String, mode_name: String) -> void:
+	var hqs = sector.get("HQs")
+	if hqs == null or hqs.is_empty():
+		return
+	var sector_phase := int(sector.get_meta("bf6_progressive_phase", -1))
+	var teams := {}
+	for value in hqs:
+		var hq := value as Node
+		var team := int(hq.get("Team"))
+		if team not in [1, 2] or teams.has(team):
+			failures += 1
+			print("FAIL ", filename, ": ", mode_name,
+				" sector has invalid/duplicate HQ team ", sector.name)
+		teams[team] = true
+		if int(hq.get_meta("bf6_progressive_phase", -1)) != sector_phase:
+			failures += 1
+			print("FAIL ", filename, ": ", mode_name,
+				" HQ phase does not match sector ", hq.name)
+		var expected_id := (300 if team == 1 else 400) + sector_phase + 1
+		if int(hq.get("ObjId")) != expected_id:
+			failures += 1
+			print("FAIL ", filename, ": ", mode_name,
+				" HQ ObjId ", hq.get("ObjId"), "/", expected_id)
 
 
 func _element_root_order_for_guid(manifest: Dictionary, guid: String) -> int:

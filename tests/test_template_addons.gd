@@ -36,6 +36,10 @@ func _init() -> void:
 	for path in ["TeamSwitcher", "TeamSwitcher/Switch1", "TeamSwitcher/Switch2",
 			"AI Spawns", "EndGameCamera"]:
 		var node := mode.get_node(path) as Node3D
+		if not bool(node.get_meta("bf6_optional_template_asset", false)) or \
+				not str(node.get_meta("bf6_source", "")).contains("not installed-game"):
+			_fail("Template branch is not disclosed as optional/non-game data: %s" % path)
+			return
 		if node.position != Vector3.ZERO:
 			_fail("Template branch is not at the origin: %s" % path)
 			return

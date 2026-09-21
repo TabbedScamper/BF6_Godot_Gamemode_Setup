@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "principle": "Retail game data supplies map objects and transforms. Blockly only translates behavior exposed by Portal.",
+  "modes": {
+    "domination": {
+      "delivery": "playable_prototype",
+      "spatial_source": "game-derived gem_capturepoint records imported with ObjId 200 + alphabetical flag index",
+      "portal_translation": "Each owned point awards one team point per second; first to 200 wins.",
+      "unresolved": [
+        "Retail ticket-drain curve and catch-up tuning are not exposed in Portal data."
+      ],
+      "workspace": "domination_game_data.workspace.json"
+    },
+    "teamdeathmatch": {
+      "delivery": "playable_prototype",
+      "spatial_source": "game-derived HQ/spawn/combat-area layout; capture-like false positives are intentionally ignored",
+      "portal_translation": "Opposing-team kills award one point; first to 100 wins.",
+      "unresolved": [
+        "Retail assist weighting and hidden score modifiers are not represented."
+      ],
+      "workspace": "team_deathmatch_game_data.workspace.json"
+    },
+    "kingofthehill": {
+      "delivery": "playable_portal_translation",
+      "spatial_source": "game-derived KOTH capture points in importer-created alphabetical scene order",
+      "portal_translation": "One hill is enabled for 90 seconds, then rotation advances through AllCapturePoints; owner earns one point per second.",
+      "unresolved": [
+        "Retail phase order and phase duration have not been decoded from the runtime controller.",
+        "AllCapturePoints ordering must be confirmed in Portal after importing each scene."
+      ],
+      "workspace": "king_of_the_hill_game_data.workspace.json"
+    },
+    "conquest": {
+      "delivery": "existing_plugin_contract",
+      "unresolved": []
+    },
+    "breakthrough": {
+      "delivery": "existing_template_compatibility_contract",
+      "unresolved": [
+        "Retail reinforcement and sector-transition tuning remains runtime-authored."
+      ]
+    },
+    "rush": {
+      "delivery": "existing_template_compatibility_contract",
+      "unresolved": [
+        "Retail reinforcement and overtime tuning remains runtime-authored."
+      ]
+    },
+    "escalation": {
+      "delivery": "research_only",
+      "unresolved": [
+        "gem_collection_event meaning and authored stage activation order are not decoded."
+      ]
+    },
+    "strikepoint": {
+      "delivery": "research_only",
+      "unresolved": [
+        "Many maps expose no stable capture object; round/elimination behavior remains runtime-authored."
+      ]
+    },
+    "obliteration": {
+      "delivery": "blocked_by_portal_api",
+      "unresolved": [
+        "Game data has gem_bomb_pickup and M-COM records, but Portal exposes no Bomb object or carry/drop API."
+      ]
+    },
+    "payload": {
+      "delivery": "blocked_by_portal_api",
+      "unresolved": [
+        "Game data has payload/checkpoint markers, but Portal exposes no Payload object or motion API."
+      ]
+    },
+    "sabotage": {
+      "delivery": "research_only",
+      "unresolved": [
+        "Cargo/objective semantics and state transitions are not decoded into Portal-addressable objects."
+      ]
+    },
+    "carrierstrike": {
+      "delivery": "research_only",
+      "unresolved": [
+        "VLS batteries and destructible proxies lack a complete Portal behavior mapping."
+      ]
+    },
+    "operations": {
+      "delivery": "research_only",
+      "unresolved": [
+        "Cross-mode sector/capture/M-COM progression is not fully decoded."
+      ]
+    },
+    "squaddeathmatch": {
+      "delivery": "blocked_by_portal_api",
+      "unresolved": [
+        "Portal can read squads but SetGameModeScore accepts Team or Player, not Squad."
+      ]
+    }
+  }
+}

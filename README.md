@@ -6,7 +6,7 @@ The current review release covers **184 shipped gameplay layers across 18 maps**
 
 The supported map catalog includes Siege of Cairo, Empire State, Bellum1988's Operation Metro, Wake Island, Blackwell Fields, Iberian Offensive, Liberation Peak, Contaminated, Manhattan Bridge, Eastwood, Operation Firestorm, Railway to Golmud, Tsuru Reef, Saints Quarter, New Sobek City, Cairo Bazaar, Hagental Base, and Mirak Valley.
 
-Community scenes are used only to reproduce the compatible hierarchy and Blockly/TypeScript setup method. They are not accepted as sources for gameplay objects, transforms, links, IDs, vehicle settings, volumes, cameras, or carrier placement. SDK scene internals remain scene-owned, so implementation nodes such as `Mesh`, `StaticBody3D`, and `CollisionShape3D` are not promoted into editable game-mode content.
+Community scenes are used only to audit the compatible hierarchy and Blockly/TypeScript setup method. They are not accepted as sources for gameplay objects, transforms, links, vehicle settings, volumes, cameras, or carrier placement. Where Rush or Breakthrough requires a public Portal ObjId contract, the game-derived SDK object receives that compatibility ID and explicit `bf6_template_modified` metadata explaining the change. Compatibility aliases are identified as non-retail instances. SDK scene internals remain scene-owned, so implementation nodes such as `Mesh`, `StaticBody3D`, and `CollisionShape3D` are not promoted into editable game-mode content.
 
 ## Install
 
@@ -30,6 +30,10 @@ Selecting **Off** hides layouts without deleting them or discarding edits. The p
 **Swap Team 1 / Team 2** reverses the imported faction sides without rebuilding the layout. It swaps HQ ownership, team spawn arrays, AA ownership, faction-specific vehicle choices, objective-vehicle team IDs, and the corresponding scene-tree labels. Pressing it again restores the original assignment.
 
 **Andys Template Addons** adds the community builder's optional `TeamSwitcher`, `AI Spawns`, and `EndGameCamera` branches to the selected generated layout. It preserves the template's node names, ObjIds, team-switch child offsets, and FixedCamera model orientation, links each AI spawner to its team's generated HQ infantry spawns, and places the editable parent objects at the origin for manual positioning.
+
+Those optional branches are never included by a normal game-mode build. The
+button is the explicit opt-in boundary between a game-data-first layout and the
+creator-template conveniences.
 
 ## Notes
 

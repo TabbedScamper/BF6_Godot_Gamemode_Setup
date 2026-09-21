@@ -20,8 +20,8 @@ community-authored position or vehicle choice.
 | Layout key | Gameplay contract | Required Godot structure | Current alignment |
 |---|---|---|---|
 | `conquest` | Two teams capture and hold persistent lettered control points; HQ and objective vehicles are valid. | HQs, one Sector containing ordered CapturePoints, capture/HQ spawns, team-aware vehicle spawners, combat areas. | Strong; map-specific identity and vehicle audits exist. |
-| `breakthrough` | Attackers must hold every control point in the current sector simultaneously, then the frontline advances. Team 2 begins as defender. Objective labels restart locally as A/B/C (or the authored subset). | Root-ordered Sector nodes, each owning one to three CapturePoints; Team 2 initial ownership; sector-local ObjIds; staged HQ links for vehicle activation. | Strong. Live objectives are recovered by a one-to-one join between installed `gem_capturepoint` transforms and authored polygons, including later phases emitted as ordinary volume rows. Superseded controllers without a distinct polygon are rejected. Exact retreat/advance boundary-property bindings remain runtime-fed. |
-| `rush` | Attackers destroy the active sector's M-COMs before their tickets run out; there are no CapturePoints. Vehicles belong to HQ/phase supply, not capture points. | `Objectives/Sectors/SectorN/MCOM-A|B`, root-ordered `Sector.MCOMs`, no CapturePoint nodes, staged `Sector.HQs`, HQ-linked vehicles. | Strong. MCOMs are objectives, captures are suppressed, installed root order drives phase order, and each emitted sector links the nearest authored staged HQ pair. Retail layers can retain dormant M-COM placements; the closest two per authored sector are selected. |
+| `breakthrough` | Attackers must hold every control point in the current sector simultaneously, then the frontline advances. Team 2 begins as defender. Objective labels restart locally as A/B/C (or the authored subset). | Andy-compatible `Sector0` attacker boundary, active `Sector1..N`, and terminal defender boundary; active sectors own one to three CapturePoints and a phased HQ pair. | Strong. Installed phase polygons determine membership where unambiguous; bounded proximity is the fallback. IDs follow the workspace contract: sectors `100+n`, triggers `600+n`, HQs `300+n`/`400+n`, captures in each phase's `1100/1200/...` band, and vehicles at offset `+50`. If the install has fewer HQ placements than the workspace addresses, the missing API identity is an explicitly marked alias of a same-team game-authored transform/spawn set. |
+| `rush` | Attackers destroy the active sector's M-COMs before their tickets run out; there are no CapturePoints. Vehicles belong to HQ/phase supply, not capture points. | Andy-compatible boundary/active/boundary Sector shell; `MCOM-A|B` under each active sector; staged HQ pairs and HQ-linked vehicles. | Strong. The workspace's `CountOf(Sectors)-2` and ID arithmetic are reproduced. MCOM IDs remain phase-paired (`201/202`, `203/204`, ...), including reserved gaps when a phase has only one live objective. Dormant retail sector records are excluded by their distance from live MCOMs. No CapturePoint is synthesized. |
 | `escalation` | Two teams capture territory while the active control-point set shrinks over successive stages. | CapturePoints plus stage/activation grouping, multiple phase HQ positions, stage-aware vehicles. | Partial. Spatial objects exist, but stage ownership/activation is not represented yet. |
 | `domination` | Infantry teams capture and hold several persistent control points. | Ordered CapturePoints and infantry spawns; no invented HQ vehicles. | Mostly aligned spatially; mode logic is outside this addon. |
 | `kingofthehill`, `koth` | One active hill moves during the match. | Candidate hill areas plus one-at-a-time activation/order metadata, not a Conquest sector containing every point simultaneously. | Not aligned. Candidate polygons currently become ordinary CapturePoints. |
@@ -51,3 +51,15 @@ community-authored position or vehicle choice.
 7. Community templates may audit hierarchy and public Blockly IDs, but game
    positions, types, teams, vehicle choices, and activation rules require game
    evidence.
+8. The supplied Blockly workspaces and `.tscn` files are compatibility oracles,
+   not redistributable layout sources. The addon stores no community-authored
+   coordinates, polygons, spawns, or vehicle choices.
+9. Rush/Breakthrough nodes whose Portal ObjId, team, hierarchy, or wrapper was
+   adjusted for the Blockly contract carry `bf6_template_modified`, a plain-text
+   `bf6_template_adjustment`, and the assigned ID in their Godot metadata. A
+   duplicated HQ required only to satisfy a per-phase Blockly lookup is also
+   marked as a compatibility alias and is never described as a distinct retail
+   instance.
+10. A normal game-mode build contains no creator-authored asset branches. The
+    TeamSwitcher, AI spawners, and EndGameCamera are added only when the user
+    explicitly presses **Andys Template Addons**.

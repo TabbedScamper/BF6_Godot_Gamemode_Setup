@@ -59,6 +59,12 @@ static func add_to(mode_root: Node, scene_root: Node) -> Dictionary:
 	else:
 		updated += _sync_end_game_camera(end_camera)
 
+	mode_root.set_meta("bf6_optional_template_addons_enabled", true)
+	for branch_name in ["TeamSwitcher", "AI Spawns", "EndGameCamera"]:
+		var branch := mode_root.get_node_or_null(branch_name)
+		if branch != null:
+			_mark_optional_template_branch(branch)
+
 	if added == 0 and updated == 0:
 		return {
 			"message": "Andys Template Addons are already present; nothing was changed.",
@@ -177,6 +183,15 @@ static func _assign_owners(node: Node, owner: Node) -> void:
 		node.owner = owner
 	for child in node.get_children():
 		_assign_owners(child, owner)
+
+
+static func _mark_optional_template_branch(node: Node) -> void:
+	node.set_meta(ADDONS_META, true)
+	node.set_meta("bf6_optional_template_asset", true)
+	node.set_meta("bf6_source",
+		"User-requested Andy template convenience; not installed-game layout data")
+	for child in node.get_children():
+		_mark_optional_template_branch(child)
 
 
 static func _link_hq_spawns(spawner: Node, hq: Node) -> void:

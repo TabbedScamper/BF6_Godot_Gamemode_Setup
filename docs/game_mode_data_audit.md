@@ -170,11 +170,21 @@ retains every raw candidate in manifest schema 3, and records the selection
 basis as metadata. This is explicitly a graph-bounded spatial inference; the
 retail graph does not publish a direct candidate-GUID-to-sector array.
 
-Sector order is no longer taken from arbitrary root-array order. Rush and
-Breakthrough sectors are sorted outward from the earliest authored HQ-chain
-endpoint, then their A/B objectives are assigned. This uses game-authored HQ
-and sector placement/order data and avoids importing any community-authored
-spatial values.
+Rush and Breakthrough phase order follows the installed `gem_sector` root
+order. Staged HQ records do not publish a direct sector or team scalar, so the
+builder matches the complete HQ set to sector anchors with a two-per-phase
+capacity instead of greedily consuming HQs in root order. Within each phase,
+projection along the authored sector-to-sector direction distinguishes the
+rear Team 1 HQ from the forward Team 2 HQ. Progressive IDs use the template-
+compatible 301+phase and 401+phase bands.
+
+Breakthrough has a second, stronger spatial signal on several maps. Large
+installed phase polygons contain both their `gem_sector` anchor and the small
+capture polygons joined to `gem_capturepoint`. That containment assigns exact
+sector membership before proximity is considered. The signal is rejected for
+an entire layout when overlapping boundary/retreat/advance polygons would put
+more than three objectives in one SDK Sector; those ambiguous maps retain the
+capacity-bounded fallback rather than receiving a fabricated exact binding.
 
 ## Automatic-AA protection binding
 
@@ -216,6 +226,30 @@ capture/HQ arrays through their existing authored flag or spatial association.
 The insertion transform and instance GUID are exact. The HQ association is
 recorded as an authored-cluster spatial join because the measured placement
 does not serialize `TeamId` as a scalar override.
+
+## Rush and Breakthrough Blockly compatibility
+
+The supplied custom workspaces establish an executable public-object contract
+that is not visible from geometry alone:
+
+- both initialise `CurrentSector` to `1` and calculate `TotalSectors` as the
+  number of `Sector` objects minus two;
+- the two excluded objects are the attacker-side `Sector0` and the terminal
+  defender-side sector, while live phases use IDs `101..N`;
+- phase HQ lookups use `300 + CurrentSector` and `400 + CurrentSector`;
+- Breakthrough filters the current phase's objects from the 100-wide band
+  beginning at `1000 + CurrentSector * 100`;
+- Rush starts its MCOM globals at `201` and `202`, then increments both by two;
+- sector area triggers use the parallel `600+n` range.
+
+The builder now implements that arithmetic directly. Sector anchors, objective
+positions, HQ transforms, play-area polygons, MCOMs, capture areas, spawns, and
+vehicles still come from the installed manifests. The community scenes are not
+copied into the addon. When the installed layer has fewer HQ placements than
+the Blockly API's unique per-phase IDs require, the generated compatibility
+alias duplicates the nearest same-team game-authored HQ transform and spawn
+children and carries `bf6_template_hq_alias = true` provenance. The alias is
+not claimed as an additional retail instance and does not invent a placement.
 
 ## Complete measured GEM-family disposition
 
