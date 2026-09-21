@@ -1,0 +1,688 @@
+{
+  "mod": {
+    "blocks": {
+      "languageVersion": 0,
+      "blocks": [
+        {
+          "type": "modBlock",
+          "id": "bf6_modblock_0077",
+          "x": 80,
+          "y": 80,
+          "deletable": false,
+          "inputs": {
+            "RULES": {
+              "block": {
+                "type": "ruleBlock",
+                "id": "bf6_ruleblock_0021",
+                "extraState": {
+                  "isOngoingEvent": false
+                },
+                "fields": {
+                  "NAME": "Initialize Gauntlet elimination scaffold",
+                  "EVENTTYPE": "OnGameModeStarted"
+                },
+                "inputs": {
+                  "ACTIONS": {
+                    "block": {
+                      "type": "SetGameModeScore",
+                      "id": "bf6_setgamemodescore_0004",
+                      "inputs": {
+                        "VALUE-0": {
+                          "block": {
+                            "type": "GetTeam",
+                            "id": "bf6_getteam_0002",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "Number",
+                                  "id": "bf6_number_0001",
+                                  "fields": {
+                                    "NUM": 1
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "VALUE-1": {
+                          "block": {
+                            "type": "Number",
+                            "id": "bf6_number_0003",
+                            "fields": {
+                              "NUM": 0
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "SetGameModeScore",
+                          "id": "bf6_setgamemodescore_0008",
+                          "inputs": {
+                            "VALUE-0": {
+                              "block": {
+                                "type": "GetTeam",
+                                "id": "bf6_getteam_0006",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0005",
+                                      "fields": {
+                                        "NUM": 2
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "VALUE-1": {
+                              "block": {
+                                "type": "Number",
+                                "id": "bf6_number_0007",
+                                "fields": {
+                                  "NUM": 0
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "SetGameModeScore",
+                              "id": "bf6_setgamemodescore_0012",
+                              "inputs": {
+                                "VALUE-0": {
+                                  "block": {
+                                    "type": "GetTeam",
+                                    "id": "bf6_getteam_0010",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0009",
+                                          "fields": {
+                                            "NUM": 3
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "VALUE-1": {
+                                  "block": {
+                                    "type": "Number",
+                                    "id": "bf6_number_0011",
+                                    "fields": {
+                                      "NUM": 0
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "SetGameModeScore",
+                                  "id": "bf6_setgamemodescore_0016",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "GetTeam",
+                                        "id": "bf6_getteam_0014",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "Number",
+                                              "id": "bf6_number_0013",
+                                              "fields": {
+                                                "NUM": 4
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "VALUE-1": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0015",
+                                        "fields": {
+                                          "NUM": 0
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "SetGameModeTargetScore",
+                                      "id": "bf6_setgamemodetargetscore_0018",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "Number",
+                                            "id": "bf6_number_0017",
+                                            "fields": {
+                                              "NUM": 20
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "block": {
+                                          "type": "SetGameModeTimeLimit",
+                                          "id": "bf6_setgamemodetimelimit_0020",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "Number",
+                                                "id": "bf6_number_0019",
+                                                "fields": {
+                                                  "NUM": 1200
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "next": {
+                  "block": {
+                    "type": "ruleBlock",
+                    "id": "bf6_ruleblock_0035",
+                    "extraState": {
+                      "isOngoingEvent": false
+                    },
+                    "fields": {
+                      "NAME": "Award opposing-team kill",
+                      "EVENTTYPE": "OnPlayerEarnedKill"
+                    },
+                    "inputs": {
+                      "ACTIONS": {
+                        "block": {
+                          "type": "SetGameModeScore",
+                          "id": "bf6_setgamemodescore_0029",
+                          "inputs": {
+                            "VALUE-0": {
+                              "block": {
+                                "type": "GetTeam",
+                                "id": "bf6_getteam_0023",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "EventPlayer",
+                                      "id": "bf6_eventplayer_0022"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "VALUE-1": {
+                              "block": {
+                                "type": "Add",
+                                "id": "bf6_add_0028",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "GetGameModeScore",
+                                      "id": "bf6_getgamemodescore_0026",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "GetTeam",
+                                            "id": "bf6_getteam_0025",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "EventPlayer",
+                                                  "id": "bf6_eventplayer_0024"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "VALUE-1": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0027",
+                                      "fields": {
+                                        "NUM": 1
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "CONDITIONS": {
+                        "block": {
+                          "type": "conditionBlock",
+                          "id": "bf6_conditionblock_0036",
+                          "inputs": {
+                            "CONDITION": {
+                              "block": {
+                                "type": "NotEqualTo",
+                                "id": "bf6_notequalto_0034",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "GetTeam",
+                                      "id": "bf6_getteam_0031",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "EventPlayer",
+                                            "id": "bf6_eventplayer_0030"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "VALUE-1": {
+                                    "block": {
+                                      "type": "GetTeam",
+                                      "id": "bf6_getteam_0033",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "EventOtherPlayer",
+                                            "id": "bf6_eventotherplayer_0032"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "ruleBlock",
+                        "id": "bf6_ruleblock_0045",
+                        "extraState": {
+                          "isOngoingEvent": true
+                        },
+                        "fields": {
+                          "NAME": "Team 1 reaches target",
+                          "EVENTTYPE": "Ongoing",
+                          "OBJECTTYPE": "Global"
+                        },
+                        "inputs": {
+                          "ACTIONS": {
+                            "block": {
+                              "type": "EndGameMode",
+                              "id": "bf6_endgamemode_0039",
+                              "inputs": {
+                                "VALUE-0": {
+                                  "block": {
+                                    "type": "GetTeam",
+                                    "id": "bf6_getteam_0038",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0037",
+                                          "fields": {
+                                            "NUM": 1
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "CONDITIONS": {
+                            "block": {
+                              "type": "conditionBlock",
+                              "id": "bf6_conditionblock_0046",
+                              "inputs": {
+                                "CONDITION": {
+                                  "block": {
+                                    "type": "GreaterThanEqualTo",
+                                    "id": "bf6_greaterthanequalto_0044",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "GetGameModeScore",
+                                          "id": "bf6_getgamemodescore_0042",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "GetTeam",
+                                                "id": "bf6_getteam_0041",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "Number",
+                                                      "id": "bf6_number_0040",
+                                                      "fields": {
+                                                        "NUM": 1
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "VALUE-1": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0043",
+                                          "fields": {
+                                            "NUM": 20
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "ruleBlock",
+                            "id": "bf6_ruleblock_0055",
+                            "extraState": {
+                              "isOngoingEvent": true
+                            },
+                            "fields": {
+                              "NAME": "Team 2 reaches target",
+                              "EVENTTYPE": "Ongoing",
+                              "OBJECTTYPE": "Global"
+                            },
+                            "inputs": {
+                              "ACTIONS": {
+                                "block": {
+                                  "type": "EndGameMode",
+                                  "id": "bf6_endgamemode_0049",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "GetTeam",
+                                        "id": "bf6_getteam_0048",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "Number",
+                                              "id": "bf6_number_0047",
+                                              "fields": {
+                                                "NUM": 2
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "CONDITIONS": {
+                                "block": {
+                                  "type": "conditionBlock",
+                                  "id": "bf6_conditionblock_0056",
+                                  "inputs": {
+                                    "CONDITION": {
+                                      "block": {
+                                        "type": "GreaterThanEqualTo",
+                                        "id": "bf6_greaterthanequalto_0054",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetGameModeScore",
+                                              "id": "bf6_getgamemodescore_0052",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetTeam",
+                                                    "id": "bf6_getteam_0051",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0050",
+                                                          "fields": {
+                                                            "NUM": 2
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "Number",
+                                              "id": "bf6_number_0053",
+                                              "fields": {
+                                                "NUM": 20
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "ruleBlock",
+                                "id": "bf6_ruleblock_0065",
+                                "extraState": {
+                                  "isOngoingEvent": true
+                                },
+                                "fields": {
+                                  "NAME": "Team 3 reaches target",
+                                  "EVENTTYPE": "Ongoing",
+                                  "OBJECTTYPE": "Global"
+                                },
+                                "inputs": {
+                                  "ACTIONS": {
+                                    "block": {
+                                      "type": "EndGameMode",
+                                      "id": "bf6_endgamemode_0059",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "GetTeam",
+                                            "id": "bf6_getteam_0058",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "Number",
+                                                  "id": "bf6_number_0057",
+                                                  "fields": {
+                                                    "NUM": 3
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "CONDITIONS": {
+                                    "block": {
+                                      "type": "conditionBlock",
+                                      "id": "bf6_conditionblock_0066",
+                                      "inputs": {
+                                        "CONDITION": {
+                                          "block": {
+                                            "type": "GreaterThanEqualTo",
+                                            "id": "bf6_greaterthanequalto_0064",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetGameModeScore",
+                                                  "id": "bf6_getgamemodescore_0062",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "GetTeam",
+                                                        "id": "bf6_getteam_0061",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0060",
+                                                              "fields": {
+                                                                "NUM": 3
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "Number",
+                                                  "id": "bf6_number_0063",
+                                                  "fields": {
+                                                    "NUM": 20
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "ruleBlock",
+                                    "id": "bf6_ruleblock_0075",
+                                    "extraState": {
+                                      "isOngoingEvent": true
+                                    },
+                                    "fields": {
+                                      "NAME": "Team 4 reaches target",
+                                      "EVENTTYPE": "Ongoing",
+                                      "OBJECTTYPE": "Global"
+                                    },
+                                    "inputs": {
+                                      "ACTIONS": {
+                                        "block": {
+                                          "type": "EndGameMode",
+                                          "id": "bf6_endgamemode_0069",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "GetTeam",
+                                                "id": "bf6_getteam_0068",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "Number",
+                                                      "id": "bf6_number_0067",
+                                                      "fields": {
+                                                        "NUM": 4
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "CONDITIONS": {
+                                        "block": {
+                                          "type": "conditionBlock",
+                                          "id": "bf6_conditionblock_0076",
+                                          "inputs": {
+                                            "CONDITION": {
+                                              "block": {
+                                                "type": "GreaterThanEqualTo",
+                                                "id": "bf6_greaterthanequalto_0074",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "GetGameModeScore",
+                                                      "id": "bf6_getgamemodescore_0072",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "GetTeam",
+                                                            "id": "bf6_getteam_0071",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "Number",
+                                                                  "id": "bf6_number_0070",
+                                                                  "fields": {
+                                                                    "NUM": 4
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "Number",
+                                                      "id": "bf6_number_0073",
+                                                      "fields": {
+                                                        "NUM": 20
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "variables": []
+  }
+}

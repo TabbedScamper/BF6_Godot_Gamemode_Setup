@@ -30,6 +30,15 @@
       ],
       "workspace": "king_of_the_hill_game_data.workspace.json"
     },
+    "koth": {
+      "delivery": "playable_portal_translation",
+      "spatial_source": "game-derived KOTH capture points in importer-created alphabetical scene order",
+      "portal_translation": "Uses the same review workspace as kingofthehill because both catalog keys resolve the same public Portal behavior.",
+      "unresolved": [
+        "Retail phase order and phase duration have not been decoded from the runtime controller."
+      ],
+      "workspace": "king_of_the_hill_game_data.workspace.json"
+    },
     "conquest": {
       "delivery": "existing_plugin_contract",
       "unresolved": []
@@ -47,52 +56,84 @@
       ]
     },
     "escalation": {
-      "delivery": "research_only",
+      "delivery": "playable_portal_translation",
+      "portal_translation": "Capture events score points and outer objectives disable every 180 seconds.",
       "unresolved": [
-        "gem_collection_event meaning and authored stage activation order are not decoded."
-      ]
+        "gem_collection_event timing and exact authored stage activation order are not decoded."
+      ],
+      "workspace": "escalation_review.workspace.json"
     },
     "strikepoint": {
-      "delivery": "research_only",
+      "delivery": "playable_review_scaffold",
+      "portal_translation": "The first imported capture point is the central objective; kills and captures feed a short score race.",
       "unresolved": [
-        "Many maps expose no stable capture object; round/elimination behavior remains runtime-authored."
-      ]
+        "Limited lives, round reset, side swap, and per-map round objective selection remain runtime-authored."
+      ],
+      "workspace": "strikepoint_review.workspace.json"
     },
     "obliteration": {
-      "delivery": "blocked_by_portal_api",
+      "delivery": "playable_without_bomb_carry",
+      "portal_translation": "Stable M-COM IDs 301-306 are armed directly; destruction of enemy-owned targets scores.",
       "unresolved": [
-        "Game data has gem_bomb_pickup and M-COM records, but Portal exposes no Bomb object or carry/drop API."
-      ]
+        "Portal exposes no Bomb object or carry/drop API, so the defining bomb loop is absent."
+      ],
+      "workspace": "obliteration_review.workspace.json"
+    },
+    "squadobliteration": {
+      "delivery": "playable_without_bomb_carry",
+      "portal_translation": "Uses the same stable M-COM review flow with the smaller-mode layout.",
+      "unresolved": [
+        "Portal exposes no Bomb object or carry/drop API."
+      ],
+      "workspace": "squad_obliteration_review.workspace.json"
     },
     "payload": {
-      "delivery": "blocked_by_portal_api",
+      "delivery": "manual_trigger_scaffold",
+      "portal_translation": "Sequential AreaTrigger IDs 801-805 stand in for ordered checkpoints.",
       "unresolved": [
-        "Game data has payload/checkpoint markers, but Portal exposes no Payload object or motion API."
-      ]
+        "Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers."
+      ],
+      "workspace": "payload_review.workspace.json"
     },
     "sabotage": {
-      "delivery": "research_only",
+      "delivery": "playable_area_trigger_translation",
+      "portal_translation": "Available game-derived destructible polygons receive AreaTrigger wrappers 701+; the generic review workspace consumes sites 701-703 and attackers hold a site for ten seconds.",
       "unresolved": [
-        "Cargo/objective semantics and state transitions are not decoded into Portal-addressable objects."
-      ]
+        "Direct cargo damage, variable objective counts, two-round side swap, and time tiebreak remain runtime-authored."
+      ],
+      "workspace": "sabotage_review.workspace.json"
     },
     "carrierstrike": {
-      "delivery": "research_only",
+      "delivery": "playable_review_scaffold",
+      "portal_translation": "Ground capture points and stable carrier M-COM IDs 301-304 are enabled together.",
       "unresolved": [
-        "VLS batteries and destructible proxies lack a complete Portal behavior mapping."
-      ]
+        "VLS battery gating, carrier breach sequence, and destructible proxies lack public Portal equivalents."
+      ],
+      "workspace": "carrier_strike_review.workspace.json"
     },
     "operations": {
-      "delivery": "research_only",
+      "delivery": "playable_portal_translation",
+      "portal_translation": "Imported capture points advance sequentially for Team 1.",
       "unresolved": [
-        "Cross-mode sector/capture/M-COM progression is not fully decoded."
-      ]
+        "Retail mixed sector/capture/M-COM phase graph and reinforcement tuning are not fully decoded."
+      ],
+      "workspace": "operations_review.workspace.json"
     },
     "squaddeathmatch": {
-      "delivery": "blocked_by_portal_api",
+      "delivery": "playable_four_team_translation",
+      "portal_translation": "Four Portal teams stand in for four independently scored squads.",
       "unresolved": [
-        "Portal can read squads but SetGameModeScore accepts Team or Player, not Squad."
-      ]
+        "Portal can read squad identity but SetGameModeScore accepts Team or Player, not Squad."
+      ],
+      "workspace": "squad_deathmatch_review.workspace.json"
+    },
+    "gauntlet": {
+      "delivery": "playable_elimination_scaffold",
+      "portal_translation": "Four-team kill race provides a readable base for round/elimination work.",
+      "unresolved": [
+        "Random mission selection, squad elimination, BR state, and game-authored mission controllers are not exposed as public Portal objects."
+      ],
+      "workspace": "gauntlet_review.workspace.json"
     }
   }
 }

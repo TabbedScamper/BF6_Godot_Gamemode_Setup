@@ -354,8 +354,12 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				var folder_name := "Carrier Objectives" if mode == "carrierstrike" else "MCOM Objectives"
 				var mcom_root := _folder(captures_root, folder_name, map_root)
 				var mcom := _add_plain(row, "mcom", mcom_root, map_root)
-				mcom.name = "MCOM_Root%02d" % _root_order(row)
-				mcom.set("ObjId", 300 + maxi(_root_order(row), 0))
+				var mcom_slot := maxi(str(row.get("label", "MCOM 1")).get_slice(" ", 1).to_int(), 1)
+				mcom.name = "MCOM_%02d_Root%02d" % [mcom_slot, _root_order(row)]
+				mcom.set("ObjId", 300 + mcom_slot)
+				mcom.set_meta("bf6_portal_translation",
+					"Stable 301+ label-order identity for the review Blockly workspace; " +
+					"M-COM transform and sequence label are game-derived.")
 				if mode in ["obliteration", "squadobliteration"]:
 					mcom.set("RequiresCarriableToArm", true)
 					mcom.set_meta("bf6_mode_contract", "carried bomb required")
@@ -809,6 +813,14 @@ static func _build_sabotage_objectives(objects: Array, elements: Array,
 		objective.add_child(area)
 		area.owner = owner
 		area.transform = objective.transform.affine_inverse() * area.transform
+		var trigger := _scene("area_trigger", "SabotageTrigger_%02d" % (index + 1))
+		trigger.set("ObjId", 701 + index)
+		trigger.set("Area", area)
+		trigger.set_meta("bf6_portal_translation",
+			"AreaTrigger wrapper for the public Portal API; position and linked polygon " +
+			"come from the game destructible objective data.")
+		objective.add_child(trigger)
+		trigger.owner = owner
 		objective.set_meta("bf6_area_association",
 			"nearest exact polygon to the game-bound destructible-zone transform")
 		objective.set_meta("bf6_area_distance_m", sqrt(nearest_distance))

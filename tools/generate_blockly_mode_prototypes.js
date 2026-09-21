@@ -302,6 +302,371 @@ function kingOfTheHillWorkspace() {
   ]);
 }
 
+function captureSetupLoop(iterator, enabled = true) {
+  return block("ForVariable", {
+    inputs: {
+      "VALUE-0": input(variableReference(iterator)),
+      "VALUE-1": input(number(0)),
+      "VALUE-2": input(api("CountOf", allCapturePoints())),
+      "VALUE-3": input(number(1)),
+      DO: input(chain(
+        api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(iterator)), boolean(enabled)),
+        api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(20)),
+        api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(15)),
+        api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(3)),
+      )),
+    },
+  });
+}
+
+function multiTeamDeathmatchWorkspace(modeName, teamCount, targetScore) {
+  sequence = 0;
+  const startActions = [];
+  for (let teamNumber = 1; teamNumber <= teamCount; teamNumber += 1) {
+    startActions.push(api("SetGameModeScore", team(teamNumber), number(0)));
+  }
+  startActions.push(api("SetGameModeTargetScore", number(targetScore)));
+  startActions.push(api("SetGameModeTimeLimit", number(1200)));
+  const killerTeam = () => team(api("EventPlayer"));
+  const victimTeam = () => team(api("EventOtherPlayer"));
+  const rules = [
+    rule(`Initialize ${modeName}`, "OnGameModeStarted", chain(...startActions)),
+    rule(
+      "Award opposing-team kill",
+      "OnPlayerEarnedKill",
+      api(
+        "SetGameModeScore",
+        killerTeam(),
+        api("Add", api("GetGameModeScore", killerTeam()), number(1)),
+      ),
+      api("NotEqualTo", killerTeam(), victimTeam()),
+    ),
+  ];
+  for (let teamNumber = 1; teamNumber <= teamCount; teamNumber += 1) {
+    rules.push(...victoryRulesForTeam(teamNumber, targetScore));
+  }
+  return workspace([], rules);
+}
+
+function victoryRulesForTeam(teamNumber, targetScore) {
+  return [rule(
+    `Team ${teamNumber} reaches target`,
+    "Ongoing",
+    api("EndGameMode", team(teamNumber)),
+    api("GreaterThanEqualTo", api("GetGameModeScore", team(teamNumber)), number(targetScore)),
+  )];
+}
+
+function escalationWorkspace() {
+  sequence = 0;
+  const iterator = globalVariable("ObjectiveIterator");
+  const stage = globalVariable("EscalationStage");
+  const elapsed = globalVariable("StageElapsedSeconds");
+  const targetScore = 100;
+  const setup = gameStartActions(targetScore, 1200);
+  let tail = setup;
+  while (tail.next) tail = tail.next.block;
+  tail.next = input(chain(
+    setVariable(stage, number(0)),
+    setVariable(elapsed, number(0)),
+    captureSetupLoop(iterator, true),
+  ));
+  const captureScore = rule(
+    "Award captured-objective score",
+    "OnCapturePointCaptured",
+    api(
+      "SetGameModeScore",
+      api("EventTeam"),
+      api("Add", api("GetGameModeScore", api("EventTeam")), number(5)),
+    ),
+  );
+  const canShrink = api(
+    "LessThan",
+    api("Add", getVariable(stage), getVariable(stage)),
+    api("Subtract", api("CountOf", allCapturePoints()), number(1)),
+  );
+  const shrink = ifAction(
+    api("And", api("GreaterThanEqualTo", getVariable(elapsed), number(180)), canShrink),
+    chain(
+      api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(stage)), boolean(false)),
+      api(
+        "EnableGameModeObjective",
+        valueInArray(
+          allCapturePoints(),
+          api("Subtract", api("Subtract", api("CountOf", allCapturePoints()), number(1)), getVariable(stage)),
+        ),
+        boolean(false),
+      ),
+      setVariable(stage, api("Add", getVariable(stage), number(1))),
+      setVariable(elapsed, number(0)),
+    ),
+  );
+  return workspace([iterator, stage, elapsed], [
+    rule("Initialize Escalation", "OnGameModeStarted", setup),
+    captureScore,
+    rule(
+      "Advance escalation stage",
+      "Ongoing",
+      chain(
+        api("Wait", number(1)),
+        setVariable(elapsed, api("Add", getVariable(elapsed), number(1))),
+        shrink,
+      ),
+      api("GreaterThan", api("CountOf", allCapturePoints()), number(1)),
+    ),
+    ...victoryRules(targetScore),
+  ]);
+}
+
+function operationsWorkspace() {
+  sequence = 0;
+  const iterator = globalVariable("ObjectiveIterator");
+  const current = globalVariable("CurrentObjectiveIndex");
+  const setup = chain(
+    api("SetGameModeScore", team(1), number(0)),
+    api("SetGameModeScore", team(2), number(0)),
+    api("SetGameModeTimeLimit", number(1500)),
+    setVariable(current, number(0)),
+    captureSetupLoop(iterator, false),
+    ifAction(
+      api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
+      chain(
+        api("SetCapturePointOwner", valueInArray(allCapturePoints(), number(0)), team(0)),
+        api("EnableGameModeObjective", valueInArray(allCapturePoints(), number(0)), boolean(true)),
+      ),
+    ),
+  );
+  const advance = chain(
+    api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(current)), boolean(false)),
+    setVariable(current, api("Add", getVariable(current), number(1))),
+    api("SetGameModeScore", team(1), getVariable(current)),
+    ifAction(
+      api("LessThan", getVariable(current), api("CountOf", allCapturePoints())),
+      chain(
+        api("SetCapturePointOwner", valueInArray(allCapturePoints(), getVariable(current)), team(0)),
+        api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(current)), boolean(true)),
+      ),
+    ),
+    ifAction(
+      api("GreaterThanEqualTo", getVariable(current), api("CountOf", allCapturePoints())),
+      api("EndGameMode", team(1)),
+    ),
+  );
+  return workspace([iterator, current], [
+    rule("Initialize Operations review flow", "OnGameModeStarted", setup),
+    rule(
+      "Advance after attacker capture",
+      "OnCapturePointCaptured",
+      advance,
+      api(
+        "And",
+        api("Equals", api("EventTeam"), team(1)),
+        api("Equals", api("EventCapturePoint"), valueInArray(allCapturePoints(), getVariable(current))),
+      ),
+    ),
+  ]);
+}
+
+function strikepointWorkspace() {
+  sequence = 0;
+  const iterator = globalVariable("ObjectiveIterator");
+  const targetScore = 15;
+  const setup = gameStartActions(targetScore, 600);
+  let tail = setup;
+  while (tail.next) tail = tail.next.block;
+  tail.next = input(chain(
+    captureSetupLoop(iterator, false),
+    ifAction(
+      api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
+      api("EnableGameModeObjective", valueInArray(allCapturePoints(), number(0)), boolean(true)),
+    ),
+  ));
+  const killerTeam = () => team(api("EventPlayer"));
+  return workspace([iterator], [
+    rule("Initialize Strikepoint review round", "OnGameModeStarted", setup),
+    rule(
+      "Award elimination point",
+      "OnPlayerEarnedKill",
+      api("SetGameModeScore", killerTeam(), api("Add", api("GetGameModeScore", killerTeam()), number(1))),
+      api("NotEqualTo", killerTeam(), team(api("EventOtherPlayer"))),
+    ),
+    rule(
+      "Award central objective capture",
+      "OnCapturePointCaptured",
+      api(
+        "SetGameModeScore",
+        api("EventTeam"),
+        api("Add", api("GetGameModeScore", api("EventTeam")), number(3)),
+      ),
+    ),
+    ...victoryRules(targetScore),
+  ]);
+}
+
+function mcom(idValue) {
+  return api("GetMCOM", number(idValue));
+}
+
+function mcomGroupCondition(ids) {
+  const comparisons = ids.map((mcomId) => api("Equals", api("EventMCOM"), mcom(mcomId)));
+  let result = comparisons.shift();
+  for (const comparison of comparisons) result = api("Or", result, comparison);
+  return result;
+}
+
+function mcomObjectiveWorkspace(modeName, objectiveCount, splitIndex, fuseTime = 30) {
+  sequence = 0;
+  const targetScore = splitIndex;
+  const team1Objectives = [];
+  const team2Objectives = [];
+  const setup = [
+    api("SetGameModeScore", team(1), number(0)),
+    api("SetGameModeScore", team(2), number(0)),
+    api("SetGameModeTargetScore", number(targetScore)),
+    api("SetGameModeTimeLimit", number(1200)),
+  ];
+  for (let index = 1; index <= objectiveCount; index += 1) {
+    const owner = index <= splitIndex ? 1 : 2;
+    const objectiveId = 300 + index;
+    (owner === 1 ? team1Objectives : team2Objectives).push(objectiveId);
+    setup.push(api("SetMCOMOwner", mcom(objectiveId), team(owner)));
+    setup.push(api("SetMCOMFuseTime", mcom(objectiveId), number(fuseTime)));
+    setup.push(api("EnableGameModeObjective", mcom(objectiveId), boolean(true)));
+  }
+  return workspace([], [
+    rule(`Initialize ${modeName} M-COM review flow`, "OnGameModeStarted", chain(...setup)),
+    rule(
+      "Team 2 destroys Team 1 objective",
+      "OnMCOMDestroyed",
+      scoreFor(2, number(1)),
+      mcomGroupCondition(team1Objectives),
+    ),
+    rule(
+      "Team 1 destroys Team 2 objective",
+      "OnMCOMDestroyed",
+      scoreFor(1, number(1)),
+      mcomGroupCondition(team2Objectives),
+    ),
+    ...victoryRules(targetScore),
+  ]);
+}
+
+function sabotageWorkspace() {
+  sequence = 0;
+  const planting = { name: "PlantingObjective", id: "bf6_var_plantingobjective", type: "Player" };
+  const destroyed = [1, 2, 3].map((site) => globalVariable(`Site${site}Destroyed`));
+  const setup = [
+    api("SetGameModeScore", team(1), number(0)),
+    api("SetGameModeScore", team(2), number(2)),
+    api("SetGameModeTargetScore", number(3)),
+    api("SetGameModeTimeLimit", number(900)),
+  ];
+  for (let site = 1; site <= 3; site += 1) {
+    setup.push(setVariable(destroyed[site - 1], boolean(false)));
+    setup.push(api("EnableAreaTrigger", api("GetAreaTrigger", number(700 + site)), boolean(true)));
+  }
+  const rules = [rule("Initialize Sabotage review round", "OnGameModeStarted", chain(...setup))];
+  for (let site = 1; site <= 3; site += 1) {
+    const siteDestroyed = destroyed[site - 1];
+    rules.push(rule(
+      `Attack Site ${site}`,
+      "OnPlayerEnterAreaTrigger",
+      chain(
+        setVariable(planting, boolean(true), api("EventPlayer")),
+        api("Wait", number(10)),
+        ifAction(
+          api(
+            "And",
+            getVariable(planting, api("EventPlayer")),
+            api("Not", getVariable(siteDestroyed)),
+          ),
+          chain(
+            setVariable(siteDestroyed, boolean(true)),
+            api("EnableAreaTrigger", api("GetAreaTrigger", number(700 + site)), boolean(false)),
+            scoreFor(1, number(1)),
+          ),
+        ),
+      ),
+      api(
+        "And",
+        api("Equals", api("EventAreaTrigger"), api("GetAreaTrigger", number(700 + site))),
+        api("Equals", team(api("EventPlayer")), team(1)),
+      ),
+    ));
+  }
+  rules.push(rule(
+    "Cancel plant when attacker leaves",
+    "OnPlayerExitAreaTrigger",
+    setVariable(planting, boolean(false), api("EventPlayer")),
+  ));
+  rules.push(...victoryRulesForTeam(1, 3));
+  return workspace([planting, ...destroyed], rules);
+}
+
+function payloadWorkspace() {
+  sequence = 0;
+  const iterator = globalVariable("CheckpointIterator");
+  const current = globalVariable("CurrentCheckpoint");
+  const count = globalVariable("CheckpointCount");
+  const triggerLoop = block("ForVariable", {
+    inputs: {
+      "VALUE-0": input(variableReference(iterator)),
+      "VALUE-1": input(number(0)),
+      "VALUE-2": input(getVariable(count)),
+      "VALUE-3": input(number(1)),
+      DO: input(api(
+        "EnableAreaTrigger",
+        api("GetAreaTrigger", api("Add", number(801), getVariable(iterator))),
+        boolean(true),
+      )),
+    },
+  });
+  const setup = chain(
+    api("SetGameModeScore", team(1), number(0)),
+    api("SetGameModeScore", team(2), number(4)),
+    api("SetGameModeTargetScore", number(5)),
+    api("SetGameModeTimeLimit", number(1200)),
+    setVariable(current, number(0)),
+    setVariable(count, number(5)),
+    triggerLoop,
+  );
+  return workspace([iterator, current, count], [
+    rule("Initialize Payload checkpoint scaffold", "OnGameModeStarted", setup),
+    rule(
+      "Advance ordered checkpoint",
+      "OnPlayerEnterAreaTrigger",
+      chain(
+        api("EnableAreaTrigger", api("EventAreaTrigger"), boolean(false)),
+        setVariable(current, api("Add", getVariable(current), number(1))),
+        api("SetGameModeScore", team(1), getVariable(current)),
+        ifAction(api("GreaterThanEqualTo", getVariable(current), getVariable(count)), api("EndGameMode", team(1))),
+      ),
+      api(
+        "And",
+        api("Equals", team(api("EventPlayer")), team(1)),
+        api(
+          "Equals",
+          api("EventAreaTrigger"),
+          api("GetAreaTrigger", api("Add", number(801), getVariable(current))),
+        ),
+      ),
+    ),
+  ]);
+}
+
+function carrierStrikeWorkspace() {
+  sequence = 0;
+  const base = mcomObjectiveWorkspace("Carrier Strike", 4, 2, 35);
+  const iterator = globalVariable("CaptureIterator");
+  base.mod.variables.push(iterator);
+  const firstRule = base.mod.blocks.blocks[0].inputs.RULES.block;
+  let tail = firstRule.inputs.ACTIONS.block;
+  while (tail.next) tail = tail.next.block;
+  tail.next = input(captureSetupLoop(iterator, true));
+  firstRule.fields.NAME = "Initialize Carrier Strike review flow";
+  return base;
+}
+
 function collectBlocks(value, blocks = []) {
   if (!value || typeof value !== "object") return blocks;
   if (typeof value.type === "string" && typeof value.id === "string") blocks.push(value);
@@ -403,17 +768,76 @@ const contracts = {
       ],
       workspace: "king_of_the_hill_game_data.workspace.json",
     },
+    koth: {
+      delivery: "playable_portal_translation",
+      spatial_source: "game-derived KOTH capture points in importer-created alphabetical scene order",
+      portal_translation: "Uses the same review workspace as kingofthehill because both catalog keys resolve the same public Portal behavior.",
+      unresolved: ["Retail phase order and phase duration have not been decoded from the runtime controller."],
+      workspace: "king_of_the_hill_game_data.workspace.json",
+    },
     conquest: { delivery: "existing_plugin_contract", unresolved: [] },
     breakthrough: { delivery: "existing_template_compatibility_contract", unresolved: ["Retail reinforcement and sector-transition tuning remains runtime-authored."] },
     rush: { delivery: "existing_template_compatibility_contract", unresolved: ["Retail reinforcement and overtime tuning remains runtime-authored."] },
-    escalation: { delivery: "research_only", unresolved: ["gem_collection_event meaning and authored stage activation order are not decoded."] },
-    strikepoint: { delivery: "research_only", unresolved: ["Many maps expose no stable capture object; round/elimination behavior remains runtime-authored."] },
-    obliteration: { delivery: "blocked_by_portal_api", unresolved: ["Game data has gem_bomb_pickup and M-COM records, but Portal exposes no Bomb object or carry/drop API."] },
-    payload: { delivery: "blocked_by_portal_api", unresolved: ["Game data has payload/checkpoint markers, but Portal exposes no Payload object or motion API."] },
-    sabotage: { delivery: "research_only", unresolved: ["Cargo/objective semantics and state transitions are not decoded into Portal-addressable objects."] },
-    carrierstrike: { delivery: "research_only", unresolved: ["VLS batteries and destructible proxies lack a complete Portal behavior mapping."] },
-    operations: { delivery: "research_only", unresolved: ["Cross-mode sector/capture/M-COM progression is not fully decoded."] },
-    squaddeathmatch: { delivery: "blocked_by_portal_api", unresolved: ["Portal can read squads but SetGameModeScore accepts Team or Player, not Squad."] },
+    escalation: {
+      delivery: "playable_portal_translation",
+      portal_translation: "Capture events score points and outer objectives disable every 180 seconds.",
+      unresolved: ["gem_collection_event timing and exact authored stage activation order are not decoded."],
+      workspace: "escalation_review.workspace.json",
+    },
+    strikepoint: {
+      delivery: "playable_review_scaffold",
+      portal_translation: "The first imported capture point is the central objective; kills and captures feed a short score race.",
+      unresolved: ["Limited lives, round reset, side swap, and per-map round objective selection remain runtime-authored."],
+      workspace: "strikepoint_review.workspace.json",
+    },
+    obliteration: {
+      delivery: "playable_without_bomb_carry",
+      portal_translation: "Stable M-COM IDs 301-306 are armed directly; destruction of enemy-owned targets scores.",
+      unresolved: ["Portal exposes no Bomb object or carry/drop API, so the defining bomb loop is absent."],
+      workspace: "obliteration_review.workspace.json",
+    },
+    squadobliteration: {
+      delivery: "playable_without_bomb_carry",
+      portal_translation: "Uses the same stable M-COM review flow with the smaller-mode layout.",
+      unresolved: ["Portal exposes no Bomb object or carry/drop API."],
+      workspace: "squad_obliteration_review.workspace.json",
+    },
+    payload: {
+      delivery: "manual_trigger_scaffold",
+      portal_translation: "Sequential AreaTrigger IDs 801-805 stand in for ordered checkpoints.",
+      unresolved: ["Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers."],
+      workspace: "payload_review.workspace.json",
+    },
+    sabotage: {
+      delivery: "playable_area_trigger_translation",
+      portal_translation: "Available game-derived destructible polygons receive AreaTrigger wrappers 701+; the generic review workspace consumes sites 701-703 and attackers hold a site for ten seconds.",
+      unresolved: ["Direct cargo damage, variable objective counts, two-round side swap, and time tiebreak remain runtime-authored."],
+      workspace: "sabotage_review.workspace.json",
+    },
+    carrierstrike: {
+      delivery: "playable_review_scaffold",
+      portal_translation: "Ground capture points and stable carrier M-COM IDs 301-304 are enabled together.",
+      unresolved: ["VLS battery gating, carrier breach sequence, and destructible proxies lack public Portal equivalents."],
+      workspace: "carrier_strike_review.workspace.json",
+    },
+    operations: {
+      delivery: "playable_portal_translation",
+      portal_translation: "Imported capture points advance sequentially for Team 1.",
+      unresolved: ["Retail mixed sector/capture/M-COM phase graph and reinforcement tuning are not fully decoded."],
+      workspace: "operations_review.workspace.json",
+    },
+    squaddeathmatch: {
+      delivery: "playable_four_team_translation",
+      portal_translation: "Four Portal teams stand in for four independently scored squads.",
+      unresolved: ["Portal can read squad identity but SetGameModeScore accepts Team or Player, not Squad."],
+      workspace: "squad_deathmatch_review.workspace.json",
+    },
+    gauntlet: {
+      delivery: "playable_elimination_scaffold",
+      portal_translation: "Four-team kill race provides a readable base for round/elimination work.",
+      unresolved: ["Random mission selection, squad elimination, BR state, and game-authored mission controllers are not exposed as public Portal objects."],
+      workspace: "gauntlet_review.workspace.json",
+    },
   },
 };
 
@@ -421,12 +845,24 @@ const outputs = {
   "domination_game_data.workspace.json": dominationWorkspace(),
   "team_deathmatch_game_data.workspace.json": teamDeathmatchWorkspace(),
   "king_of_the_hill_game_data.workspace.json": kingOfTheHillWorkspace(),
+  "escalation_review.workspace.json": escalationWorkspace(),
+  "operations_review.workspace.json": operationsWorkspace(),
+  "strikepoint_review.workspace.json": strikepointWorkspace(),
+  "squad_deathmatch_review.workspace.json": multiTeamDeathmatchWorkspace("Squad Deathmatch", 4, 50),
+  "gauntlet_review.workspace.json": multiTeamDeathmatchWorkspace("Gauntlet elimination scaffold", 4, 20),
+  "obliteration_review.workspace.json": mcomObjectiveWorkspace("Obliteration", 6, 3, 30),
+  "squad_obliteration_review.workspace.json": mcomObjectiveWorkspace("Squad Obliteration", 6, 3, 25),
+  "sabotage_review.workspace.json": sabotageWorkspace(),
+  "payload_review.workspace.json": payloadWorkspace(),
+  "carrier_strike_review.workspace.json": carrierStrikeWorkspace(),
   "mode_contracts.json": contracts,
 };
 
 const schemaArgument = process.argv.indexOf("--schema");
 const schemaPath = schemaArgument >= 0 ? process.argv[schemaArgument + 1] : null;
 const portalSchema = schemaPath ? JSON.parse(fs.readFileSync(schemaPath, "utf8")) : null;
+
+validateCatalogCoverage();
 
 fs.mkdirSync(outputRoot, { recursive: true });
 for (const [filename, document] of Object.entries(outputs)) {
@@ -436,4 +872,22 @@ for (const [filename, document] of Object.entries(outputs)) {
     console.log(`${filename}: ${result.blockCount} blocks, ${result.variableCount} variables`);
   }
   fs.writeFileSync(path.join(outputRoot, filename), `${JSON.stringify(document, null, 2)}\n`, "utf8");
+}
+
+function validateCatalogCoverage() {
+  const catalog = JSON.parse(fs.readFileSync(path.join(repoRoot, "data", "layout_catalog.json"), "utf8"));
+  const indexedModes = new Set();
+  for (const map of Object.values(catalog.maps || {})) {
+    for (const mode of map.modes || []) indexedModes.add(mode);
+  }
+  const missingContracts = [...indexedModes].filter((mode) => !contracts.modes[mode]);
+  const existingCreatorTemplates = new Set(["conquest", "breakthrough", "rush"]);
+  const missingWorkspaces = [...indexedModes].filter((mode) => {
+    const contract = contracts.modes[mode];
+    return !existingCreatorTemplates.has(mode) && (!contract || !contract.workspace || !outputs[contract.workspace]);
+  });
+  if (missingContracts.length || missingWorkspaces.length) {
+    throw new Error(`Catalog coverage failed; missing contracts: ${missingContracts.join(", ") || "none"}; missing workspaces: ${missingWorkspaces.join(", ") || "none"}`);
+  }
+  console.log(`catalog coverage: ${indexedModes.size} modes, ${indexedModes.size - existingCreatorTemplates.size} workspace-backed modes, 3 existing creator templates`);
 }

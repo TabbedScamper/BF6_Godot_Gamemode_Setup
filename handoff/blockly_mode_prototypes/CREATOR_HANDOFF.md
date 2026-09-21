@@ -5,7 +5,7 @@ assets or copied template logic. Map geometry, objective transforms, spawns, HQs
 vehicles, and volumes continue to come from the installed game data through the
 BF6 Godot Game Mode Setup importer.
 
-## Ready for playtesting
+## Generated workspaces
 
 - `domination_game_data.workspace.json` enables every imported CapturePoint,
   applies explicit capture timing, scores each point held once per second, and
@@ -15,6 +15,25 @@ BF6 Godot Game Mode Setup importer.
 - `king_of_the_hill_game_data.workspace.json` uses the imported KOTH points,
   enables one at a time, scores its owner once per second, and rotates every 90
   seconds. Each newly activated hill is reset to neutral with `GetTeam(0)`.
+- `escalation_review.workspace.json` shrinks the active objective set from both
+  ends on a readable timer.
+- `operations_review.workspace.json` advances through imported objectives in
+  order for an attacker/defender review flow.
+- `strikepoint_review.workspace.json` combines a central objective and short
+  elimination score race while leaving round reset for creator review.
+- `squad_deathmatch_review.workspace.json` and `gauntlet_review.workspace.json`
+  use four Portal teams because the score API cannot score a Squad directly.
+- `obliteration_review.workspace.json` and
+  `squad_obliteration_review.workspace.json` wire the imported M-COMs, but
+  cannot reproduce bomb carry/drop because Portal has no Bomb API.
+- `sabotage_review.workspace.json` uses the first three available game-derived
+  objective polygons through AreaTrigger IDs 701-703 and a ten-second attack
+  hold. Imported maps may expose two to six sites; adapting that count is an
+  explicit creator review item.
+- `payload_review.workspace.json` is a clearly marked manual scaffold expecting
+  AreaTrigger IDs 801-805 at the imported checkpoint markers.
+- `carrier_strike_review.workspace.json` exposes ground objectives and carrier
+  M-COMs while leaving the unavailable VLS/breach controller for review.
 
 The rules are intentionally small so the mode creator can inspect and replace
 individual decisions without untangling presentation, bot, audio, or UI code.
@@ -41,18 +60,18 @@ individual decisions without untangling presentation, bot, audio, or UI code.
    expose the retail drain curve.
 4. Confirm desired score and time limits; the current values are reviewable
    defaults, not claims of hidden retail constants.
+5. Adapt Sabotage's three-site generic rule group for maps exposing two, four,
+   five, or six game-derived destructible sites. Eastwood currently exposes only
+   two decoded polygon shapes for its three controller records, so its third
+   site remains unlinked rather than receiving invented geometry.
 
-## Modes intentionally not faked
+## Deliberate API substitutions
 
-- Obliteration exposes bomb pickups and M-COMs in game data, but Portal has no
-  Bomb object or carry/drop API.
-- Payload exposes route/checkpoint records, but Portal has no Payload object or
-  movement API.
-- Squad Deathmatch can read squad identity, but the public score action accepts
-  Team or Player rather than Squad.
-- Escalation, Strikepoint, Sabotage, Carrier Strike, and Operations have useful
-  spatial records, but their authoritative progression state machines are not
-  decoded far enough for a defensible workspace.
+- Every substitution is named `review` or `scaffold` in its file and rule names.
+- No Bomb, Payload, VLS, cargo-damage, squad-score, or Gauntlet mission block is
+  invented. The public Portal replacement is stated in `mode_contracts.json`.
+- `koth` and `kingofthehill` share the same workspace. Conquest, Breakthrough,
+  and Rush are omitted because creator templates already exist for them.
 
 ## Regeneration
 
