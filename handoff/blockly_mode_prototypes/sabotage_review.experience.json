@@ -1,0 +1,1637 @@
+{
+  "mutators": {
+    "MaxPlayerCount_PerTeam": 32,
+    "ScoreboardType": 3
+  },
+  "assetRestrictions": {},
+  "name": "Game Data Sabotage Review",
+  "description": "Game-data-backed mode logic prepared for creator review. Add the desired map and the matching imported spatial layout after import.",
+  "mapRotation": [],
+  "workspace": {
+    "mod": {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "modBlock",
+            "id": "bf6_modblock_0173",
+            "x": 80,
+            "y": 80,
+            "deletable": false,
+            "inputs": {
+              "RULES": {
+                "block": {
+                  "type": "ruleBlock",
+                  "id": "bf6_ruleblock_0034",
+                  "extraState": {
+                    "isOngoingEvent": false
+                  },
+                  "fields": {
+                    "NAME": "Initialize Sabotage review round",
+                    "EVENTTYPE": "OnGameModeStarted"
+                  },
+                  "inputs": {
+                    "ACTIONS": {
+                      "block": {
+                        "type": "SetGameModeScore",
+                        "id": "bf6_setgamemodescore_0004",
+                        "inputs": {
+                          "VALUE-0": {
+                            "block": {
+                              "type": "GetTeam",
+                              "id": "bf6_getteam_0002",
+                              "inputs": {
+                                "VALUE-0": {
+                                  "block": {
+                                    "type": "Number",
+                                    "id": "bf6_number_0001",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "VALUE-1": {
+                            "block": {
+                              "type": "Number",
+                              "id": "bf6_number_0003",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "SetGameModeScore",
+                            "id": "bf6_setgamemodescore_0008",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "GetTeam",
+                                  "id": "bf6_getteam_0006",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0005",
+                                        "fields": {
+                                          "NUM": 2
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Number",
+                                  "id": "bf6_number_0007",
+                                  "fields": {
+                                    "NUM": 2
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "SetGameModeTargetScore",
+                                "id": "bf6_setgamemodetargetscore_0010",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0009",
+                                      "fields": {
+                                        "NUM": 3
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "SetGameModeTimeLimit",
+                                    "id": "bf6_setgamemodetimelimit_0012",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0011",
+                                          "fields": {
+                                            "NUM": 900
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "SetVariable",
+                                        "id": "bf6_setvariable_0015",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "variableReferenceBlock",
+                                              "id": "bf6_variablereferenceblock_0014",
+                                              "extraState": {
+                                                "isObjectVar": false
+                                              },
+                                              "fields": {
+                                                "OBJECTTYPE": "Global",
+                                                "VAR": {
+                                                  "id": "bf6_var_site1destroyed"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "Boolean",
+                                              "id": "bf6_boolean_0013",
+                                              "fields": {
+                                                "BOOL": "FALSE"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "EnableAreaTrigger",
+                                            "id": "bf6_enableareatrigger_0019",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetAreaTrigger",
+                                                  "id": "bf6_getareatrigger_0017",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0016",
+                                                        "fields": {
+                                                          "NUM": 701
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "Boolean",
+                                                  "id": "bf6_boolean_0018",
+                                                  "fields": {
+                                                    "BOOL": "TRUE"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "SetVariable",
+                                                "id": "bf6_setvariable_0022",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "variableReferenceBlock",
+                                                      "id": "bf6_variablereferenceblock_0021",
+                                                      "extraState": {
+                                                        "isObjectVar": false
+                                                      },
+                                                      "fields": {
+                                                        "OBJECTTYPE": "Global",
+                                                        "VAR": {
+                                                          "id": "bf6_var_site2destroyed"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "Boolean",
+                                                      "id": "bf6_boolean_0020",
+                                                      "fields": {
+                                                        "BOOL": "FALSE"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "EnableAreaTrigger",
+                                                    "id": "bf6_enableareatrigger_0026",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "GetAreaTrigger",
+                                                          "id": "bf6_getareatrigger_0024",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "Number",
+                                                                "id": "bf6_number_0023",
+                                                                "fields": {
+                                                                  "NUM": 702
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "VALUE-1": {
+                                                        "block": {
+                                                          "type": "Boolean",
+                                                          "id": "bf6_boolean_0025",
+                                                          "fields": {
+                                                            "BOOL": "TRUE"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "SetVariable",
+                                                        "id": "bf6_setvariable_0029",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "variableReferenceBlock",
+                                                              "id": "bf6_variablereferenceblock_0028",
+                                                              "extraState": {
+                                                                "isObjectVar": false
+                                                              },
+                                                              "fields": {
+                                                                "OBJECTTYPE": "Global",
+                                                                "VAR": {
+                                                                  "id": "bf6_var_site3destroyed"
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "VALUE-1": {
+                                                            "block": {
+                                                              "type": "Boolean",
+                                                              "id": "bf6_boolean_0027",
+                                                              "fields": {
+                                                                "BOOL": "FALSE"
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "EnableAreaTrigger",
+                                                            "id": "bf6_enableareatrigger_0033",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "GetAreaTrigger",
+                                                                  "id": "bf6_getareatrigger_0031",
+                                                                  "inputs": {
+                                                                    "VALUE-0": {
+                                                                      "block": {
+                                                                        "type": "Number",
+                                                                        "id": "bf6_number_0030",
+                                                                        "fields": {
+                                                                          "NUM": 703
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "VALUE-1": {
+                                                                "block": {
+                                                                  "type": "Boolean",
+                                                                  "id": "bf6_boolean_0032",
+                                                                  "fields": {
+                                                                    "BOOL": "TRUE"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "ruleBlock",
+                      "id": "bf6_ruleblock_0074",
+                      "extraState": {
+                        "isOngoingEvent": false
+                      },
+                      "fields": {
+                        "NAME": "Attack Site 1",
+                        "EVENTTYPE": "OnPlayerEnterAreaTrigger"
+                      },
+                      "inputs": {
+                        "ACTIONS": {
+                          "block": {
+                            "type": "SetVariable",
+                            "id": "bf6_setvariable_0038",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "variableReferenceBlock",
+                                  "id": "bf6_variablereferenceblock_0037",
+                                  "extraState": {
+                                    "isObjectVar": true
+                                  },
+                                  "fields": {
+                                    "OBJECTTYPE": "Player",
+                                    "VAR": {
+                                      "id": "bf6_var_plantingobjective"
+                                    }
+                                  },
+                                  "inputs": {
+                                    "OBJECT": {
+                                      "block": {
+                                        "type": "EventPlayer",
+                                        "id": "bf6_eventplayer_0036"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Boolean",
+                                  "id": "bf6_boolean_0035",
+                                  "fields": {
+                                    "BOOL": "TRUE"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "Wait",
+                                "id": "bf6_wait_0040",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0039",
+                                      "fields": {
+                                        "NUM": 10
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "If",
+                                    "id": "bf6_if_0063",
+                                    "extraState": {},
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "And",
+                                          "id": "bf6_and_0047",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "GetVariable",
+                                                "id": "bf6_getvariable_0043",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "variableReferenceBlock",
+                                                      "id": "bf6_variablereferenceblock_0042",
+                                                      "extraState": {
+                                                        "isObjectVar": true
+                                                      },
+                                                      "fields": {
+                                                        "OBJECTTYPE": "Player",
+                                                        "VAR": {
+                                                          "id": "bf6_var_plantingobjective"
+                                                        }
+                                                      },
+                                                      "inputs": {
+                                                        "OBJECT": {
+                                                          "block": {
+                                                            "type": "EventPlayer",
+                                                            "id": "bf6_eventplayer_0041"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "VALUE-1": {
+                                              "block": {
+                                                "type": "Not",
+                                                "id": "bf6_not_0046",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "GetVariable",
+                                                      "id": "bf6_getvariable_0045",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "variableReferenceBlock",
+                                                            "id": "bf6_variablereferenceblock_0044",
+                                                            "extraState": {
+                                                              "isObjectVar": false
+                                                            },
+                                                            "fields": {
+                                                              "OBJECTTYPE": "Global",
+                                                              "VAR": {
+                                                                "id": "bf6_var_site1destroyed"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "DO": {
+                                        "block": {
+                                          "type": "SetVariable",
+                                          "id": "bf6_setvariable_0050",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "variableReferenceBlock",
+                                                "id": "bf6_variablereferenceblock_0049",
+                                                "extraState": {
+                                                  "isObjectVar": false
+                                                },
+                                                "fields": {
+                                                  "OBJECTTYPE": "Global",
+                                                  "VAR": {
+                                                    "id": "bf6_var_site1destroyed"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "VALUE-1": {
+                                              "block": {
+                                                "type": "Boolean",
+                                                "id": "bf6_boolean_0048",
+                                                "fields": {
+                                                  "BOOL": "TRUE"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "next": {
+                                            "block": {
+                                              "type": "EnableAreaTrigger",
+                                              "id": "bf6_enableareatrigger_0054",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetAreaTrigger",
+                                                    "id": "bf6_getareatrigger_0052",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0051",
+                                                          "fields": {
+                                                            "NUM": 701
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "Boolean",
+                                                    "id": "bf6_boolean_0053",
+                                                    "fields": {
+                                                      "BOOL": "FALSE"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "SetGameModeScore",
+                                                  "id": "bf6_setgamemodescore_0062",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "GetTeam",
+                                                        "id": "bf6_getteam_0057",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0056",
+                                                              "fields": {
+                                                                "NUM": 1
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "Add",
+                                                        "id": "bf6_add_0061",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "GetGameModeScore",
+                                                              "id": "bf6_getgamemodescore_0060",
+                                                              "inputs": {
+                                                                "VALUE-0": {
+                                                                  "block": {
+                                                                    "type": "GetTeam",
+                                                                    "id": "bf6_getteam_0059",
+                                                                    "inputs": {
+                                                                      "VALUE-0": {
+                                                                        "block": {
+                                                                          "type": "Number",
+                                                                          "id": "bf6_number_0058",
+                                                                          "fields": {
+                                                                            "NUM": 1
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "VALUE-1": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0055",
+                                                              "fields": {
+                                                                "NUM": 1
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "CONDITIONS": {
+                          "block": {
+                            "type": "conditionBlock",
+                            "id": "bf6_conditionblock_0075",
+                            "inputs": {
+                              "CONDITION": {
+                                "block": {
+                                  "type": "And",
+                                  "id": "bf6_and_0073",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Equals",
+                                        "id": "bf6_equals_0067",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "EventAreaTrigger",
+                                              "id": "bf6_eventareatrigger_0064"
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetAreaTrigger",
+                                              "id": "bf6_getareatrigger_0066",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0065",
+                                                    "fields": {
+                                                      "NUM": 701
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "VALUE-1": {
+                                      "block": {
+                                        "type": "Equals",
+                                        "id": "bf6_equals_0072",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0069",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "EventPlayer",
+                                                    "id": "bf6_eventplayer_0068"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0071",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0070",
+                                                    "fields": {
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "ruleBlock",
+                          "id": "bf6_ruleblock_0115",
+                          "extraState": {
+                            "isOngoingEvent": false
+                          },
+                          "fields": {
+                            "NAME": "Attack Site 2",
+                            "EVENTTYPE": "OnPlayerEnterAreaTrigger"
+                          },
+                          "inputs": {
+                            "ACTIONS": {
+                              "block": {
+                                "type": "SetVariable",
+                                "id": "bf6_setvariable_0079",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "variableReferenceBlock",
+                                      "id": "bf6_variablereferenceblock_0078",
+                                      "extraState": {
+                                        "isObjectVar": true
+                                      },
+                                      "fields": {
+                                        "OBJECTTYPE": "Player",
+                                        "VAR": {
+                                          "id": "bf6_var_plantingobjective"
+                                        }
+                                      },
+                                      "inputs": {
+                                        "OBJECT": {
+                                          "block": {
+                                            "type": "EventPlayer",
+                                            "id": "bf6_eventplayer_0077"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "VALUE-1": {
+                                    "block": {
+                                      "type": "Boolean",
+                                      "id": "bf6_boolean_0076",
+                                      "fields": {
+                                        "BOOL": "TRUE"
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "Wait",
+                                    "id": "bf6_wait_0081",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0080",
+                                          "fields": {
+                                            "NUM": 10
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "If",
+                                        "id": "bf6_if_0104",
+                                        "extraState": {},
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "And",
+                                              "id": "bf6_and_0088",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetVariable",
+                                                    "id": "bf6_getvariable_0084",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "variableReferenceBlock",
+                                                          "id": "bf6_variablereferenceblock_0083",
+                                                          "extraState": {
+                                                            "isObjectVar": true
+                                                          },
+                                                          "fields": {
+                                                            "OBJECTTYPE": "Player",
+                                                            "VAR": {
+                                                              "id": "bf6_var_plantingobjective"
+                                                            }
+                                                          },
+                                                          "inputs": {
+                                                            "OBJECT": {
+                                                              "block": {
+                                                                "type": "EventPlayer",
+                                                                "id": "bf6_eventplayer_0082"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "Not",
+                                                    "id": "bf6_not_0087",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "GetVariable",
+                                                          "id": "bf6_getvariable_0086",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "variableReferenceBlock",
+                                                                "id": "bf6_variablereferenceblock_0085",
+                                                                "extraState": {
+                                                                  "isObjectVar": false
+                                                                },
+                                                                "fields": {
+                                                                  "OBJECTTYPE": "Global",
+                                                                  "VAR": {
+                                                                    "id": "bf6_var_site2destroyed"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "DO": {
+                                            "block": {
+                                              "type": "SetVariable",
+                                              "id": "bf6_setvariable_0091",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "variableReferenceBlock",
+                                                    "id": "bf6_variablereferenceblock_0090",
+                                                    "extraState": {
+                                                      "isObjectVar": false
+                                                    },
+                                                    "fields": {
+                                                      "OBJECTTYPE": "Global",
+                                                      "VAR": {
+                                                        "id": "bf6_var_site2destroyed"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "Boolean",
+                                                    "id": "bf6_boolean_0089",
+                                                    "fields": {
+                                                      "BOOL": "TRUE"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "next": {
+                                                "block": {
+                                                  "type": "EnableAreaTrigger",
+                                                  "id": "bf6_enableareatrigger_0095",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "GetAreaTrigger",
+                                                        "id": "bf6_getareatrigger_0093",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0092",
+                                                              "fields": {
+                                                                "NUM": 702
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "Boolean",
+                                                        "id": "bf6_boolean_0094",
+                                                        "fields": {
+                                                          "BOOL": "FALSE"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "SetGameModeScore",
+                                                      "id": "bf6_setgamemodescore_0103",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "GetTeam",
+                                                            "id": "bf6_getteam_0098",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "Number",
+                                                                  "id": "bf6_number_0097",
+                                                                  "fields": {
+                                                                    "NUM": 1
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "VALUE-1": {
+                                                          "block": {
+                                                            "type": "Add",
+                                                            "id": "bf6_add_0102",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "GetGameModeScore",
+                                                                  "id": "bf6_getgamemodescore_0101",
+                                                                  "inputs": {
+                                                                    "VALUE-0": {
+                                                                      "block": {
+                                                                        "type": "GetTeam",
+                                                                        "id": "bf6_getteam_0100",
+                                                                        "inputs": {
+                                                                          "VALUE-0": {
+                                                                            "block": {
+                                                                              "type": "Number",
+                                                                              "id": "bf6_number_0099",
+                                                                              "fields": {
+                                                                                "NUM": 1
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "VALUE-1": {
+                                                                "block": {
+                                                                  "type": "Number",
+                                                                  "id": "bf6_number_0096",
+                                                                  "fields": {
+                                                                    "NUM": 1
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "CONDITIONS": {
+                              "block": {
+                                "type": "conditionBlock",
+                                "id": "bf6_conditionblock_0116",
+                                "inputs": {
+                                  "CONDITION": {
+                                    "block": {
+                                      "type": "And",
+                                      "id": "bf6_and_0114",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "Equals",
+                                            "id": "bf6_equals_0108",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "EventAreaTrigger",
+                                                  "id": "bf6_eventareatrigger_0105"
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "GetAreaTrigger",
+                                                  "id": "bf6_getareatrigger_0107",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0106",
+                                                        "fields": {
+                                                          "NUM": 702
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "VALUE-1": {
+                                          "block": {
+                                            "type": "Equals",
+                                            "id": "bf6_equals_0113",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetTeam",
+                                                  "id": "bf6_getteam_0110",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "EventPlayer",
+                                                        "id": "bf6_eventplayer_0109"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "GetTeam",
+                                                  "id": "bf6_getteam_0112",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0111",
+                                                        "fields": {
+                                                          "NUM": 1
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "ruleBlock",
+                              "id": "bf6_ruleblock_0156",
+                              "extraState": {
+                                "isOngoingEvent": false
+                              },
+                              "fields": {
+                                "NAME": "Attack Site 3",
+                                "EVENTTYPE": "OnPlayerEnterAreaTrigger"
+                              },
+                              "inputs": {
+                                "ACTIONS": {
+                                  "block": {
+                                    "type": "SetVariable",
+                                    "id": "bf6_setvariable_0120",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "variableReferenceBlock",
+                                          "id": "bf6_variablereferenceblock_0119",
+                                          "extraState": {
+                                            "isObjectVar": true
+                                          },
+                                          "fields": {
+                                            "OBJECTTYPE": "Player",
+                                            "VAR": {
+                                              "id": "bf6_var_plantingobjective"
+                                            }
+                                          },
+                                          "inputs": {
+                                            "OBJECT": {
+                                              "block": {
+                                                "type": "EventPlayer",
+                                                "id": "bf6_eventplayer_0118"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "VALUE-1": {
+                                        "block": {
+                                          "type": "Boolean",
+                                          "id": "bf6_boolean_0117",
+                                          "fields": {
+                                            "BOOL": "TRUE"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "Wait",
+                                        "id": "bf6_wait_0122",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "Number",
+                                              "id": "bf6_number_0121",
+                                              "fields": {
+                                                "NUM": 10
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "If",
+                                            "id": "bf6_if_0145",
+                                            "extraState": {},
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "And",
+                                                  "id": "bf6_and_0129",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "GetVariable",
+                                                        "id": "bf6_getvariable_0125",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "variableReferenceBlock",
+                                                              "id": "bf6_variablereferenceblock_0124",
+                                                              "extraState": {
+                                                                "isObjectVar": true
+                                                              },
+                                                              "fields": {
+                                                                "OBJECTTYPE": "Player",
+                                                                "VAR": {
+                                                                  "id": "bf6_var_plantingobjective"
+                                                                }
+                                                              },
+                                                              "inputs": {
+                                                                "OBJECT": {
+                                                                  "block": {
+                                                                    "type": "EventPlayer",
+                                                                    "id": "bf6_eventplayer_0123"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "Not",
+                                                        "id": "bf6_not_0128",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "GetVariable",
+                                                              "id": "bf6_getvariable_0127",
+                                                              "inputs": {
+                                                                "VALUE-0": {
+                                                                  "block": {
+                                                                    "type": "variableReferenceBlock",
+                                                                    "id": "bf6_variablereferenceblock_0126",
+                                                                    "extraState": {
+                                                                      "isObjectVar": false
+                                                                    },
+                                                                    "fields": {
+                                                                      "OBJECTTYPE": "Global",
+                                                                      "VAR": {
+                                                                        "id": "bf6_var_site3destroyed"
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "DO": {
+                                                "block": {
+                                                  "type": "SetVariable",
+                                                  "id": "bf6_setvariable_0132",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "variableReferenceBlock",
+                                                        "id": "bf6_variablereferenceblock_0131",
+                                                        "extraState": {
+                                                          "isObjectVar": false
+                                                        },
+                                                        "fields": {
+                                                          "OBJECTTYPE": "Global",
+                                                          "VAR": {
+                                                            "id": "bf6_var_site3destroyed"
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "Boolean",
+                                                        "id": "bf6_boolean_0130",
+                                                        "fields": {
+                                                          "BOOL": "TRUE"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "next": {
+                                                    "block": {
+                                                      "type": "EnableAreaTrigger",
+                                                      "id": "bf6_enableareatrigger_0136",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "GetAreaTrigger",
+                                                            "id": "bf6_getareatrigger_0134",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "Number",
+                                                                  "id": "bf6_number_0133",
+                                                                  "fields": {
+                                                                    "NUM": 703
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "VALUE-1": {
+                                                          "block": {
+                                                            "type": "Boolean",
+                                                            "id": "bf6_boolean_0135",
+                                                            "fields": {
+                                                              "BOOL": "FALSE"
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "next": {
+                                                        "block": {
+                                                          "type": "SetGameModeScore",
+                                                          "id": "bf6_setgamemodescore_0144",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "GetTeam",
+                                                                "id": "bf6_getteam_0139",
+                                                                "inputs": {
+                                                                  "VALUE-0": {
+                                                                    "block": {
+                                                                      "type": "Number",
+                                                                      "id": "bf6_number_0138",
+                                                                      "fields": {
+                                                                        "NUM": 1
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "VALUE-1": {
+                                                              "block": {
+                                                                "type": "Add",
+                                                                "id": "bf6_add_0143",
+                                                                "inputs": {
+                                                                  "VALUE-0": {
+                                                                    "block": {
+                                                                      "type": "GetGameModeScore",
+                                                                      "id": "bf6_getgamemodescore_0142",
+                                                                      "inputs": {
+                                                                        "VALUE-0": {
+                                                                          "block": {
+                                                                            "type": "GetTeam",
+                                                                            "id": "bf6_getteam_0141",
+                                                                            "inputs": {
+                                                                              "VALUE-0": {
+                                                                                "block": {
+                                                                                  "type": "Number",
+                                                                                  "id": "bf6_number_0140",
+                                                                                  "fields": {
+                                                                                    "NUM": 1
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "VALUE-1": {
+                                                                    "block": {
+                                                                      "type": "Number",
+                                                                      "id": "bf6_number_0137",
+                                                                      "fields": {
+                                                                        "NUM": 1
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "CONDITIONS": {
+                                  "block": {
+                                    "type": "conditionBlock",
+                                    "id": "bf6_conditionblock_0157",
+                                    "inputs": {
+                                      "CONDITION": {
+                                        "block": {
+                                          "type": "And",
+                                          "id": "bf6_and_0155",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "Equals",
+                                                "id": "bf6_equals_0149",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "EventAreaTrigger",
+                                                      "id": "bf6_eventareatrigger_0146"
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "GetAreaTrigger",
+                                                      "id": "bf6_getareatrigger_0148",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "Number",
+                                                            "id": "bf6_number_0147",
+                                                            "fields": {
+                                                              "NUM": 703
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "VALUE-1": {
+                                              "block": {
+                                                "type": "Equals",
+                                                "id": "bf6_equals_0154",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "GetTeam",
+                                                      "id": "bf6_getteam_0151",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "EventPlayer",
+                                                            "id": "bf6_eventplayer_0150"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "GetTeam",
+                                                      "id": "bf6_getteam_0153",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "Number",
+                                                            "id": "bf6_number_0152",
+                                                            "fields": {
+                                                              "NUM": 1
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "ruleBlock",
+                                  "id": "bf6_ruleblock_0162",
+                                  "extraState": {
+                                    "isOngoingEvent": false
+                                  },
+                                  "fields": {
+                                    "NAME": "Cancel plant when attacker leaves",
+                                    "EVENTTYPE": "OnPlayerExitAreaTrigger"
+                                  },
+                                  "inputs": {
+                                    "ACTIONS": {
+                                      "block": {
+                                        "type": "SetVariable",
+                                        "id": "bf6_setvariable_0161",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "variableReferenceBlock",
+                                              "id": "bf6_variablereferenceblock_0160",
+                                              "extraState": {
+                                                "isObjectVar": true
+                                              },
+                                              "fields": {
+                                                "OBJECTTYPE": "Player",
+                                                "VAR": {
+                                                  "id": "bf6_var_plantingobjective"
+                                                }
+                                              },
+                                              "inputs": {
+                                                "OBJECT": {
+                                                  "block": {
+                                                    "type": "EventPlayer",
+                                                    "id": "bf6_eventplayer_0159"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "Boolean",
+                                              "id": "bf6_boolean_0158",
+                                              "fields": {
+                                                "BOOL": "FALSE"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "ruleBlock",
+                                      "id": "bf6_ruleblock_0171",
+                                      "extraState": {
+                                        "isOngoingEvent": true
+                                      },
+                                      "fields": {
+                                        "NAME": "Team 1 reaches target",
+                                        "EVENTTYPE": "Ongoing",
+                                        "OBJECTTYPE": "Global"
+                                      },
+                                      "inputs": {
+                                        "ACTIONS": {
+                                          "block": {
+                                            "type": "EndGameMode",
+                                            "id": "bf6_endgamemode_0165",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetTeam",
+                                                  "id": "bf6_getteam_0164",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0163",
+                                                        "fields": {
+                                                          "NUM": 1
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "CONDITIONS": {
+                                          "block": {
+                                            "type": "conditionBlock",
+                                            "id": "bf6_conditionblock_0172",
+                                            "inputs": {
+                                              "CONDITION": {
+                                                "block": {
+                                                  "type": "GreaterThanEqualTo",
+                                                  "id": "bf6_greaterthanequalto_0170",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "GetGameModeScore",
+                                                        "id": "bf6_getgamemodescore_0168",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "GetTeam",
+                                                              "id": "bf6_getteam_0167",
+                                                              "inputs": {
+                                                                "VALUE-0": {
+                                                                  "block": {
+                                                                    "type": "Number",
+                                                                    "id": "bf6_number_0166",
+                                                                    "fields": {
+                                                                      "NUM": 1
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0169",
+                                                        "fields": {
+                                                          "NUM": 3
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "variables": [
+        {
+          "name": "PlantingObjective",
+          "id": "bf6_var_plantingobjective",
+          "type": "Player"
+        },
+        {
+          "name": "Site1Destroyed",
+          "id": "bf6_var_site1destroyed",
+          "type": "Global"
+        },
+        {
+          "name": "Site2Destroyed",
+          "id": "bf6_var_site2destroyed",
+          "type": "Global"
+        },
+        {
+          "name": "Site3Destroyed",
+          "id": "bf6_var_site3destroyed",
+          "type": "Global"
+        }
+      ]
+    }
+  },
+  "teamComposition": [
+    [
+      1,
+      {
+        "humanCapacity": 32
+      }
+    ],
+    [
+      2,
+      {
+        "humanCapacity": 32
+      }
+    ]
+  ],
+  "gameMode": "ModBuilderCustom",
+  "attachments": []
+}

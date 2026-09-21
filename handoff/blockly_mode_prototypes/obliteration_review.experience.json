@@ -1,0 +1,1402 @@
+{
+  "mutators": {
+    "MaxPlayerCount_PerTeam": 32,
+    "ScoreboardType": 3
+  },
+  "assetRestrictions": {},
+  "name": "Game Data Obliteration Review",
+  "description": "Game-data-backed mode logic prepared for creator review. Add the desired map and the matching imported spatial layout after import.",
+  "mapRotation": [],
+  "workspace": {
+    "mod": {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "modBlock",
+            "id": "bf6_modblock_0160",
+            "x": 80,
+            "y": 80,
+            "deletable": false,
+            "inputs": {
+              "RULES": {
+                "block": {
+                  "type": "ruleBlock",
+                  "id": "bf6_ruleblock_0091",
+                  "extraState": {
+                    "isOngoingEvent": false
+                  },
+                  "fields": {
+                    "NAME": "Initialize Obliteration M-COM review flow",
+                    "EVENTTYPE": "OnGameModeStarted"
+                  },
+                  "inputs": {
+                    "ACTIONS": {
+                      "block": {
+                        "type": "SetGameModeScore",
+                        "id": "bf6_setgamemodescore_0004",
+                        "inputs": {
+                          "VALUE-0": {
+                            "block": {
+                              "type": "GetTeam",
+                              "id": "bf6_getteam_0002",
+                              "inputs": {
+                                "VALUE-0": {
+                                  "block": {
+                                    "type": "Number",
+                                    "id": "bf6_number_0001",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "VALUE-1": {
+                            "block": {
+                              "type": "Number",
+                              "id": "bf6_number_0003",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "SetGameModeScore",
+                            "id": "bf6_setgamemodescore_0008",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "GetTeam",
+                                  "id": "bf6_getteam_0006",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0005",
+                                        "fields": {
+                                          "NUM": 2
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Number",
+                                  "id": "bf6_number_0007",
+                                  "fields": {
+                                    "NUM": 0
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "SetGameModeTargetScore",
+                                "id": "bf6_setgamemodetargetscore_0010",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0009",
+                                      "fields": {
+                                        "NUM": 3
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "SetGameModeTimeLimit",
+                                    "id": "bf6_setgamemodetimelimit_0012",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0011",
+                                          "fields": {
+                                            "NUM": 1200
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "SetMCOMOwner",
+                                        "id": "bf6_setmcomowner_0017",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetMCOM",
+                                              "id": "bf6_getmcom_0014",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0013",
+                                                    "fields": {
+                                                      "NUM": 301
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0016",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0015",
+                                                    "fields": {
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "SetMCOMFuseTime",
+                                            "id": "bf6_setmcomfusetime_0021",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetMCOM",
+                                                  "id": "bf6_getmcom_0019",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0018",
+                                                        "fields": {
+                                                          "NUM": 301
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "Number",
+                                                  "id": "bf6_number_0020",
+                                                  "fields": {
+                                                    "NUM": 30
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "EnableGameModeObjective",
+                                                "id": "bf6_enablegamemodeobjective_0025",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "GetMCOM",
+                                                      "id": "bf6_getmcom_0023",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "Number",
+                                                            "id": "bf6_number_0022",
+                                                            "fields": {
+                                                              "NUM": 301
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "Boolean",
+                                                      "id": "bf6_boolean_0024",
+                                                      "fields": {
+                                                        "BOOL": "TRUE"
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": {
+                                                  "block": {
+                                                    "type": "SetMCOMOwner",
+                                                    "id": "bf6_setmcomowner_0030",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "GetMCOM",
+                                                          "id": "bf6_getmcom_0027",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "Number",
+                                                                "id": "bf6_number_0026",
+                                                                "fields": {
+                                                                  "NUM": 302
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "VALUE-1": {
+                                                        "block": {
+                                                          "type": "GetTeam",
+                                                          "id": "bf6_getteam_0029",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "Number",
+                                                                "id": "bf6_number_0028",
+                                                                "fields": {
+                                                                  "NUM": 1
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    },
+                                                    "next": {
+                                                      "block": {
+                                                        "type": "SetMCOMFuseTime",
+                                                        "id": "bf6_setmcomfusetime_0034",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "GetMCOM",
+                                                              "id": "bf6_getmcom_0032",
+                                                              "inputs": {
+                                                                "VALUE-0": {
+                                                                  "block": {
+                                                                    "type": "Number",
+                                                                    "id": "bf6_number_0031",
+                                                                    "fields": {
+                                                                      "NUM": 302
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "VALUE-1": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0033",
+                                                              "fields": {
+                                                                "NUM": 30
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "next": {
+                                                          "block": {
+                                                            "type": "EnableGameModeObjective",
+                                                            "id": "bf6_enablegamemodeobjective_0038",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "GetMCOM",
+                                                                  "id": "bf6_getmcom_0036",
+                                                                  "inputs": {
+                                                                    "VALUE-0": {
+                                                                      "block": {
+                                                                        "type": "Number",
+                                                                        "id": "bf6_number_0035",
+                                                                        "fields": {
+                                                                          "NUM": 302
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              },
+                                                              "VALUE-1": {
+                                                                "block": {
+                                                                  "type": "Boolean",
+                                                                  "id": "bf6_boolean_0037",
+                                                                  "fields": {
+                                                                    "BOOL": "TRUE"
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "next": {
+                                                              "block": {
+                                                                "type": "SetMCOMOwner",
+                                                                "id": "bf6_setmcomowner_0043",
+                                                                "inputs": {
+                                                                  "VALUE-0": {
+                                                                    "block": {
+                                                                      "type": "GetMCOM",
+                                                                      "id": "bf6_getmcom_0040",
+                                                                      "inputs": {
+                                                                        "VALUE-0": {
+                                                                          "block": {
+                                                                            "type": "Number",
+                                                                            "id": "bf6_number_0039",
+                                                                            "fields": {
+                                                                              "NUM": 303
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
+                                                                  "VALUE-1": {
+                                                                    "block": {
+                                                                      "type": "GetTeam",
+                                                                      "id": "bf6_getteam_0042",
+                                                                      "inputs": {
+                                                                        "VALUE-0": {
+                                                                          "block": {
+                                                                            "type": "Number",
+                                                                            "id": "bf6_number_0041",
+                                                                            "fields": {
+                                                                              "NUM": 1
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                },
+                                                                "next": {
+                                                                  "block": {
+                                                                    "type": "SetMCOMFuseTime",
+                                                                    "id": "bf6_setmcomfusetime_0047",
+                                                                    "inputs": {
+                                                                      "VALUE-0": {
+                                                                        "block": {
+                                                                          "type": "GetMCOM",
+                                                                          "id": "bf6_getmcom_0045",
+                                                                          "inputs": {
+                                                                            "VALUE-0": {
+                                                                              "block": {
+                                                                                "type": "Number",
+                                                                                "id": "bf6_number_0044",
+                                                                                "fields": {
+                                                                                  "NUM": 303
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      },
+                                                                      "VALUE-1": {
+                                                                        "block": {
+                                                                          "type": "Number",
+                                                                          "id": "bf6_number_0046",
+                                                                          "fields": {
+                                                                            "NUM": 30
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "next": {
+                                                                      "block": {
+                                                                        "type": "EnableGameModeObjective",
+                                                                        "id": "bf6_enablegamemodeobjective_0051",
+                                                                        "inputs": {
+                                                                          "VALUE-0": {
+                                                                            "block": {
+                                                                              "type": "GetMCOM",
+                                                                              "id": "bf6_getmcom_0049",
+                                                                              "inputs": {
+                                                                                "VALUE-0": {
+                                                                                  "block": {
+                                                                                    "type": "Number",
+                                                                                    "id": "bf6_number_0048",
+                                                                                    "fields": {
+                                                                                      "NUM": 303
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          },
+                                                                          "VALUE-1": {
+                                                                            "block": {
+                                                                              "type": "Boolean",
+                                                                              "id": "bf6_boolean_0050",
+                                                                              "fields": {
+                                                                                "BOOL": "TRUE"
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        },
+                                                                        "next": {
+                                                                          "block": {
+                                                                            "type": "SetMCOMOwner",
+                                                                            "id": "bf6_setmcomowner_0056",
+                                                                            "inputs": {
+                                                                              "VALUE-0": {
+                                                                                "block": {
+                                                                                  "type": "GetMCOM",
+                                                                                  "id": "bf6_getmcom_0053",
+                                                                                  "inputs": {
+                                                                                    "VALUE-0": {
+                                                                                      "block": {
+                                                                                        "type": "Number",
+                                                                                        "id": "bf6_number_0052",
+                                                                                        "fields": {
+                                                                                          "NUM": 304
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              },
+                                                                              "VALUE-1": {
+                                                                                "block": {
+                                                                                  "type": "GetTeam",
+                                                                                  "id": "bf6_getteam_0055",
+                                                                                  "inputs": {
+                                                                                    "VALUE-0": {
+                                                                                      "block": {
+                                                                                        "type": "Number",
+                                                                                        "id": "bf6_number_0054",
+                                                                                        "fields": {
+                                                                                          "NUM": 2
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            },
+                                                                            "next": {
+                                                                              "block": {
+                                                                                "type": "SetMCOMFuseTime",
+                                                                                "id": "bf6_setmcomfusetime_0060",
+                                                                                "inputs": {
+                                                                                  "VALUE-0": {
+                                                                                    "block": {
+                                                                                      "type": "GetMCOM",
+                                                                                      "id": "bf6_getmcom_0058",
+                                                                                      "inputs": {
+                                                                                        "VALUE-0": {
+                                                                                          "block": {
+                                                                                            "type": "Number",
+                                                                                            "id": "bf6_number_0057",
+                                                                                            "fields": {
+                                                                                              "NUM": 304
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  },
+                                                                                  "VALUE-1": {
+                                                                                    "block": {
+                                                                                      "type": "Number",
+                                                                                      "id": "bf6_number_0059",
+                                                                                      "fields": {
+                                                                                        "NUM": 30
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                },
+                                                                                "next": {
+                                                                                  "block": {
+                                                                                    "type": "EnableGameModeObjective",
+                                                                                    "id": "bf6_enablegamemodeobjective_0064",
+                                                                                    "inputs": {
+                                                                                      "VALUE-0": {
+                                                                                        "block": {
+                                                                                          "type": "GetMCOM",
+                                                                                          "id": "bf6_getmcom_0062",
+                                                                                          "inputs": {
+                                                                                            "VALUE-0": {
+                                                                                              "block": {
+                                                                                                "type": "Number",
+                                                                                                "id": "bf6_number_0061",
+                                                                                                "fields": {
+                                                                                                  "NUM": 304
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      },
+                                                                                      "VALUE-1": {
+                                                                                        "block": {
+                                                                                          "type": "Boolean",
+                                                                                          "id": "bf6_boolean_0063",
+                                                                                          "fields": {
+                                                                                            "BOOL": "TRUE"
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    },
+                                                                                    "next": {
+                                                                                      "block": {
+                                                                                        "type": "SetMCOMOwner",
+                                                                                        "id": "bf6_setmcomowner_0069",
+                                                                                        "inputs": {
+                                                                                          "VALUE-0": {
+                                                                                            "block": {
+                                                                                              "type": "GetMCOM",
+                                                                                              "id": "bf6_getmcom_0066",
+                                                                                              "inputs": {
+                                                                                                "VALUE-0": {
+                                                                                                  "block": {
+                                                                                                    "type": "Number",
+                                                                                                    "id": "bf6_number_0065",
+                                                                                                    "fields": {
+                                                                                                      "NUM": 305
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          },
+                                                                                          "VALUE-1": {
+                                                                                            "block": {
+                                                                                              "type": "GetTeam",
+                                                                                              "id": "bf6_getteam_0068",
+                                                                                              "inputs": {
+                                                                                                "VALUE-0": {
+                                                                                                  "block": {
+                                                                                                    "type": "Number",
+                                                                                                    "id": "bf6_number_0067",
+                                                                                                    "fields": {
+                                                                                                      "NUM": 2
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        },
+                                                                                        "next": {
+                                                                                          "block": {
+                                                                                            "type": "SetMCOMFuseTime",
+                                                                                            "id": "bf6_setmcomfusetime_0073",
+                                                                                            "inputs": {
+                                                                                              "VALUE-0": {
+                                                                                                "block": {
+                                                                                                  "type": "GetMCOM",
+                                                                                                  "id": "bf6_getmcom_0071",
+                                                                                                  "inputs": {
+                                                                                                    "VALUE-0": {
+                                                                                                      "block": {
+                                                                                                        "type": "Number",
+                                                                                                        "id": "bf6_number_0070",
+                                                                                                        "fields": {
+                                                                                                          "NUM": 305
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              },
+                                                                                              "VALUE-1": {
+                                                                                                "block": {
+                                                                                                  "type": "Number",
+                                                                                                  "id": "bf6_number_0072",
+                                                                                                  "fields": {
+                                                                                                    "NUM": 30
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            },
+                                                                                            "next": {
+                                                                                              "block": {
+                                                                                                "type": "EnableGameModeObjective",
+                                                                                                "id": "bf6_enablegamemodeobjective_0077",
+                                                                                                "inputs": {
+                                                                                                  "VALUE-0": {
+                                                                                                    "block": {
+                                                                                                      "type": "GetMCOM",
+                                                                                                      "id": "bf6_getmcom_0075",
+                                                                                                      "inputs": {
+                                                                                                        "VALUE-0": {
+                                                                                                          "block": {
+                                                                                                            "type": "Number",
+                                                                                                            "id": "bf6_number_0074",
+                                                                                                            "fields": {
+                                                                                                              "NUM": 305
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  },
+                                                                                                  "VALUE-1": {
+                                                                                                    "block": {
+                                                                                                      "type": "Boolean",
+                                                                                                      "id": "bf6_boolean_0076",
+                                                                                                      "fields": {
+                                                                                                        "BOOL": "TRUE"
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                },
+                                                                                                "next": {
+                                                                                                  "block": {
+                                                                                                    "type": "SetMCOMOwner",
+                                                                                                    "id": "bf6_setmcomowner_0082",
+                                                                                                    "inputs": {
+                                                                                                      "VALUE-0": {
+                                                                                                        "block": {
+                                                                                                          "type": "GetMCOM",
+                                                                                                          "id": "bf6_getmcom_0079",
+                                                                                                          "inputs": {
+                                                                                                            "VALUE-0": {
+                                                                                                              "block": {
+                                                                                                                "type": "Number",
+                                                                                                                "id": "bf6_number_0078",
+                                                                                                                "fields": {
+                                                                                                                  "NUM": 306
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      },
+                                                                                                      "VALUE-1": {
+                                                                                                        "block": {
+                                                                                                          "type": "GetTeam",
+                                                                                                          "id": "bf6_getteam_0081",
+                                                                                                          "inputs": {
+                                                                                                            "VALUE-0": {
+                                                                                                              "block": {
+                                                                                                                "type": "Number",
+                                                                                                                "id": "bf6_number_0080",
+                                                                                                                "fields": {
+                                                                                                                  "NUM": 2
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    },
+                                                                                                    "next": {
+                                                                                                      "block": {
+                                                                                                        "type": "SetMCOMFuseTime",
+                                                                                                        "id": "bf6_setmcomfusetime_0086",
+                                                                                                        "inputs": {
+                                                                                                          "VALUE-0": {
+                                                                                                            "block": {
+                                                                                                              "type": "GetMCOM",
+                                                                                                              "id": "bf6_getmcom_0084",
+                                                                                                              "inputs": {
+                                                                                                                "VALUE-0": {
+                                                                                                                  "block": {
+                                                                                                                    "type": "Number",
+                                                                                                                    "id": "bf6_number_0083",
+                                                                                                                    "fields": {
+                                                                                                                      "NUM": 306
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          },
+                                                                                                          "VALUE-1": {
+                                                                                                            "block": {
+                                                                                                              "type": "Number",
+                                                                                                              "id": "bf6_number_0085",
+                                                                                                              "fields": {
+                                                                                                                "NUM": 30
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        },
+                                                                                                        "next": {
+                                                                                                          "block": {
+                                                                                                            "type": "EnableGameModeObjective",
+                                                                                                            "id": "bf6_enablegamemodeobjective_0090",
+                                                                                                            "inputs": {
+                                                                                                              "VALUE-0": {
+                                                                                                                "block": {
+                                                                                                                  "type": "GetMCOM",
+                                                                                                                  "id": "bf6_getmcom_0088",
+                                                                                                                  "inputs": {
+                                                                                                                    "VALUE-0": {
+                                                                                                                      "block": {
+                                                                                                                        "type": "Number",
+                                                                                                                        "id": "bf6_number_0087",
+                                                                                                                        "fields": {
+                                                                                                                          "NUM": 306
+                                                                                                                        }
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              },
+                                                                                                              "VALUE-1": {
+                                                                                                                "block": {
+                                                                                                                  "type": "Boolean",
+                                                                                                                  "id": "bf6_boolean_0089",
+                                                                                                                  "fields": {
+                                                                                                                    "BOOL": "TRUE"
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              }
+                                                                                                            }
+                                                                                                          }
+                                                                                                        }
+                                                                                                      }
+                                                                                                    }
+                                                                                                  }
+                                                                                                }
+                                                                                              }
+                                                                                            }
+                                                                                          }
+                                                                                        }
+                                                                                      }
+                                                                                    }
+                                                                                  }
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "ruleBlock",
+                      "id": "bf6_ruleblock_0114",
+                      "extraState": {
+                        "isOngoingEvent": false
+                      },
+                      "fields": {
+                        "NAME": "Team 2 destroys Team 1 objective",
+                        "EVENTTYPE": "OnMCOMDestroyed"
+                      },
+                      "inputs": {
+                        "ACTIONS": {
+                          "block": {
+                            "type": "SetGameModeScore",
+                            "id": "bf6_setgamemodescore_0099",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "GetTeam",
+                                  "id": "bf6_getteam_0094",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0093",
+                                        "fields": {
+                                          "NUM": 2
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Add",
+                                  "id": "bf6_add_0098",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "GetGameModeScore",
+                                        "id": "bf6_getgamemodescore_0097",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0096",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0095",
+                                                    "fields": {
+                                                      "NUM": 2
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "VALUE-1": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0092",
+                                        "fields": {
+                                          "NUM": 1
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "CONDITIONS": {
+                          "block": {
+                            "type": "conditionBlock",
+                            "id": "bf6_conditionblock_0115",
+                            "inputs": {
+                              "CONDITION": {
+                                "block": {
+                                  "type": "Or",
+                                  "id": "bf6_or_0113",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Or",
+                                        "id": "bf6_or_0112",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "Equals",
+                                              "id": "bf6_equals_0103",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "EventMCOM",
+                                                    "id": "bf6_eventmcom_0100"
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "GetMCOM",
+                                                    "id": "bf6_getmcom_0102",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0101",
+                                                          "fields": {
+                                                            "NUM": 301
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "Equals",
+                                              "id": "bf6_equals_0107",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "EventMCOM",
+                                                    "id": "bf6_eventmcom_0104"
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "GetMCOM",
+                                                    "id": "bf6_getmcom_0106",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0105",
+                                                          "fields": {
+                                                            "NUM": 302
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "VALUE-1": {
+                                      "block": {
+                                        "type": "Equals",
+                                        "id": "bf6_equals_0111",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "EventMCOM",
+                                              "id": "bf6_eventmcom_0108"
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetMCOM",
+                                              "id": "bf6_getmcom_0110",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0109",
+                                                    "fields": {
+                                                      "NUM": 303
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": {
+                        "block": {
+                          "type": "ruleBlock",
+                          "id": "bf6_ruleblock_0138",
+                          "extraState": {
+                            "isOngoingEvent": false
+                          },
+                          "fields": {
+                            "NAME": "Team 1 destroys Team 2 objective",
+                            "EVENTTYPE": "OnMCOMDestroyed"
+                          },
+                          "inputs": {
+                            "ACTIONS": {
+                              "block": {
+                                "type": "SetGameModeScore",
+                                "id": "bf6_setgamemodescore_0123",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "GetTeam",
+                                      "id": "bf6_getteam_0118",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "Number",
+                                            "id": "bf6_number_0117",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "VALUE-1": {
+                                    "block": {
+                                      "type": "Add",
+                                      "id": "bf6_add_0122",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "GetGameModeScore",
+                                            "id": "bf6_getgamemodescore_0121",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "GetTeam",
+                                                  "id": "bf6_getteam_0120",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0119",
+                                                        "fields": {
+                                                          "NUM": 1
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "VALUE-1": {
+                                          "block": {
+                                            "type": "Number",
+                                            "id": "bf6_number_0116",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "CONDITIONS": {
+                              "block": {
+                                "type": "conditionBlock",
+                                "id": "bf6_conditionblock_0139",
+                                "inputs": {
+                                  "CONDITION": {
+                                    "block": {
+                                      "type": "Or",
+                                      "id": "bf6_or_0137",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "Or",
+                                            "id": "bf6_or_0136",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "Equals",
+                                                  "id": "bf6_equals_0127",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "EventMCOM",
+                                                        "id": "bf6_eventmcom_0124"
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "GetMCOM",
+                                                        "id": "bf6_getmcom_0126",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0125",
+                                                              "fields": {
+                                                                "NUM": 304
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "Equals",
+                                                  "id": "bf6_equals_0131",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "EventMCOM",
+                                                        "id": "bf6_eventmcom_0128"
+                                                      }
+                                                    },
+                                                    "VALUE-1": {
+                                                      "block": {
+                                                        "type": "GetMCOM",
+                                                        "id": "bf6_getmcom_0130",
+                                                        "inputs": {
+                                                          "VALUE-0": {
+                                                            "block": {
+                                                              "type": "Number",
+                                                              "id": "bf6_number_0129",
+                                                              "fields": {
+                                                                "NUM": 305
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "VALUE-1": {
+                                          "block": {
+                                            "type": "Equals",
+                                            "id": "bf6_equals_0135",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "EventMCOM",
+                                                  "id": "bf6_eventmcom_0132"
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "GetMCOM",
+                                                  "id": "bf6_getmcom_0134",
+                                                  "inputs": {
+                                                    "VALUE-0": {
+                                                      "block": {
+                                                        "type": "Number",
+                                                        "id": "bf6_number_0133",
+                                                        "fields": {
+                                                          "NUM": 306
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "next": {
+                            "block": {
+                              "type": "ruleBlock",
+                              "id": "bf6_ruleblock_0148",
+                              "extraState": {
+                                "isOngoingEvent": true
+                              },
+                              "fields": {
+                                "NAME": "Team 1 reaches target",
+                                "EVENTTYPE": "Ongoing",
+                                "OBJECTTYPE": "Global"
+                              },
+                              "inputs": {
+                                "ACTIONS": {
+                                  "block": {
+                                    "type": "EndGameMode",
+                                    "id": "bf6_endgamemode_0142",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "GetTeam",
+                                          "id": "bf6_getteam_0141",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "Number",
+                                                "id": "bf6_number_0140",
+                                                "fields": {
+                                                  "NUM": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "CONDITIONS": {
+                                  "block": {
+                                    "type": "conditionBlock",
+                                    "id": "bf6_conditionblock_0149",
+                                    "inputs": {
+                                      "CONDITION": {
+                                        "block": {
+                                          "type": "GreaterThanEqualTo",
+                                          "id": "bf6_greaterthanequalto_0147",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "GetGameModeScore",
+                                                "id": "bf6_getgamemodescore_0145",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "GetTeam",
+                                                      "id": "bf6_getteam_0144",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "Number",
+                                                            "id": "bf6_number_0143",
+                                                            "fields": {
+                                                              "NUM": 1
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "VALUE-1": {
+                                              "block": {
+                                                "type": "Number",
+                                                "id": "bf6_number_0146",
+                                                "fields": {
+                                                  "NUM": 3
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": {
+                                "block": {
+                                  "type": "ruleBlock",
+                                  "id": "bf6_ruleblock_0158",
+                                  "extraState": {
+                                    "isOngoingEvent": true
+                                  },
+                                  "fields": {
+                                    "NAME": "Team 2 reaches target",
+                                    "EVENTTYPE": "Ongoing",
+                                    "OBJECTTYPE": "Global"
+                                  },
+                                  "inputs": {
+                                    "ACTIONS": {
+                                      "block": {
+                                        "type": "EndGameMode",
+                                        "id": "bf6_endgamemode_0152",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0151",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0150",
+                                                    "fields": {
+                                                      "NUM": 2
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "CONDITIONS": {
+                                      "block": {
+                                        "type": "conditionBlock",
+                                        "id": "bf6_conditionblock_0159",
+                                        "inputs": {
+                                          "CONDITION": {
+                                            "block": {
+                                              "type": "GreaterThanEqualTo",
+                                              "id": "bf6_greaterthanequalto_0157",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetGameModeScore",
+                                                    "id": "bf6_getgamemodescore_0155",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "GetTeam",
+                                                          "id": "bf6_getteam_0154",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "Number",
+                                                                "id": "bf6_number_0153",
+                                                                "fields": {
+                                                                  "NUM": 2
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0156",
+                                                    "fields": {
+                                                      "NUM": 3
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "variables": []
+    }
+  },
+  "teamComposition": [
+    [
+      1,
+      {
+        "humanCapacity": 32
+      }
+    ],
+    [
+      2,
+      {
+        "humanCapacity": 32
+      }
+    ]
+  ],
+  "gameMode": "ModBuilderCustom",
+  "attachments": []
+}

@@ -5,6 +5,18 @@ assets or copied template logic. Map geometry, objective transforms, spawns, HQs
 vehicles, and volumes continue to come from the installed game data through the
 BF6 Godot Game Mode Setup importer.
 
+## Importing into Portal
+
+Import the matching `*.experience.json` file through Portal's experience import.
+Those files set `gameMode` to `ModBuilderCustom` and place the Blockly document
+under the required `workspace` property. They intentionally contain an empty map
+rotation and no attachments, so add the desired map and the matching spatial
+layout after import.
+
+The `*.workspace.json` files are the raw Blockly payloads retained for inspection,
+diffing, and regeneration. Importing one of those as an experience will report
+`No game mode set` because a raw workspace does not carry experience metadata.
+
 ## Generated workspaces
 
 - `domination_game_data.workspace.json` enables every imported CapturePoint,

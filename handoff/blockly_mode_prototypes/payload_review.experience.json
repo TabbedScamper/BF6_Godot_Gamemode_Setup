@@ -1,0 +1,725 @@
+{
+  "mutators": {
+    "MaxPlayerCount_PerTeam": 32,
+    "ScoreboardType": 3
+  },
+  "assetRestrictions": {},
+  "name": "Game Data Payload Review",
+  "description": "Game-data-backed mode logic prepared for creator review. Add the desired map and the matching imported spatial layout after import.",
+  "mapRotation": [],
+  "workspace": {
+    "mod": {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "modBlock",
+            "id": "bf6_modblock_0071",
+            "x": 80,
+            "y": 80,
+            "deletable": false,
+            "inputs": {
+              "RULES": {
+                "block": {
+                  "type": "ruleBlock",
+                  "id": "bf6_ruleblock_0032",
+                  "extraState": {
+                    "isOngoingEvent": false
+                  },
+                  "fields": {
+                    "NAME": "Initialize Payload checkpoint scaffold",
+                    "EVENTTYPE": "OnGameModeStarted"
+                  },
+                  "inputs": {
+                    "ACTIONS": {
+                      "block": {
+                        "type": "SetGameModeScore",
+                        "id": "bf6_setgamemodescore_0017",
+                        "inputs": {
+                          "VALUE-0": {
+                            "block": {
+                              "type": "GetTeam",
+                              "id": "bf6_getteam_0015",
+                              "inputs": {
+                                "VALUE-0": {
+                                  "block": {
+                                    "type": "Number",
+                                    "id": "bf6_number_0014",
+                                    "fields": {
+                                      "NUM": 1
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "VALUE-1": {
+                            "block": {
+                              "type": "Number",
+                              "id": "bf6_number_0016",
+                              "fields": {
+                                "NUM": 0
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "SetGameModeScore",
+                            "id": "bf6_setgamemodescore_0021",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "GetTeam",
+                                  "id": "bf6_getteam_0019",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Number",
+                                        "id": "bf6_number_0018",
+                                        "fields": {
+                                          "NUM": 2
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Number",
+                                  "id": "bf6_number_0020",
+                                  "fields": {
+                                    "NUM": 4
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "SetGameModeTargetScore",
+                                "id": "bf6_setgamemodetargetscore_0023",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "Number",
+                                      "id": "bf6_number_0022",
+                                      "fields": {
+                                        "NUM": 5
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "SetGameModeTimeLimit",
+                                    "id": "bf6_setgamemodetimelimit_0025",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "Number",
+                                          "id": "bf6_number_0024",
+                                          "fields": {
+                                            "NUM": 1200
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "SetVariable",
+                                        "id": "bf6_setvariable_0028",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "variableReferenceBlock",
+                                              "id": "bf6_variablereferenceblock_0027",
+                                              "extraState": {
+                                                "isObjectVar": false
+                                              },
+                                              "fields": {
+                                                "OBJECTTYPE": "Global",
+                                                "VAR": {
+                                                  "id": "bf6_var_currentcheckpoint"
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "Number",
+                                              "id": "bf6_number_0026",
+                                              "fields": {
+                                                "NUM": 0
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "next": {
+                                          "block": {
+                                            "type": "SetVariable",
+                                            "id": "bf6_setvariable_0031",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "variableReferenceBlock",
+                                                  "id": "bf6_variablereferenceblock_0030",
+                                                  "extraState": {
+                                                    "isObjectVar": false
+                                                  },
+                                                  "fields": {
+                                                    "OBJECTTYPE": "Global",
+                                                    "VAR": {
+                                                      "id": "bf6_var_checkpointcount"
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "VALUE-1": {
+                                                "block": {
+                                                  "type": "Number",
+                                                  "id": "bf6_number_0029",
+                                                  "fields": {
+                                                    "NUM": 5
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "next": {
+                                              "block": {
+                                                "type": "ForVariable",
+                                                "id": "bf6_forvariable_0013",
+                                                "inputs": {
+                                                  "VALUE-0": {
+                                                    "block": {
+                                                      "type": "variableReferenceBlock",
+                                                      "id": "bf6_variablereferenceblock_0001",
+                                                      "extraState": {
+                                                        "isObjectVar": false
+                                                      },
+                                                      "fields": {
+                                                        "OBJECTTYPE": "Global",
+                                                        "VAR": {
+                                                          "id": "bf6_var_checkpointiterator"
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-1": {
+                                                    "block": {
+                                                      "type": "Number",
+                                                      "id": "bf6_number_0002",
+                                                      "fields": {
+                                                        "NUM": 0
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-2": {
+                                                    "block": {
+                                                      "type": "GetVariable",
+                                                      "id": "bf6_getvariable_0004",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "variableReferenceBlock",
+                                                            "id": "bf6_variablereferenceblock_0003",
+                                                            "extraState": {
+                                                              "isObjectVar": false
+                                                            },
+                                                            "fields": {
+                                                              "OBJECTTYPE": "Global",
+                                                              "VAR": {
+                                                                "id": "bf6_var_checkpointcount"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "VALUE-3": {
+                                                    "block": {
+                                                      "type": "Number",
+                                                      "id": "bf6_number_0005",
+                                                      "fields": {
+                                                        "NUM": 1
+                                                      }
+                                                    }
+                                                  },
+                                                  "DO": {
+                                                    "block": {
+                                                      "type": "EnableAreaTrigger",
+                                                      "id": "bf6_enableareatrigger_0012",
+                                                      "inputs": {
+                                                        "VALUE-0": {
+                                                          "block": {
+                                                            "type": "GetAreaTrigger",
+                                                            "id": "bf6_getareatrigger_0010",
+                                                            "inputs": {
+                                                              "VALUE-0": {
+                                                                "block": {
+                                                                  "type": "Add",
+                                                                  "id": "bf6_add_0009",
+                                                                  "inputs": {
+                                                                    "VALUE-0": {
+                                                                      "block": {
+                                                                        "type": "Number",
+                                                                        "id": "bf6_number_0006",
+                                                                        "fields": {
+                                                                          "NUM": 801
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "VALUE-1": {
+                                                                      "block": {
+                                                                        "type": "GetVariable",
+                                                                        "id": "bf6_getvariable_0008",
+                                                                        "inputs": {
+                                                                          "VALUE-0": {
+                                                                            "block": {
+                                                                              "type": "variableReferenceBlock",
+                                                                              "id": "bf6_variablereferenceblock_0007",
+                                                                              "extraState": {
+                                                                                "isObjectVar": false
+                                                                              },
+                                                                              "fields": {
+                                                                                "OBJECTTYPE": "Global",
+                                                                                "VAR": {
+                                                                                  "id": "bf6_var_checkpointiterator"
+                                                                                }
+                                                                              }
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        },
+                                                        "VALUE-1": {
+                                                          "block": {
+                                                            "type": "Boolean",
+                                                            "id": "bf6_boolean_0011",
+                                                            "fields": {
+                                                              "BOOL": "TRUE"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "next": {
+                    "block": {
+                      "type": "ruleBlock",
+                      "id": "bf6_ruleblock_0069",
+                      "extraState": {
+                        "isOngoingEvent": false
+                      },
+                      "fields": {
+                        "NAME": "Advance ordered checkpoint",
+                        "EVENTTYPE": "OnPlayerEnterAreaTrigger"
+                      },
+                      "inputs": {
+                        "ACTIONS": {
+                          "block": {
+                            "type": "EnableAreaTrigger",
+                            "id": "bf6_enableareatrigger_0035",
+                            "inputs": {
+                              "VALUE-0": {
+                                "block": {
+                                  "type": "EventAreaTrigger",
+                                  "id": "bf6_eventareatrigger_0033"
+                                }
+                              },
+                              "VALUE-1": {
+                                "block": {
+                                  "type": "Boolean",
+                                  "id": "bf6_boolean_0034",
+                                  "fields": {
+                                    "BOOL": "FALSE"
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "SetVariable",
+                                "id": "bf6_setvariable_0041",
+                                "inputs": {
+                                  "VALUE-0": {
+                                    "block": {
+                                      "type": "variableReferenceBlock",
+                                      "id": "bf6_variablereferenceblock_0040",
+                                      "extraState": {
+                                        "isObjectVar": false
+                                      },
+                                      "fields": {
+                                        "OBJECTTYPE": "Global",
+                                        "VAR": {
+                                          "id": "bf6_var_currentcheckpoint"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "VALUE-1": {
+                                    "block": {
+                                      "type": "Add",
+                                      "id": "bf6_add_0039",
+                                      "inputs": {
+                                        "VALUE-0": {
+                                          "block": {
+                                            "type": "GetVariable",
+                                            "id": "bf6_getvariable_0037",
+                                            "inputs": {
+                                              "VALUE-0": {
+                                                "block": {
+                                                  "type": "variableReferenceBlock",
+                                                  "id": "bf6_variablereferenceblock_0036",
+                                                  "extraState": {
+                                                    "isObjectVar": false
+                                                  },
+                                                  "fields": {
+                                                    "OBJECTTYPE": "Global",
+                                                    "VAR": {
+                                                      "id": "bf6_var_currentcheckpoint"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "VALUE-1": {
+                                          "block": {
+                                            "type": "Number",
+                                            "id": "bf6_number_0038",
+                                            "fields": {
+                                              "NUM": 1
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "SetGameModeScore",
+                                    "id": "bf6_setgamemodescore_0046",
+                                    "inputs": {
+                                      "VALUE-0": {
+                                        "block": {
+                                          "type": "GetTeam",
+                                          "id": "bf6_getteam_0043",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "Number",
+                                                "id": "bf6_number_0042",
+                                                "fields": {
+                                                  "NUM": 1
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "VALUE-1": {
+                                        "block": {
+                                          "type": "GetVariable",
+                                          "id": "bf6_getvariable_0045",
+                                          "inputs": {
+                                            "VALUE-0": {
+                                              "block": {
+                                                "type": "variableReferenceBlock",
+                                                "id": "bf6_variablereferenceblock_0044",
+                                                "extraState": {
+                                                  "isObjectVar": false
+                                                },
+                                                "fields": {
+                                                  "OBJECTTYPE": "Global",
+                                                  "VAR": {
+                                                    "id": "bf6_var_currentcheckpoint"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "next": {
+                                      "block": {
+                                        "type": "If",
+                                        "id": "bf6_if_0055",
+                                        "extraState": {},
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GreaterThanEqualTo",
+                                              "id": "bf6_greaterthanequalto_0051",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetVariable",
+                                                    "id": "bf6_getvariable_0048",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "variableReferenceBlock",
+                                                          "id": "bf6_variablereferenceblock_0047",
+                                                          "extraState": {
+                                                            "isObjectVar": false
+                                                          },
+                                                          "fields": {
+                                                            "OBJECTTYPE": "Global",
+                                                            "VAR": {
+                                                              "id": "bf6_var_currentcheckpoint"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "VALUE-1": {
+                                                  "block": {
+                                                    "type": "GetVariable",
+                                                    "id": "bf6_getvariable_0050",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "variableReferenceBlock",
+                                                          "id": "bf6_variablereferenceblock_0049",
+                                                          "extraState": {
+                                                            "isObjectVar": false
+                                                          },
+                                                          "fields": {
+                                                            "OBJECTTYPE": "Global",
+                                                            "VAR": {
+                                                              "id": "bf6_var_checkpointcount"
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "DO": {
+                                            "block": {
+                                              "type": "EndGameMode",
+                                              "id": "bf6_endgamemode_0054",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "GetTeam",
+                                                    "id": "bf6_getteam_0053",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0052",
+                                                          "fields": {
+                                                            "NUM": 1
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "CONDITIONS": {
+                          "block": {
+                            "type": "conditionBlock",
+                            "id": "bf6_conditionblock_0070",
+                            "inputs": {
+                              "CONDITION": {
+                                "block": {
+                                  "type": "And",
+                                  "id": "bf6_and_0068",
+                                  "inputs": {
+                                    "VALUE-0": {
+                                      "block": {
+                                        "type": "Equals",
+                                        "id": "bf6_equals_0060",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0057",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "EventPlayer",
+                                                    "id": "bf6_eventplayer_0056"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetTeam",
+                                              "id": "bf6_getteam_0059",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Number",
+                                                    "id": "bf6_number_0058",
+                                                    "fields": {
+                                                      "NUM": 1
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "VALUE-1": {
+                                      "block": {
+                                        "type": "Equals",
+                                        "id": "bf6_equals_0067",
+                                        "inputs": {
+                                          "VALUE-0": {
+                                            "block": {
+                                              "type": "EventAreaTrigger",
+                                              "id": "bf6_eventareatrigger_0061"
+                                            }
+                                          },
+                                          "VALUE-1": {
+                                            "block": {
+                                              "type": "GetAreaTrigger",
+                                              "id": "bf6_getareatrigger_0066",
+                                              "inputs": {
+                                                "VALUE-0": {
+                                                  "block": {
+                                                    "type": "Add",
+                                                    "id": "bf6_add_0065",
+                                                    "inputs": {
+                                                      "VALUE-0": {
+                                                        "block": {
+                                                          "type": "Number",
+                                                          "id": "bf6_number_0062",
+                                                          "fields": {
+                                                            "NUM": 801
+                                                          }
+                                                        }
+                                                      },
+                                                      "VALUE-1": {
+                                                        "block": {
+                                                          "type": "GetVariable",
+                                                          "id": "bf6_getvariable_0064",
+                                                          "inputs": {
+                                                            "VALUE-0": {
+                                                              "block": {
+                                                                "type": "variableReferenceBlock",
+                                                                "id": "bf6_variablereferenceblock_0063",
+                                                                "extraState": {
+                                                                  "isObjectVar": false
+                                                                },
+                                                                "fields": {
+                                                                  "OBJECTTYPE": "Global",
+                                                                  "VAR": {
+                                                                    "id": "bf6_var_currentcheckpoint"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "variables": [
+        {
+          "name": "CheckpointIterator",
+          "id": "bf6_var_checkpointiterator",
+          "type": "Global"
+        },
+        {
+          "name": "CurrentCheckpoint",
+          "id": "bf6_var_currentcheckpoint",
+          "type": "Global"
+        },
+        {
+          "name": "CheckpointCount",
+          "id": "bf6_var_checkpointcount",
+          "type": "Global"
+        }
+      ]
+    }
+  },
+  "teamComposition": [
+    [
+      1,
+      {
+        "humanCapacity": 32
+      }
+    ],
+    [
+      2,
+      {
+        "humanCapacity": 32
+      }
+    ]
+  ],
+  "gameMode": "ModBuilderCustom",
+  "attachments": []
+}
