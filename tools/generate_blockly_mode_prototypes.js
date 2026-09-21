@@ -5,7 +5,15 @@ const path = require("path");
 
 const repoRoot = path.resolve(__dirname, "..");
 const outputRoot = path.join(repoRoot, "handoff", "blockly_mode_prototypes");
+const runtimeContracts = JSON.parse(fs.readFileSync(
+  path.join(repoRoot, "data", "retail_mode_runtime_contracts.json"), "utf8"));
 let sequence = 0;
+
+function retail(mode, name) {
+  const value = runtimeContracts.modes?.[mode]?.values?.[name];
+  if (value === undefined) throw new Error(`Missing retail mode value ${mode}.${name}`);
+  return value;
+}
 
 function id(prefix = "block") {
   sequence += 1;
@@ -288,12 +296,14 @@ function ownedCaptureCount(teamNumber) {
 function dominationWorkspace() {
   sequence = 0;
   const iterator = globalVariable("ObjectiveIterator");
-  const targetScore = 200;
+  const targetScore = retail("domination", "DOM_fScoreTarget");
   const setupObjective = chain(
     api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(iterator)), boolean(true)),
-    api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(20)),
-    api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(15)),
-    api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(3)),
+    api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+      number(retail("domination", "DOM_fCaptureTime"))),
+    api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+      number(retail("domination", "DOM_fNeutralizationTime"))),
+    api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(2)),
   );
   const objectiveLoop = block("ForVariable", {
     inputs: {
@@ -304,25 +314,27 @@ function dominationWorkspace() {
       DO: input(setupObjective),
     },
   });
-  const start = gameStartActions(targetScore, 1200);
+  const start = gameStartActions(targetScore, retail("domination", "DOM_fRoundtime") * 60);
   let tail = start;
   while (tail.next) tail = tail.next.block;
   tail.next = input(objectiveLoop);
 
-  const scoreTick = rule(
-    "Score controlled objectives once per second",
-    "Ongoing",
-    chain(
-      api("Wait", number(1)),
-      scoreFor(1, ownedCaptureCount(1)),
-      scoreFor(2, ownedCaptureCount(2)),
-    ),
-    api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
-  );
+  const scoreRules = [];
+  const scoreDelays = retail("domination", "DOM_fScoreDelays");
+  for (const teamNumber of [1, 2]) {
+    for (let owned = 1; owned < scoreDelays.length; owned += 1) {
+      scoreRules.push(rule(
+        `Team ${teamNumber} scores while holding ${owned} objective${owned === 1 ? "" : "s"}`,
+        "Ongoing",
+        chain(api("Wait", number(scoreDelays[owned])), scoreFor(teamNumber, number(1))),
+        api("Equals", ownedCaptureCount(teamNumber), number(owned)),
+      ));
+    }
+  }
 
   return workspace([iterator], [
     rule("Initialize Domination", "OnGameModeStarted", start),
-    scoreTick,
+    ...scoreRules,
     ...victoryRules(targetScore),
   ]);
 }
@@ -338,7 +350,8 @@ function teamDeathmatchWorkspace() {
     api("Add", api("GetGameModeScore", team(api("EventPlayer"))), number(1)),
   );
   return workspace([], [
-    rule("Initialize Team Deathmatch", "OnGameModeStarted", gameStartActions(targetScore, 1200)),
+    rule("Initialize Team Deathmatch", "OnGameModeStarted",
+      gameStartActions(targetScore, retail("teamdeathmatch", "TDM_fRoundTime") * 60)),
     rule(
       "Award opposing-team kill",
       "OnPlayerEarnedKill",
@@ -355,7 +368,7 @@ function kingOfTheHillWorkspace() {
   const current = globalVariable("CurrentHillIndex");
   const elapsed = globalVariable("HillElapsedSeconds");
   const duration = globalVariable("HillDurationSeconds");
-  const targetScore = 250;
+  const targetScore = retail("kingofthehill", "KOTH_iTargetScore");
 
   const disableLoop = block("ForVariable", {
     inputs: {
@@ -369,19 +382,21 @@ function kingOfTheHillWorkspace() {
           valueInArray(allCapturePoints(), getVariable(iterator)),
           boolean(false),
         ),
-        api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(15)),
-        api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(10)),
-        api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(3)),
+        api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+          number(retail("kingofthehill", "KOTH_fCaptureTime"))),
+        api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+          number(retail("kingofthehill", "KOTH_fNeutralizationTime"))),
+        api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(1)),
       )),
     },
   });
-  const setup = gameStartActions(targetScore, 1200);
+  const setup = gameStartActions(targetScore, retail("kingofthehill", "KOTH_fRoundTime") * 60);
   let tail = setup;
   while (tail.next) tail = tail.next.block;
   tail.next = input(chain(
     setVariable(current, number(0)),
     setVariable(elapsed, number(0)),
-    setVariable(duration, number(90)),
+    setVariable(duration, number(retail("kingofthehill", "KOTH_fObjectiveActiveTime"))),
     disableLoop,
     ifAction(
       api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
@@ -407,7 +422,7 @@ function kingOfTheHillWorkspace() {
     ),
   );
   const tick = chain(
-    api("Wait", number(1)),
+    api("Wait", number(retail("kingofthehill", "KOTH_fScoreDelay"))),
     ifAction(api("Equals", owner(), team(1)), scoreFor(1, number(1))),
     ifAction(api("Equals", owner(), team(2)), scoreFor(2, number(1))),
     setVariable(elapsed, api("Add", getVariable(elapsed), number(1))),
@@ -426,7 +441,8 @@ function kingOfTheHillWorkspace() {
   ]);
 }
 
-function captureSetupLoop(iterator, enabled = true) {
+function captureSetupLoop(iterator, enabled = true, captureTime = 20,
+  neutralizationTime = 15, maxCaptureMultiplier = 3) {
   return block("ForVariable", {
     inputs: {
       "VALUE-0": input(variableReference(iterator)),
@@ -435,22 +451,25 @@ function captureSetupLoop(iterator, enabled = true) {
       "VALUE-3": input(number(1)),
       DO: input(chain(
         api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(iterator)), boolean(enabled)),
-        api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(20)),
-        api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)), number(15)),
-        api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)), number(3)),
+        api("SetCapturePointCapturingTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+          number(captureTime)),
+        api("SetCapturePointNeutralizationTime", valueInArray(allCapturePoints(), getVariable(iterator)),
+          number(neutralizationTime)),
+        api("SetMaxCaptureMultiplier", valueInArray(allCapturePoints(), getVariable(iterator)),
+          number(maxCaptureMultiplier)),
       )),
     },
   });
 }
 
-function multiTeamDeathmatchWorkspace(modeName, teamCount, targetScore) {
+function multiTeamDeathmatchWorkspace(modeName, teamCount, targetScore, timeLimit = 1200) {
   sequence = 0;
   const startActions = [];
   for (let teamNumber = 1; teamNumber <= teamCount; teamNumber += 1) {
     startActions.push(api("SetGameModeScore", team(teamNumber), number(0)));
   }
   startActions.push(api("SetGameModeTargetScore", number(targetScore)));
-  startActions.push(api("SetGameModeTimeLimit", number(1200)));
+  startActions.push(api("SetGameModeTimeLimit", number(timeLimit)));
   const killerTeam = () => team(api("EventPlayer"));
   const victimTeam = () => team(api("EventOtherPlayer"));
   const rules = [
@@ -486,6 +505,7 @@ function escalationWorkspace() {
   const iterator = globalVariable("ObjectiveIterator");
   const stage = globalVariable("EscalationStage");
   const elapsed = globalVariable("StageElapsedSeconds");
+  const phaseDuration = globalVariable("PhaseDurationSeconds");
   const targetScore = 100;
   const setup = gameStartActions(targetScore, 1200);
   let tail = setup;
@@ -493,7 +513,10 @@ function escalationWorkspace() {
   tail.next = input(chain(
     setVariable(stage, number(0)),
     setVariable(elapsed, number(0)),
-    captureSetupLoop(iterator, true),
+    setVariable(phaseDuration, number(retail("escalation", "ESC_fPhaseLengths")[0])),
+    captureSetupLoop(iterator, true,
+      retail("escalation", "ESC_fCaptureTime"),
+      retail("escalation", "ESC_fNeutralizeTime"), 2),
   ));
   const captureScore = rule(
     "Award captured-objective score",
@@ -511,7 +534,7 @@ function escalationWorkspace() {
     api("Subtract", api("CountOf", allCapturePoints()), number(1)),
   );
   const shrink = ifAction(
-    api("And", api("GreaterThanEqualTo", getVariable(elapsed), number(180)), canShrink),
+    api("And", api("GreaterThanEqualTo", getVariable(elapsed), getVariable(phaseDuration)), canShrink),
     chain(
       api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(stage)), boolean(false)),
       api(
@@ -524,9 +547,15 @@ function escalationWorkspace() {
       ),
       setVariable(stage, api("Add", getVariable(stage), number(1))),
       setVariable(elapsed, number(0)),
+      ifAction(api("Equals", getVariable(stage), number(1)),
+        setVariable(phaseDuration, number(retail("escalation", "ESC_fPhaseLengths")[1]))),
+      ifAction(api("Equals", getVariable(stage), number(2)),
+        setVariable(phaseDuration, number(retail("escalation", "ESC_fPhaseLengths")[2]))),
+      ifAction(api("GreaterThanEqualTo", getVariable(stage), number(3)),
+        setVariable(phaseDuration, number(retail("escalation", "ESC_fPhaseLengths")[3]))),
     ),
   );
-  return workspace([iterator, stage, elapsed], [
+  return workspace([iterator, stage, elapsed, phaseDuration], [
     rule("Initialize Escalation", "OnGameModeStarted", setup),
     captureScore,
     rule(
@@ -548,13 +577,21 @@ function operationsWorkspace() {
   const iterator = globalVariable("ObjectiveIterator");
   const current = globalVariable("CurrentObjectiveIndex");
   const attackerTickets = globalVariable("AttackerTickets");
+  const attackerBattalions = globalVariable("AttackerBattalions");
+  const ticketsPerBattalion = retail("operations", "Operations_TicketsPerBattalion");
+  const reinforcement = retail("operations", "Operations_Map1_TicketReinforcementThresholdPerSector")[0];
   const setup = chain(
-    api("SetGameModeScore", team(1), number(0)),
+    api("SetGameModeScore", team(1), number(ticketsPerBattalion)),
     api("SetGameModeScore", team(2), number(0)),
     api("SetGameModeTimeLimit", number(1500)),
     setVariable(current, number(0)),
-    setVariable(attackerTickets, number(100)),
-    captureSetupLoop(iterator, false),
+    setVariable(attackerTickets, number(ticketsPerBattalion)),
+    setVariable(attackerBattalions,
+      number(retail("operations", "Operations_InitialBattalions"))),
+    captureSetupLoop(iterator, false,
+      retail("operations", "Operations_fObjectiveCaptureTime"),
+      retail("operations", "Operations_fObjectiveNeutralizationTime"),
+      retail("operations", "Operations_iMaxCaptureMultiplier")),
     ifAction(
       api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
       chain(
@@ -565,9 +602,11 @@ function operationsWorkspace() {
   );
   const advance = chain(
     api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(current)), boolean(false)),
-    setVariable(attackerTickets, api("Add", getVariable(attackerTickets), number(25))),
+    setVariable(attackerTickets, api("Add", getVariable(attackerTickets), number(reinforcement))),
+    ifAction(api("GreaterThan", getVariable(attackerTickets), number(ticketsPerBattalion)),
+      setVariable(attackerTickets, number(ticketsPerBattalion))),
     setVariable(current, api("Add", getVariable(current), number(1))),
-    api("SetGameModeScore", team(1), getVariable(current)),
+    api("SetGameModeScore", team(1), getVariable(attackerTickets)),
     ifAction(
       api("LessThan", getVariable(current), api("CountOf", allCapturePoints())),
       chain(
@@ -580,7 +619,7 @@ function operationsWorkspace() {
       api("EndGameMode", team(1)),
     ),
   );
-  return workspace([iterator, current, attackerTickets], [
+  return workspace([iterator, current, attackerTickets, attackerBattalions], [
     rule("Initialize Operations review flow", "OnGameModeStarted", setup),
     rule(
       "Advance after attacker capture",
@@ -595,14 +634,32 @@ function operationsWorkspace() {
     rule(
       "Remove attacker reinforcement on undeploy",
       "OnPlayerUndeploy",
-      setVariable(attackerTickets, api("Subtract", getVariable(attackerTickets), number(1))),
+      chain(
+        setVariable(attackerTickets, api("Subtract", getVariable(attackerTickets),
+          number(retail("operations", "Operations_iSoldierDeathScoreBleed")))),
+        api("SetGameModeScore", team(1), getVariable(attackerTickets)),
+      ),
       api("Equals", team(api("EventPlayer")), team(1)),
+    ),
+    rule(
+      "Activate next attacker battalion",
+      "Ongoing",
+      chain(
+        setVariable(attackerBattalions, api("Subtract", getVariable(attackerBattalions), number(1))),
+        setVariable(attackerTickets, number(ticketsPerBattalion)),
+        api("SetGameModeScore", team(1), getVariable(attackerTickets)),
+      ),
+      api("And",
+        api("LessThanEqualTo", getVariable(attackerTickets), number(0)),
+        api("GreaterThan", getVariable(attackerBattalions), number(1))),
     ),
     rule(
       "Defenders win when attacker reinforcements reach zero",
       "Ongoing",
       api("EndGameMode", team(2)),
-      api("LessThanEqualTo", getVariable(attackerTickets), number(0)),
+      api("And",
+        api("LessThanEqualTo", getVariable(attackerTickets), number(0)),
+        api("LessThanEqualTo", getVariable(attackerBattalions), number(1))),
     ),
   ]);
 }
@@ -675,9 +732,9 @@ function mcomGroupCondition(ids) {
   return result;
 }
 
-function mcomObjectiveWorkspace(modeName, objectiveCount, splitIndex, fuseTime = 30) {
+function mcomObjectiveWorkspace(modeName, objectiveCount, splitIndex, fuseTime = 30,
+  targetScore = splitIndex) {
   sequence = 0;
-  const targetScore = splitIndex;
   const team1Objectives = [];
   const team2Objectives = [];
   const setup = [
@@ -720,7 +777,7 @@ function sabotageWorkspace() {
     api("SetGameModeScore", team(1), number(0)),
     api("SetGameModeScore", team(2), number(2)),
     api("SetGameModeTargetScore", number(3)),
-    api("SetGameModeTimeLimit", number(900)),
+    api("SetGameModeTimeLimit", number(retail("sabotage", "SAB_fInitialRoundDuration") * 60)),
   ];
   for (let site = 1; site <= 3; site += 1) {
     setup.push(setVariable(destroyed[site - 1], boolean(false)));
@@ -817,13 +874,16 @@ function payloadWorkspace() {
 
 function carrierStrikeWorkspace() {
   sequence = 0;
-  const base = mcomObjectiveWorkspace("Carrier Strike", 4, 2, 35);
+  const base = mcomObjectiveWorkspace("Carrier Strike", 4, 2,
+    retail("carrierstrike", "CS_fFuseTime"));
   const iterator = globalVariable("CaptureIterator");
   base.mod.variables.push(iterator);
   const firstRule = base.mod.blocks.blocks[0].inputs.RULES.block;
   let tail = firstRule.inputs.ACTIONS.block;
   while (tail.next) tail = tail.next.block;
-  tail.next = input(captureSetupLoop(iterator, true));
+  tail.next = input(captureSetupLoop(iterator, true,
+    retail("carrierstrike", "CS_fCaptureTime"),
+    retail("carrierstrike", "CS_fNeutralizeTime"), 2));
   firstRule.fields.NAME = "Initialize Carrier Strike review flow";
   return base;
 }
@@ -933,23 +993,26 @@ const contracts = {
     domination: {
       delivery: "playable_prototype",
       spatial_source: "game-derived gem_capturepoint records imported with ObjId 200 + alphabetical flag index",
-      portal_translation: "Each owned point awards one team point per second; first to 200 wins.",
-      unresolved: ["Retail ticket-drain curve and catch-up tuning are not exposed in Portal data."],
+      runtime_source: "mut_domination: target 200, 10-second capture/neutralize, 15-minute round, authored score delays 0/3.5/2.5/1.5.",
+      portal_translation: "Each team receives one point at the decoded cadence for holding one, two, or three objectives; first to 200 wins.",
+      unresolved: ["The retail expression graph still owns catch-up and presentation behavior not exposed by Portal."],
       workspace: "domination_game_data.workspace.json",
     },
     teamdeathmatch: {
       delivery: "playable_prototype",
       spatial_source: "game-derived HQ/spawn/combat-area layout; capture-like false positives are intentionally ignored",
-      portal_translation: "Opposing-team kills award one point; first to 100 wins.",
+      runtime_source: "mut_teamdm: target 100, 15-minute round, one-minute overtime default.",
+      portal_translation: "Opposing-team kills award one point; first to 100 wins in the decoded 15-minute round.",
       unresolved: ["Retail assist weighting and hidden score modifiers are not represented."],
       workspace: "team_deathmatch_game_data.workspace.json",
     },
     kingofthehill: {
       delivery: "playable_portal_translation",
       spatial_source: "game-derived KOTH capture points in importer-created alphabetical scene order",
-      portal_translation: "One hill is enabled for 90 seconds, then rotation advances through AllCapturePoints; owner earns one point per second.",
+      runtime_source: "mut_koth: target 250, 20-second initial unlock, 10-second reveal, 90-second active hill, one-second score delay.",
+      portal_translation: "One hill is enabled for the decoded 90 seconds, then rotation advances through AllCapturePoints; owner earns one point per decoded score tick.",
       unresolved: [
-        "Retail phase order and phase duration have not been decoded from the runtime controller.",
+        "Retail hill order remains inside the runtime controller.",
         "AllCapturePoints ordering must be confirmed in Portal after importing each scene.",
       ],
       workspace: "king_of_the_hill_game_data.workspace.json",
@@ -958,58 +1021,66 @@ const contracts = {
       delivery: "playable_portal_translation",
       spatial_source: "game-derived KOTH capture points in importer-created alphabetical scene order",
       portal_translation: "Uses the same review workspace as kingofthehill because both catalog keys resolve the same public Portal behavior.",
-      unresolved: ["Retail phase order and phase duration have not been decoded from the runtime controller."],
+      unresolved: ["Retail hill order remains inside the runtime controller."],
       workspace: "king_of_the_hill_game_data.workspace.json",
     },
     conquest: { delivery: "existing_plugin_contract", unresolved: [] },
-    breakthrough: { delivery: "existing_template_compatibility_contract", unresolved: ["Retail reinforcement and sector-transition tuning remains runtime-authored."] },
-    rush: { delivery: "existing_template_compatibility_contract", unresolved: ["Retail reinforcement and overtime tuning remains runtime-authored."] },
+    breakthrough: { delivery: "existing_template_compatibility_contract", runtime_source: "mut_breakthrough: 30-second capture/neutralize, max multiplier 5, 40-second advance, 15-45 second cleanup, 75/50/25 ticket warnings.", unresolved: ["Sector membership and activation remain graph-authored; the public template must consume the imported sector hierarchy."] },
+    rush: { delivery: "existing_template_compatibility_contract", runtime_source: "mut_rush: 75 initial tickets, one ticket per death, 2-second arm, 5-second defuse, 30-second fuse, 40-second advance.", unresolved: ["Overtime and armed-MCOM sector-transition state remain graph-authored."] },
     escalation: {
       delivery: "playable_portal_translation",
-      portal_translation: "Capture events score points and outer objectives disable every 180 seconds.",
-      unresolved: ["gem_collection_event timing and exact authored stage activation order are not decoded."],
+      runtime_source: "mut_escalation: five phases, phase lengths 90/162/252/3600, 40-second transitions, 20-second capture/neutralize.",
+      portal_translation: "Capture events score points and outer objectives disable on the decoded phase schedule.",
+      unresolved: ["Periods-won, majority-time resolution, stalemate selection, and exact authored objective removal order remain in the retail expression graph."],
       workspace: "escalation_review.workspace.json",
     },
     strikepoint: {
       delivery: "playable_review_scaffold",
-      portal_translation: "The first imported capture point is the central objective; kills and captures feed a short score race.",
-      unresolved: ["Limited lives, round reset, side swap, and per-map round objective selection remain runtime-authored."],
+      runtime_source: "mut_strikepoint: six rounds to win, three-minute rounds, capture target 25, 30-second capture lock.",
+      portal_translation: "The first imported capture point is the central objective; the current workspace remains a review scaffold while the decoded round lifecycle is translated.",
+      unresolved: ["Team wipe, round reset, overtime, side swap, and per-map round objective selection are not yet reproduced."],
       workspace: "strikepoint_review.workspace.json",
     },
     obliteration: {
       delivery: "playable_without_bomb_carry",
-      portal_translation: "Stable M-COM IDs 301-306 are armed directly; destruction of enemy-owned targets scores.",
+      runtime_source: "mut_obliteration: score limit 3, one opening bomb plus two mid-match bombs, 2-second arm, 4-second defuse, 35-second fuse.",
+      portal_translation: "Stable M-COM IDs 301-306 are armed directly with the decoded fuse; destruction of enemy-owned targets scores.",
       unresolved: ["Portal exposes no Bomb object or carry/drop API, so the defining bomb loop is absent."],
       workspace: "obliteration_review.workspace.json",
     },
     squadobliteration: {
       delivery: "playable_without_bomb_carry",
-      portal_translation: "Uses the same stable M-COM review flow with the smaller-mode layout.",
+      runtime_source: "mut_squadobliteration: score limit 2, one bomb, 4-second arm/defuse, 50-second fuse.",
+      portal_translation: "Uses the same stable M-COM review flow with the smaller mode's decoded score and fuse limits.",
       unresolved: ["Portal exposes no Bomb object or carry/drop API."],
       workspace: "squad_obliteration_review.workspace.json",
     },
     payload: {
       delivery: "manual_trigger_scaffold",
       portal_translation: "Sequential AreaTrigger IDs 801-805 stand in for ordered checkpoints.",
-      unresolved: ["Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers."],
+      runtime_source: "mut_payload: automatic time system, 15-second unlock, 20-second open, 3-second close, 2-second checkpoint pauses, 10-second retreat.",
+      unresolved: ["Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers and cannot reproduce spline distance directly."],
       workspace: "payload_review.workspace.json",
     },
     sabotage: {
       delivery: "playable_area_trigger_translation",
+      runtime_source: "mut_sabotage: six-minute opening round, 15.4-second overtime, destructible health multiplier 5, objective values 1.",
       portal_translation: "Available game-derived destructible polygons receive AreaTrigger wrappers 701+; the generic review workspace consumes sites 701-703 and attackers hold a site for ten seconds.",
       unresolved: ["Direct cargo damage, variable objective counts, two-round side swap, and time tiebreak remain runtime-authored."],
       workspace: "sabotage_review.workspace.json",
     },
     carrierstrike: {
       delivery: "playable_review_scaffold",
-      portal_translation: "Ground capture points and stable carrier M-COM IDs 301-304 are enabled together.",
+      runtime_source: "mut_carrierstrike: 100 starting carrier score/health percent, 30-second capture/neutralize, 4-second arm, 8-second defuse, 40-second fuse, authored carrier damage thresholds.",
+      portal_translation: "Ground capture points and stable carrier M-COM IDs 301-304 use the decoded capture and fuse timing.",
       unresolved: ["VLS battery gating, carrier breach sequence, and destructible proxies lack public Portal equivalents."],
       workspace: "carrier_strike_review.workspace.json",
     },
     operations: {
       delivery: "playable_portal_translation",
-      portal_translation: "Imported capture points advance sequentially for Team 1.",
-      unresolved: ["Retail mixed sector/capture/M-COM phase graph and reinforcement tuning are not fully decoded."],
+      runtime_source: "mut_operations: three battalions, 200 tickets each, one ticket per death, 100/75 sector refills, 30-second capture/neutralize, 40-second advance.",
+      portal_translation: "Imported capture points advance sequentially for Team 1 with decoded battalion tickets and bounded sector refills.",
+      unresolved: ["Retail mixed sector/capture/M-COM phase graph, cross-map battalion persistence, and map-specific refill selection are not fully reproduced."],
       workspace: "operations_review.workspace.json",
     },
     squaddeathmatch: {
@@ -1035,19 +1106,27 @@ const outputs = {
   "operations_review.workspace.json": addCreatorStyleFramework(operationsWorkspace(), "Operations", { defenderTeam: 2 }),
   "strikepoint_review.workspace.json": addCreatorStyleFramework(strikepointWorkspace(), "Strikepoint"),
   "squad_deathmatch_review.workspace.json": addCreatorStyleFramework(
-    multiTeamDeathmatchWorkspace("Squad Deathmatch", 4, 50), "Squad Deathmatch", { teamCount: 4 }),
+    multiTeamDeathmatchWorkspace("Squad Deathmatch", 4,
+      retail("squaddeathmatch", "SDM_iRound1TargetScore"),
+      retail("squaddeathmatch", "SDM_fRound1Time") * 60),
+    "Squad Deathmatch", { teamCount: 4 }),
   "gauntlet_review.workspace.json": addCreatorStyleFramework(
     multiTeamDeathmatchWorkspace("Gauntlet elimination scaffold", 4, 20), "Gauntlet", { teamCount: 4 }),
   "obliteration_review.workspace.json": addCreatorStyleFramework(
-    mcomObjectiveWorkspace("Obliteration", 6, 3, 30), "Obliteration"),
+    mcomObjectiveWorkspace("Obliteration", 6, 3,
+      retail("obliteration", "OBL_FuseTime"), retail("obliteration", "OBL_ScoreLimit")),
+    "Obliteration"),
   "squad_obliteration_review.workspace.json": addCreatorStyleFramework(
-    mcomObjectiveWorkspace("Squad Obliteration", 6, 3, 25), "Squad Obliteration"),
+    mcomObjectiveWorkspace("Squad Obliteration", 6, 3,
+      retail("squadobliteration", "SQOBL_FuseTime"),
+      retail("squadobliteration", "SQOBL_ScoreLimit")), "Squad Obliteration"),
   "sabotage_review.workspace.json": addCreatorStyleFramework(
     sabotageWorkspace(), "Sabotage", { defenderTeam: 2 }),
   "payload_review.workspace.json": addCreatorStyleFramework(
     payloadWorkspace(), "Payload", { defenderTeam: 2 }),
   "carrier_strike_review.workspace.json": addCreatorStyleFramework(carrierStrikeWorkspace(), "Carrier Strike"),
   "mode_contracts.json": contracts,
+  "retail_mode_runtime_contracts.json": runtimeContracts,
 };
 
 const experienceTitles = {

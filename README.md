@@ -17,7 +17,7 @@ Community scenes are used only to audit the compatible hierarchy and Blockly/Typ
 
 ## Build a game mode
 
-When a verified layout is available, open the **Game mode** dropdown and select it. The dock shows a plain-language description of that mode's objective flow before building. The plugin downloads the gameplay layout and optional geometry from the data release, caches them in Godot's user-data directory, creates the game-mode node, and selects it in the Scene dock. Save the map scene when satisfied. The mode-specific construction rules and known evidence gaps are documented in [the behavior contract](docs/mode_behavior_contract.md).
+When a verified layout is available, open the **Game mode** dropdown and select it. The dock shows a plain-language description of that mode's objective flow before building. The plugin downloads the gameplay layout and optional geometry from the data release, caches them in Godot's user-data directory, creates the game-mode node, and selects it in the Scene dock. Save the map scene when satisfied. The mode-specific construction rules and known evidence gaps are documented in [the behavior contract](docs/mode_behavior_contract.md); the start/progression/end requirements recovered from retail graphs are tracked in [the runtime state-machine audit](docs/runtime_state_machine_audit.md).
 
 The plugin displays build progress in its Godot dock while it creates gameplay objects, vehicle previews, volumes, and optional carrier geometry. Large modes remain synchronous because Godot scene nodes must be authored on the editor thread, but explicit UI redraws keep the progress display visibly updating throughout the build.
 

@@ -20,17 +20,20 @@ diffing, and regeneration. Importing one of those as an experience will report
 ## Generated workspaces
 
 - `domination_game_data.workspace.json` enables every imported CapturePoint,
-  applies explicit capture timing, scores each point held once per second, and
-  ends at 200 points.
+  applies the decoded 10-second capture/neutralization timing, and uses the
+  retail `3.5/2.5/1.5` scoring cadence for one/two/three held objectives.
 - `team_deathmatch_game_data.workspace.json` deliberately ignores map capture
   candidates, awards one point for an opposing-team kill, and ends at 100.
 - `king_of_the_hill_game_data.workspace.json` uses the imported KOTH points,
-  enables one at a time, scores its owner once per second, and rotates every 90
-  seconds. Each newly activated hill is reset to neutral with `GetTeam(0)`.
-- `escalation_review.workspace.json` shrinks the active objective set from both
-  ends on a readable timer.
-- `operations_review.workspace.json` advances through imported objectives in
-  order for an attacker/defender review flow.
+  the decoded 250 target and 90-second active duration, and scores its owner at
+  the decoded one-second cadence. Each newly activated hill is reset to neutral
+  with `GetTeam(0)`.
+- `escalation_review.workspace.json` uses the decoded `90/162/252/3600` phase
+  schedule and 20-second capture timing while the exact majority/stalemate
+  expression graph remains under review.
+- `operations_review.workspace.json` advances through imported objectives with
+  three decoded 200-ticket battalions, one-ticket death bleed, and bounded
+  100-ticket sector refills.
 - `strikepoint_review.workspace.json` combines a central objective and short
   elimination score race while leaving round reset for creator review.
 - `squad_deathmatch_review.workspace.json` and `gauntlet_review.workspace.json`
@@ -38,7 +41,7 @@ diffing, and regeneration. Importing one of those as an experience will report
 - `obliteration_review.workspace.json` and
   `squad_obliteration_review.workspace.json` wire the imported M-COMs, but
   cannot reproduce bomb carry/drop because Portal has no Bomb API.
-- `sabotage_review.workspace.json` uses the first three available game-derived
+- `sabotage_review.workspace.json` uses the decoded six-minute round and the first three available game-derived
   objective polygons through AreaTrigger IDs 701-703 and a ten-second attack
   hold. Imported maps may expose two to six sites; adapting that count is an
   explicit creator review item.
@@ -47,7 +50,7 @@ diffing, and regeneration. Importing one of those as an experience will report
 - `carrier_strike_review.workspace.json` exposes ground objectives and carrier
   M-COMs while leaving the unavailable VLS/breach controller for review.
 
-The rules are intentionally small so the mode creator can inspect and replace
+The rules are intentionally readable so the mode creator can inspect and replace
 individual decisions without untangling presentation, bot, audio, or UI code.
 
 ## Shared creator-style framework
@@ -89,11 +92,11 @@ switching, and creator-only testing controls were deliberately not copied.
    on every KOTH map. The current 90-second rotation depends on that order.
 2. Confirm that Portal continues to resolve `GetTeam(0)` as the neutral team on
    the current runtime. This is used only when a KOTH hill activates.
-3. Decide whether Domination should keep positive control scoring or be changed
-   to enemy ticket drain. The shipped data identifies the objectives but does not
-   expose the retail drain curve.
-4. Confirm desired score and time limits; the current values are reviewable
-   defaults, not claims of hidden retail constants.
+3. Verify Domination's decoded per-held-objective score cadence in a live Portal
+   session. The values are game-authored; the public-rule scheduling is the
+   translation being tested.
+4. Values sourced from `retail_mode_runtime_contracts.json` are retail defaults.
+   Values not present there remain clearly named review defaults.
 5. Adapt Sabotage's three-site generic rule group for maps exposing two, four,
    five, or six game-derived destructible sites. Eastwood currently exposes only
    two decoded polygon shapes for its three controller records, so its third

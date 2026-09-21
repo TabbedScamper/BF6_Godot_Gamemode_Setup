@@ -96,7 +96,7 @@
                                     "type": "Number",
                                     "id": "bf6_number_0009",
                                     "fields": {
-                                      "NUM": 3
+                                      "NUM": 2
                                     }
                                   }
                                 }
@@ -183,7 +183,7 @@
                                                 "type": "Number",
                                                 "id": "bf6_number_0020",
                                                 "fields": {
-                                                  "NUM": 25
+                                                  "NUM": 50
                                                 }
                                               }
                                             }
@@ -287,7 +287,7 @@
                                                             "type": "Number",
                                                             "id": "bf6_number_0033",
                                                             "fields": {
-                                                              "NUM": 25
+                                                              "NUM": 50
                                                             }
                                                           }
                                                         }
@@ -391,7 +391,7 @@
                                                                         "type": "Number",
                                                                         "id": "bf6_number_0046",
                                                                         "fields": {
-                                                                          "NUM": 25
+                                                                          "NUM": 50
                                                                         }
                                                                       }
                                                                     }
@@ -495,7 +495,7 @@
                                                                                     "type": "Number",
                                                                                     "id": "bf6_number_0059",
                                                                                     "fields": {
-                                                                                      "NUM": 25
+                                                                                      "NUM": 50
                                                                                     }
                                                                                   }
                                                                                 }
@@ -599,7 +599,7 @@
                                                                                                 "type": "Number",
                                                                                                 "id": "bf6_number_0072",
                                                                                                 "fields": {
-                                                                                                  "NUM": 25
+                                                                                                  "NUM": 50
                                                                                                 }
                                                                                               }
                                                                                             }
@@ -703,7 +703,7 @@
                                                                                                             "type": "Number",
                                                                                                             "id": "bf6_number_0085",
                                                                                                             "fields": {
-                                                                                                              "NUM": 25
+                                                                                                              "NUM": 50
                                                                                                             }
                                                                                                           }
                                                                                                         }
@@ -1479,7 +1479,7 @@
                                               "type": "Number",
                                               "id": "bf6_number_0146",
                                               "fields": {
-                                                "NUM": 3
+                                                "NUM": 2
                                               }
                                             }
                                           }
@@ -1568,7 +1568,7 @@
                                                   "type": "Number",
                                                   "id": "bf6_number_0156",
                                                   "fields": {
-                                                    "NUM": 3
+                                                    "NUM": 2
                                                   }
                                                 }
                                               }

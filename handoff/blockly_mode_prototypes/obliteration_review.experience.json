@@ -192,7 +192,7 @@
                                                   "type": "Number",
                                                   "id": "bf6_number_0020",
                                                   "fields": {
-                                                    "NUM": 30
+                                                    "NUM": 35
                                                   }
                                                 }
                                               }
@@ -296,7 +296,7 @@
                                                               "type": "Number",
                                                               "id": "bf6_number_0033",
                                                               "fields": {
-                                                                "NUM": 30
+                                                                "NUM": 35
                                                               }
                                                             }
                                                           }
@@ -400,7 +400,7 @@
                                                                           "type": "Number",
                                                                           "id": "bf6_number_0046",
                                                                           "fields": {
-                                                                            "NUM": 30
+                                                                            "NUM": 35
                                                                           }
                                                                         }
                                                                       }
@@ -504,7 +504,7 @@
                                                                                       "type": "Number",
                                                                                       "id": "bf6_number_0059",
                                                                                       "fields": {
-                                                                                        "NUM": 30
+                                                                                        "NUM": 35
                                                                                       }
                                                                                     }
                                                                                   }
@@ -608,7 +608,7 @@
                                                                                                   "type": "Number",
                                                                                                   "id": "bf6_number_0072",
                                                                                                   "fields": {
-                                                                                                    "NUM": 30
+                                                                                                    "NUM": 35
                                                                                                   }
                                                                                                 }
                                                                                               }
@@ -712,7 +712,7 @@
                                                                                                               "type": "Number",
                                                                                                               "id": "bf6_number_0085",
                                                                                                               "fields": {
-                                                                                                                "NUM": 30
+                                                                                                                "NUM": 35
                                                                                                               }
                                                                                                             }
                                                                                                           }

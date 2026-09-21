@@ -12,16 +12,18 @@
     "domination": {
       "delivery": "playable_prototype",
       "spatial_source": "game-derived gem_capturepoint records imported with ObjId 200 + alphabetical flag index",
-      "portal_translation": "Each owned point awards one team point per second; first to 200 wins.",
+      "runtime_source": "mut_domination: target 200, 10-second capture/neutralize, 15-minute round, authored score delays 0/3.5/2.5/1.5.",
+      "portal_translation": "Each team receives one point at the decoded cadence for holding one, two, or three objectives; first to 200 wins.",
       "unresolved": [
-        "Retail ticket-drain curve and catch-up tuning are not exposed in Portal data."
+        "The retail expression graph still owns catch-up and presentation behavior not exposed by Portal."
       ],
       "workspace": "domination_game_data.workspace.json"
     },
     "teamdeathmatch": {
       "delivery": "playable_prototype",
       "spatial_source": "game-derived HQ/spawn/combat-area layout; capture-like false positives are intentionally ignored",
-      "portal_translation": "Opposing-team kills award one point; first to 100 wins.",
+      "runtime_source": "mut_teamdm: target 100, 15-minute round, one-minute overtime default.",
+      "portal_translation": "Opposing-team kills award one point; first to 100 wins in the decoded 15-minute round.",
       "unresolved": [
         "Retail assist weighting and hidden score modifiers are not represented."
       ],
@@ -30,9 +32,10 @@
     "kingofthehill": {
       "delivery": "playable_portal_translation",
       "spatial_source": "game-derived KOTH capture points in importer-created alphabetical scene order",
-      "portal_translation": "One hill is enabled for 90 seconds, then rotation advances through AllCapturePoints; owner earns one point per second.",
+      "runtime_source": "mut_koth: target 250, 20-second initial unlock, 10-second reveal, 90-second active hill, one-second score delay.",
+      "portal_translation": "One hill is enabled for the decoded 90 seconds, then rotation advances through AllCapturePoints; owner earns one point per decoded score tick.",
       "unresolved": [
-        "Retail phase order and phase duration have not been decoded from the runtime controller.",
+        "Retail hill order remains inside the runtime controller.",
         "AllCapturePoints ordering must be confirmed in Portal after importing each scene."
       ],
       "workspace": "king_of_the_hill_game_data.workspace.json"
@@ -42,7 +45,7 @@
       "spatial_source": "game-derived KOTH capture points in importer-created alphabetical scene order",
       "portal_translation": "Uses the same review workspace as kingofthehill because both catalog keys resolve the same public Portal behavior.",
       "unresolved": [
-        "Retail phase order and phase duration have not been decoded from the runtime controller."
+        "Retail hill order remains inside the runtime controller."
       ],
       "workspace": "king_of_the_hill_game_data.workspace.json"
     },
@@ -52,35 +55,40 @@
     },
     "breakthrough": {
       "delivery": "existing_template_compatibility_contract",
+      "runtime_source": "mut_breakthrough: 30-second capture/neutralize, max multiplier 5, 40-second advance, 15-45 second cleanup, 75/50/25 ticket warnings.",
       "unresolved": [
-        "Retail reinforcement and sector-transition tuning remains runtime-authored."
+        "Sector membership and activation remain graph-authored; the public template must consume the imported sector hierarchy."
       ]
     },
     "rush": {
       "delivery": "existing_template_compatibility_contract",
+      "runtime_source": "mut_rush: 75 initial tickets, one ticket per death, 2-second arm, 5-second defuse, 30-second fuse, 40-second advance.",
       "unresolved": [
-        "Retail reinforcement and overtime tuning remains runtime-authored."
+        "Overtime and armed-MCOM sector-transition state remain graph-authored."
       ]
     },
     "escalation": {
       "delivery": "playable_portal_translation",
-      "portal_translation": "Capture events score points and outer objectives disable every 180 seconds.",
+      "runtime_source": "mut_escalation: five phases, phase lengths 90/162/252/3600, 40-second transitions, 20-second capture/neutralize.",
+      "portal_translation": "Capture events score points and outer objectives disable on the decoded phase schedule.",
       "unresolved": [
-        "gem_collection_event timing and exact authored stage activation order are not decoded."
+        "Periods-won, majority-time resolution, stalemate selection, and exact authored objective removal order remain in the retail expression graph."
       ],
       "workspace": "escalation_review.workspace.json"
     },
     "strikepoint": {
       "delivery": "playable_review_scaffold",
-      "portal_translation": "The first imported capture point is the central objective; kills and captures feed a short score race.",
+      "runtime_source": "mut_strikepoint: six rounds to win, three-minute rounds, capture target 25, 30-second capture lock.",
+      "portal_translation": "The first imported capture point is the central objective; the current workspace remains a review scaffold while the decoded round lifecycle is translated.",
       "unresolved": [
-        "Limited lives, round reset, side swap, and per-map round objective selection remain runtime-authored."
+        "Team wipe, round reset, overtime, side swap, and per-map round objective selection are not yet reproduced."
       ],
       "workspace": "strikepoint_review.workspace.json"
     },
     "obliteration": {
       "delivery": "playable_without_bomb_carry",
-      "portal_translation": "Stable M-COM IDs 301-306 are armed directly; destruction of enemy-owned targets scores.",
+      "runtime_source": "mut_obliteration: score limit 3, one opening bomb plus two mid-match bombs, 2-second arm, 4-second defuse, 35-second fuse.",
+      "portal_translation": "Stable M-COM IDs 301-306 are armed directly with the decoded fuse; destruction of enemy-owned targets scores.",
       "unresolved": [
         "Portal exposes no Bomb object or carry/drop API, so the defining bomb loop is absent."
       ],
@@ -88,7 +96,8 @@
     },
     "squadobliteration": {
       "delivery": "playable_without_bomb_carry",
-      "portal_translation": "Uses the same stable M-COM review flow with the smaller-mode layout.",
+      "runtime_source": "mut_squadobliteration: score limit 2, one bomb, 4-second arm/defuse, 50-second fuse.",
+      "portal_translation": "Uses the same stable M-COM review flow with the smaller mode's decoded score and fuse limits.",
       "unresolved": [
         "Portal exposes no Bomb object or carry/drop API."
       ],
@@ -97,13 +106,15 @@
     "payload": {
       "delivery": "manual_trigger_scaffold",
       "portal_translation": "Sequential AreaTrigger IDs 801-805 stand in for ordered checkpoints.",
+      "runtime_source": "mut_payload: automatic time system, 15-second unlock, 20-second open, 3-second close, 2-second checkpoint pauses, 10-second retreat.",
       "unresolved": [
-        "Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers."
+        "Portal exposes no Payload object or motion API; the creator must place/size triggers on the imported checkpoint markers and cannot reproduce spline distance directly."
       ],
       "workspace": "payload_review.workspace.json"
     },
     "sabotage": {
       "delivery": "playable_area_trigger_translation",
+      "runtime_source": "mut_sabotage: six-minute opening round, 15.4-second overtime, destructible health multiplier 5, objective values 1.",
       "portal_translation": "Available game-derived destructible polygons receive AreaTrigger wrappers 701+; the generic review workspace consumes sites 701-703 and attackers hold a site for ten seconds.",
       "unresolved": [
         "Direct cargo damage, variable objective counts, two-round side swap, and time tiebreak remain runtime-authored."
@@ -112,7 +123,8 @@
     },
     "carrierstrike": {
       "delivery": "playable_review_scaffold",
-      "portal_translation": "Ground capture points and stable carrier M-COM IDs 301-304 are enabled together.",
+      "runtime_source": "mut_carrierstrike: 100 starting carrier score/health percent, 30-second capture/neutralize, 4-second arm, 8-second defuse, 40-second fuse, authored carrier damage thresholds.",
+      "portal_translation": "Ground capture points and stable carrier M-COM IDs 301-304 use the decoded capture and fuse timing.",
       "unresolved": [
         "VLS battery gating, carrier breach sequence, and destructible proxies lack public Portal equivalents."
       ],
@@ -120,9 +132,10 @@
     },
     "operations": {
       "delivery": "playable_portal_translation",
-      "portal_translation": "Imported capture points advance sequentially for Team 1.",
+      "runtime_source": "mut_operations: three battalions, 200 tickets each, one ticket per death, 100/75 sector refills, 30-second capture/neutralize, 40-second advance.",
+      "portal_translation": "Imported capture points advance sequentially for Team 1 with decoded battalion tickets and bounded sector refills.",
       "unresolved": [
-        "Retail mixed sector/capture/M-COM phase graph and reinforcement tuning are not fully decoded."
+        "Retail mixed sector/capture/M-COM phase graph, cross-map battalion persistence, and map-specific refill selection are not fully reproduced."
       ],
       "workspace": "operations_review.workspace.json"
     },

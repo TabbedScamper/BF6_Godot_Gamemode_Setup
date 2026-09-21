@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "source": {
+    "kind": "installed_bf6_ebx",
+    "build": "1.4.3",
+    "note": "Values are decoded mutator defaults. Names and values are retained as authored; Portal translations are recorded separately."
+  },
+  "modes": {
+    "conquest": {
+      "partition": "game/glaciermp/gamemodes/conquest/mode/mut_conquest",
+      "values": {
+        "CQ_iInitialScoreTeam1": 1200,
+        "CQ_iInitialScoreTeam2": 1200,
+        "CQ_fCaptureTime": 30,
+        "CQ_fNeutralizeTime": 30,
+        "CQ_iBleedAmountOnCapture": 1,
+        "CQ_fTEMPClassicCQMajorityBleedFrequency": 2,
+        "CQ_bEndGameOnFullMajority": true,
+        "CQ_iFullMajorityCountDownLength_Default": 60,
+        "CQ_iModeTime": 45
+      }
+    },
+    "domination": {
+      "partition": "game/glaciermp/gamemodes/domination/mut_domination",
+      "values": {
+        "DOM_fScoreTarget": 200,
+        "DOM_fCaptureTime": 10,
+        "DOM_fNeutralizationTime": 10,
+        "DOM_fScoreDelay": 4,
+        "DOM_fScoreDelays": [
+          0,
+          3.5,
+          2.5,
+          1.5
+        ],
+        "DOM_fRoundtime": 15,
+        "DOM_fCaptureAndNeutralisationTimeMultipliers": [
+          0,
+          1,
+          1.25,
+          1.5,
+          2
+        ]
+      }
+    },
+    "kingofthehill": {
+      "partition": "game/glaciermp/gamemodes/koth/mode/mut_koth",
+      "values": {
+        "KOTH_iTargetScore": 250,
+        "KOTH_fInitialObjUnlockTime": 20,
+        "KOTH_fRevealNextObjTime": 10,
+        "KOTH_fObjectiveActiveTime": 90,
+        "KOTH_fScoreDelay": 1,
+        "KOTH_fCaptureTime": 0,
+        "KOTH_fNeutralizationTime": 0,
+        "KOTH_bNeutralizeIfNoPlayers": true,
+        "KOTH_bCaptureOnNeutralized": true,
+        "KOTH_fRoundTime": 15
+      }
+    },
+    "teamdeathmatch": {
+      "partition": "game/glaciermp/gamemodes/teamdeathmatch/mode/mut_teamdm",
+      "values": {
+        "TDM_iTargetScore": 100,
+        "TDM_fRoundTime": 15,
+        "TDM_fOvertimeDuration": 1
+      }
+    },
+    "squaddeathmatch": {
+      "partition": "game/glaciermp/gamemodes/squaddeathmatch/mode/mut_squaddm",
+      "values": {
+        "SDM_iRounds": 3,
+        "SDM_iRound1TargetScore": 50,
+        "SDM_iRound2TargetScore": 30,
+        "SDM_iRound3TargetScore": 20,
+        "SDM_fRound1Time": 7,
+        "SDM_fRound2Time": 5,
+        "SDM_fRound3Time": 3,
+        "SDM_fOvertimeDuration": 1
+      }
+    },
+    "escalation": {
+      "partition": "game/glaciermp/gamemodes/escalation/mode/mut_escalation",
+      "values": {
+        "ESC_iPhaseAmount": 5,
+        "ESC_fPhaseLengths": [
+          90,
+          162,
+          252,
+          3600
+        ],
+        "ESC_fPhaseTransitionLength": 40,
+        "ESC_fProgressTransitionTime": 10,
+        "ESC_fCaptureTime": 20,
+        "ESC_fNeutralizeTime": 20,
+        "ESC_fStartScoringTime": 5,
+        "ESC_fDelayBeforeFirstMajorityEvent": 60,
+        "ESC_fStalematePredelay_PhaseStart_Round0": 180,
+        "ESC_fStalematePredelay_PhaseStart": 120,
+        "ESC_fStalematePredelay": 60,
+        "ESC_fStaleMateDelayDecrement": 10,
+        "ESC_fVehicleSpawnValueInterval": 90
+      }
+    },
+    "breakthrough": {
+      "partition": "game/glaciermp/gamemodes/breakthrough/mode/mut_breakthrough",
+      "values": {
+        "BT_fObjectiveCaptureTime": 30,
+        "BT_fObjectiveNeutralizationTime": 30,
+        "BT_iMaxCaptureMultiplier": 5,
+        "BT_iSoldierDeathScoreBleed": 1,
+        "BT_fSectorAdvanceDuration": 40,
+        "BT_fSectorTakenDuration": 6,
+        "BT_fSectorCleanUpDurationMin": 15,
+        "BT_fSectorCleanUpDurationMax": 45,
+        "BT_fSectorReinforcementsDuration": 5,
+        "BT_iRemainingRespawnsThreshold1": 75,
+        "BT_iRemainingRespawnsThreshold2": 50,
+        "BT_iRemainingRespawnsThreshold3": 25
+      }
+    },
+    "rush": {
+      "partition": "game/glaciermp/gamemodes/rush/mode/mut_rush",
+      "values": {
+        "R_iInitialTickets": 75,
+        "R_SoldierDeathScoreBleed": 1,
+        "R_ArmTime": 2,
+        "R_FastArmTime": 1.600000023841858,
+        "R_DefuseTime": 5,
+        "R_FastDefuseTime": 4,
+        "R_FuseTime": 30,
+        "R_fSectorAdvanceDuration": 40,
+        "R_fSectorTakenDuration": 6,
+        "R_fSectorCleanUpDurationMin": 15,
+        "R_fSectorCleanUpDurationMax": 45,
+        "R_fSectorReinforcementsDuration": 5
+      }
+    },
+    "operations": {
+      "partition": "game/glaciermp/gamemodes/operations/mode/mut_operations",
+      "values": {
+        "Operations_InitialBattalions": 3,
+        "Operations_TicketsPerBattalion": 200,
+        "Operations_iSoldierDeathScoreBleed": 1,
+        "Operations_fObjectiveCaptureTime": 30,
+        "Operations_fObjectiveNeutralizationTime": 30,
+        "Operations_iMaxCaptureMultiplier": 5,
+        "Operations_fSectorAdvanceDuration": 40,
+        "Operations_fSectorTakenDuration": 6,
+        "Operations_fSectorCleanUpDurationMin": 15,
+        "Operations_fSectorCleanUpDurationMax": 45,
+        "Operations_Map1_TicketReinforcementThresholdPerSector": [
+          100,
+          100,
+          100,
+          75,
+          75
+        ],
+        "Operations_Map2_TicketReinforcementThresholdPerSector": [
+          75,
+          75,
+          75,
+          75
+        ]
+      }
+    },
+    "strikepoint": {
+      "partition": "game/glaciermp/gamemodes/strikepoint/mode/mut_strikepoint",
+      "values": {
+        "SP_iRoundsToWin": 6,
+        "SP_iRoundTime": 3,
+        "SP_fCaptureProgressTarget": 25,
+        "SP_fCaptureLockTimer": 30,
+        "SP_fCaptureTime": 0,
+        "SP_fCaptureTime_NeutralizationFactor": 0
+      }
+    },
+    "sabotage": {
+      "partition": "game/glaciermp/gamemodes/sabotage/mode/mut_sabotage",
+      "values": {
+        "SAB_fInitialRoundDuration": 6,
+        "SAB_fOvertimeDuration": 15.399999618530273,
+        "SAB_fDestructibleHealthModifier": 5,
+        "SAB_SmallDestructibleValue": 1,
+        "SAB_MediumDestructibleValue": 1,
+        "SAB_LargeDestructibleValue": 1,
+        "SAB_SetLateJoinerAfterFirstRound": true
+      }
+    },
+    "payload": {
+      "partition": "game/glaciermp/gamemodes/payload/mode/mut_payload",
+      "values": {
+        "PL_bUseAutomaticTimeSystem": true,
+        "PL_fTimeToUnlock": 15,
+        "PL_fOpenTime": 20,
+        "PL_fCloseTime": 3,
+        "PL_fCheckpointPassedPause1": 2,
+        "PL_fCheckpointPassedPause2": 2,
+        "PL_fRetreatTimer": 10,
+        "PL_fTimeMultiplierFirstSector": 3,
+        "PL_fTimeMultiplierLaterSectors": 1.399999976158142,
+        "PL_fTeam1RespawnDelay": 8,
+        "PL_fTeam2RespawnDelay": 8
+      }
+    },
+    "obliteration": {
+      "partition": "game/glaciermp/gamemodes/obliteration/mode/mut_obliteration",
+      "values": {
+        "OBL_ScoreLimit": 3,
+        "OBL_BombCountAtStart": 1,
+        "OBL_MidMatchBombCount": 2,
+        "OBL_ArmTime": 2,
+        "OBL_DefuseTime": 4,
+        "OBL_FuseTime": 35,
+        "OBL_CarryTimeoutDuration": 180,
+        "OBL_DropTimeoutDuration": 80,
+        "OBL_MaxMatchDurationMins": 25,
+        "OBL_IsOvertimeAllowed": true
+      }
+    },
+    "squadobliteration": {
+      "partition": "game/glaciermp/gamemodes/squadobliteration/mode/mut_squadobliteration",
+      "values": {
+        "SQOBL_ScoreLimit": 2,
+        "SQOBL_BombCountAtStart": 1,
+        "SQOBL_MidMatchBombCount": 1,
+        "SQOBL_ArmTime": 4,
+        "SQOBL_DefuseTime": 4,
+        "SQOBL_FuseTime": 50,
+        "SQOBL_CarryTimeoutDuration": 180,
+        "SQOBL_DropTimeoutDuration": 80,
+        "SQOBL_MaxMatchDurationMins": 15,
+        "SQOBL_IsOvertimeAllowed": true
+      }
+    },
+    "carrierstrike": {
+      "partition": "game/glaciermp/gamemodes/carrierstrike/mut_carrierstrike",
+      "values": {
+        "CS_iInitialScoreTeam1": 100,
+        "CS_iInitialScoreTeam2": 100,
+        "CS_fCaptureTime": 30,
+        "CS_fNeutralizeTime": 30,
+        "CS_fArmTime": 4,
+        "CS_fDefuseTime": 8,
+        "CS_fFuseTime": 40,
+        "CS_iCarrierStartingHealth": 100000,
+        "CS_iCarrierDamageCap": 1000,
+        "CS_fCarrierLightDamageThreshold": 0.699999988079071,
+        "CS_fCarrierMediumDamageThreshold": 0.5,
+        "CS_fCarrierMajorDamageThreshold": 0.300000011920929,
+        "CS_fCarrierCriticalThreshold": 0.100000001490116,
+        "CS_iModeTime": 45
+      }
+    }
+  }
+}
