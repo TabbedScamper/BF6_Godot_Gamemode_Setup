@@ -111,7 +111,7 @@
                                         "type": "Number",
                                         "id": "bf6_number_0041",
                                         "fields": {
-                                          "NUM": 1200
+                                          "NUM": 900
                                         }
                                       }
                                     }
@@ -357,7 +357,7 @@
                                                                   "type": "Number",
                                                                   "id": "bf6_number_0016",
                                                                   "fields": {
-                                                                    "NUM": 15
+                                                                    "NUM": 0
                                                                   }
                                                                 }
                                                               }
@@ -409,7 +409,7 @@
                                                                       "type": "Number",
                                                                       "id": "bf6_number_0022",
                                                                       "fields": {
-                                                                        "NUM": 10
+                                                                        "NUM": 0
                                                                       }
                                                                     }
                                                                   }
@@ -461,7 +461,7 @@
                                                                           "type": "Number",
                                                                           "id": "bf6_number_0028",
                                                                           "fields": {
-                                                                            "NUM": 3
+                                                                            "NUM": 1
                                                                           }
                                                                         }
                                                                       }
