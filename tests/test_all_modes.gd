@@ -100,6 +100,7 @@ func _init() -> void:
 					if mode == "breakthrough":
 						_check_breakthrough_sectors(built, manifest, filename)
 					_check_deploy_cameras(built, manifest, filename)
+					_check_world_horizontal_polygons(built, filename)
 					if level == "mp_atoll" and mode == "conquest":
 						_check_atoll_hq_areas(built, filename)
 						_check_combat_area(built, filename,
@@ -665,9 +666,43 @@ func _check_automatic_aa_protection_bindings(root: Node, manifest: Dictionary,
 			failures += 1
 			print("FAIL ", filename, ": AA protection source is not authored ", guid)
 		var protection = aa.get("ProtectionAreaVolume")
-		if protection == null or not is_instance_valid(protection) or protection.get_parent() != aa:
+		if protection == null or not is_instance_valid(protection):
 			failures += 1
-			print("FAIL ", filename, ": AA exact protection volume is not attached ", aa.name)
+			print("FAIL ", filename, ": AA exact protection volume is not linked ", aa.name)
+			continue
+		if protection.get_parent() != aa.get_parent():
+			failures += 1
+			print("FAIL ", filename, ": AA protection volume is outside AA-Defences ", aa.name)
+		if not _polygon_points_are_world_horizontal(protection):
+			failures += 1
+			print("FAIL ", filename, ": AA protection volume is tilted ", aa.name)
+
+
+func _polygon_points_are_world_horizontal(volume: Node3D) -> bool:
+	var points = volume.get("points")
+	if not (points is PackedVector2Array) or points.is_empty():
+		return false
+	var world_transform := volume.transform
+	var ancestor := volume.get_parent()
+	while ancestor != null:
+		if ancestor is Node3D:
+			world_transform = (ancestor as Node3D).transform * world_transform
+		ancestor = ancestor.get_parent()
+	var first_y := (world_transform * Vector3(points[0].x, 0.0, points[0].y)).y
+	for point in points:
+		if not is_equal_approx((world_transform * Vector3(point.x, 0.0, point.y)).y,
+				first_y):
+			return false
+	return true
+
+
+func _check_world_horizontal_polygons(node: Node, filename: String) -> void:
+	if str(node.scene_file_path).get_file() == "PolygonVolume.tscn" and \
+			not _polygon_points_are_world_horizontal(node as Node3D):
+		failures += 1
+		print("FAIL ", filename, ": unsupported tilted PolygonVolume ", node.get_path())
+	for child in node.get_children():
+		_check_world_horizontal_polygons(child, filename)
 
 
 func _collect_meta_nodes(node: Node, key: String, result: Array[Node]) -> void:

@@ -365,10 +365,14 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			var protection_shape := row.get("protection_shape", {}) as Dictionary
 			if not protection_shape.is_empty():
 				var protection := _spatial_protection_polygon(protection_shape,
-					"ProtectionArea_%s" % str(protection_shape.get("kind", "Shape")).capitalize())
-				aa.add_child(protection)
+					"ProtectionArea_Root%02d_%s" % [_root_order(row),
+						str(protection_shape.get("kind", "Shape")).capitalize()])
+				# PolygonVolume only supports a world-horizontal XZ plane. Keeping it
+				# below a terrain-aligned AA turret makes it inherit the turret's pitch
+				# and roll even though its own script clamps local pitch/roll. Store the
+				# volume beside the turret and retain the inspector reference instead.
+				aa_root.add_child(protection)
 				protection.owner = map_root
-				protection.transform = aa.transform.affine_inverse() * protection.transform
 				aa.set("ProtectionAreaVolume", protection)
 				aa.set_meta("bf6_protection_binding", "installed_gem_instance_parameter")
 				aa.set_meta("bf6_protection_instance_guid",
@@ -1459,8 +1463,9 @@ static func _spatial_protection_polygon(shape: Dictionary, node_name: String) ->
 	var node := _scene("volume", node_name)
 	var transform_values: Array = shape.get("transform", [])
 	if transform_values.size() == 12:
-		node.transform = Transform3D(Basis(_vec3(transform_values.slice(0, 3)),
-			_vec3(transform_values.slice(3, 6)), _vec3(transform_values.slice(6, 9))),
+		var source_basis := Basis(_vec3(transform_values.slice(0, 3)),
+			_vec3(transform_values.slice(3, 6)), _vec3(transform_values.slice(6, 9)))
+		node.transform = Transform3D(_upright_basis(source_basis),
 			_vec3(transform_values.slice(9, 12)))
 	var extents := _vec3(shape.get("half_extents", []))
 	var points := PackedVector2Array()
@@ -1481,6 +1486,15 @@ static func _spatial_protection_polygon(shape: Dictionary, node_name: String) ->
 	node.set_meta(PROVENANCE_META, "installed_bf6:%s#%s" % [
 		str(shape.get("partition", "")), str(shape.get("instance_guid", ""))])
 	return node
+
+
+static func _upright_basis(source: Basis) -> Basis:
+	var x_axis := source.x
+	x_axis.y = 0.0
+	if x_axis.length_squared() < 0.000001:
+		x_axis = Vector3.RIGHT
+	x_axis = x_axis.normalized()
+	return Basis(x_axis, Vector3.UP, x_axis.cross(Vector3.UP).normalized())
 
 
 static func _scene(kind: String, node_name: String) -> Node3D:
