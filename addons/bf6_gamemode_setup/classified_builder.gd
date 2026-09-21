@@ -77,6 +77,11 @@ const CAPTURE_POINT_MODES := {
 const CATCH_ALL_SECTOR_MODES := {
 	"conquest": true, "domination": true, "carrierstrike": true,
 }
+const TEAM_1_VOLUME_COLOR := Color(0.0, 0.53, 0.99, 0.42)
+const TEAM_2_VOLUME_COLOR := Color(0.95, 0.23, 0.0, 0.42)
+const TEAM_VOLUME_LINK_PROPERTIES := [
+	&"HQArea", &"ProtectionAreaVolume", &"CaptureArea", &"Area",
+]
 
 
 static func build(map_root: Node, layout_id: String, document: Dictionary,
@@ -461,6 +466,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		root.add_child(carrier)
 		carrier.owner = map_root
 		carrier.rebuild()
+	_refresh_team_volume_colors(root)
 	_prune_empty_folders(root)
 	_sort_generated_hierarchy(root)
 	_report(progress, "Game mode ready", progress_total, progress_total)
@@ -514,11 +520,39 @@ static func swap_factions(layout: Node, owner: Node) -> String:
 	if layout == null:
 		return "Build or select a game-mode layout first."
 	_swap_faction_properties(layout)
+	_refresh_team_volume_colors(layout)
 	_swap_named_team_nodes(layout)
 	layout.set_meta("bf6_factions_swapped",
 		not bool(layout.get_meta("bf6_factions_swapped", false)))
 	_sort_generated_hierarchy(layout)
-	return "Faction sides and faction-specific vehicle previews swapped."
+	return "Faction sides, linked volume colours, and faction-specific vehicle previews swapped."
+
+
+static func _refresh_team_volume_colors(node: Node) -> void:
+	var team := _team_value(node)
+	if team in [1, 2]:
+		for property in TEAM_VOLUME_LINK_PROPERTIES:
+			if not _has_property(node, property):
+				continue
+			var linked = node.get(property)
+			if linked is Node and _has_property(linked, "points") and \
+					_has_property(linked, "color"):
+				linked.set("color", TEAM_1_VOLUME_COLOR if team == 1 \
+					else TEAM_2_VOLUME_COLOR)
+				linked.set_meta("bf6_team_volume", team)
+	for child in node.get_children():
+		_refresh_team_volume_colors(child)
+
+
+static func _team_value(node: Node) -> int:
+	for property in [&"OwnerTeam", &"Team", &"MatchingTeam", \
+			&"StartingOwnerTeamID", &"Attacker_TeamID"]:
+		if not _has_property(node, property):
+			continue
+		var value := int(node.get(property))
+		if value in [1, 2]:
+			return value
+	return 0
 
 
 static func _swap_faction_properties(node: Node) -> void:
@@ -1065,7 +1099,7 @@ static func _assign_hq_areas(objects: Array, hqs: Array, owner: Node) -> Diction
 			continue
 		var team := int(hq.get("Team"))
 		var area := _polygon(best, "HQArea_Team%d" % team,
-			Color(0.0, 0.53, 0.99, 0.42) if team == 1 else Color(0.95, 0.23, 0.0, 0.42))
+			TEAM_1_VOLUME_COLOR if team == 1 else TEAM_2_VOLUME_COLOR)
 		hq.add_child(area)
 		area.owner = owner
 		area.transform = hq.transform.affine_inverse() * area.transform

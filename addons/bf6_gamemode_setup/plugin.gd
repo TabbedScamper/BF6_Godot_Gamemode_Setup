@@ -122,7 +122,7 @@ func _create_dock() -> void:
 	_dock.add_child(_template_addons_button)
 	_swap_factions_button = Button.new()
 	_swap_factions_button.text = "Swap Team 1 / Team 2"
-	_swap_factions_button.tooltip_text = "Swap HQ ownership, faction vehicles, objective IDs, AA teams, and team spawn arrays for the selected imported layout. Press again to restore."
+	_swap_factions_button.tooltip_text = "Swap HQ ownership, faction vehicles, objective IDs, AA teams, linked team-volume colours, and team spawn arrays for the selected imported layout. Press again to restore."
 	_swap_factions_button.pressed.connect(_swap_factions)
 	_dock.add_child(_swap_factions_button)
 	_clear_button = Button.new()

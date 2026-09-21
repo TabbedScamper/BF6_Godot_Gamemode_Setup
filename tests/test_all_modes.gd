@@ -312,14 +312,45 @@ func _check_faction_swap_roundtrip(map_root: Node, layout: Node, key: String,
 	var before := _faction_state(layout)
 	Builder.swap_factions(map_root, key)
 	var swapped := _faction_state(layout)
+	_check_linked_team_volume_colors(layout, filename, "swapped")
 	Builder.swap_factions(map_root, key)
 	var restored := _faction_state(layout)
+	_check_linked_team_volume_colors(layout, filename, "restored")
 	if before == swapped:
 		failures += 1
 		print("FAIL ", filename, ": faction swap changed no authored state")
 	if before != restored:
 		failures += 1
 		print("FAIL ", filename, ": faction swap is not reversible")
+
+
+func _check_linked_team_volume_colors(node: Node, filename: String,
+		state: String) -> void:
+	var team := _team_value(node)
+	if team in [1, 2]:
+		for property in [&"HQArea", &"ProtectionAreaVolume", &"CaptureArea", &"Area"]:
+			if node.get(property) == null:
+				continue
+			var linked = node.get(property)
+			if not (linked is Node) or linked.get("points") == null or linked.get("color") == null:
+				continue
+			var expected := Color(0.0, 0.53, 0.99, 0.42) if team == 1 \
+				else Color(0.95, 0.23, 0.0, 0.42)
+			if not (linked.get("color") as Color).is_equal_approx(expected):
+				failures += 1
+				print("FAIL ", filename, ": ", state,
+					" linked team volume colour at ", node.get_path(), "/", property)
+	for child in node.get_children():
+		_check_linked_team_volume_colors(child, filename, state)
+
+
+func _team_value(node: Node) -> int:
+	for property in [&"OwnerTeam", &"Team", &"MatchingTeam",
+			&"StartingOwnerTeamID", &"Attacker_TeamID"]:
+		var value = node.get(property)
+		if value != null and int(value) in [1, 2]:
+			return int(value)
+	return 0
 
 
 func _faction_state(root: Node) -> Array:
