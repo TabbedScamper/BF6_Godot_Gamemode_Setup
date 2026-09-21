@@ -161,30 +161,28 @@ play area merely because it contains a polygon.
 
 The same corpus confirms that `gem_sector` exposes `SectorInfo`, whose nested
 `SelectedObjectives` member is supplied by the runtime graph. It is not an
-instance parameter on each placed sector. Mirak Valley (`mp_tungsten`) is the
-important control case: its Rush placement layer retains 15 MCOM GEM records
-(13 unique positions), while its enclosing Rush interface publishes eight
-live links and the map has four sector GEMs. The generated Portal layout thus
-uses at most two nearest authored MCOMs per authored sector (eight live slots),
-retains every raw candidate in manifest schema 3, and records the selection
-basis as metadata. This is explicitly a graph-bounded spatial inference; the
-retail graph does not publish a direct candidate-GUID-to-sector array.
+instance parameter on each placed sector. The builder therefore accepts a
+static sector/objective join only when every objective lies in exactly one
+smallest game-authored sector polygon. If that proof is incomplete or
+ambiguous, it preserves authored root order and records the fallback in scene
+metadata. It never chooses a sector or objective by nearest distance.
 
-Rush and Breakthrough phase order follows the installed `gem_sector` root
-order. Staged HQ records do not publish a direct sector or team scalar, so the
-builder matches the complete HQ set to sector anchors with a two-per-phase
-capacity instead of greedily consuming HQs in root order. Within each phase,
-projection along the authored sector-to-sector direction distinguishes the
-rear Team 1 HQ from the forward Team 2 HQ. Progressive IDs use the template-
+Rush and Breakthrough phase order follows installed `gem_sector` root order.
+When each internal boundary polygon contains exactly two unique HQ controllers
+and leaves exactly two endpoint HQs, that complete polygon chain defines the
+phase pairs: the lower authored root is the current Team 2 defender and the
+higher root is the next Team 1 attacker. The endpoint roots open and close the
+chain. Team 1 is the attacker in the Portal/Blockly contract. When the chain is
+not complete, the builder retains disclosed authored-root-order pairs; it does
+not project by world direction or distance. Progressive IDs use the template-
 compatible 301+phase and 401+phase bands.
 
-Breakthrough has a second, stronger spatial signal on several maps. Large
-installed phase polygons contain both their `gem_sector` anchor and the small
-capture polygons joined to `gem_capturepoint`. That containment assigns exact
-sector membership before proximity is considered. The signal is rejected for
-an entire layout when overlapping boundary/retreat/advance polygons would put
-more than three objectives in one SDK Sector; those ambiguous maps retain the
-capacity-bounded fallback rather than receiving a fabricated exact binding.
+Breakthrough has a stronger spatial signal on several maps. The smallest
+zero-height installed phase polygon containing each `gem_sector` anchor can
+also contain the exact capture centres joined to `gem_capturepoint`. The join
+is accepted only when every capture matches exactly one selected phase polygon.
+Ambiguous maps retain the authored-order fallback rather than receiving a
+fabricated exact binding.
 
 ## Automatic-AA protection binding
 
@@ -218,14 +216,12 @@ records, arranged as two eight-point clusters around its authored HQs. Atoll's
 older nearest-spawn pass selected only four `AlternateSpawnEntityData` rows per
 HQ, which reproduces the reported four-spawn symptom.
 
-The builder now materializes each `gem_insertion` transform as an SDK
-`SpawnPoint`, assigns it to its nearest authored HQ, and includes it in that
-HQ's `InfantrySpawns` array. It also retains the lower-level alternate-spawn
-rows because they are distinct installed records; those continue to populate
-capture/HQ arrays through their existing authored flag or spatial association.
-The insertion transform and instance GUID are exact. The HQ association is
-recorded as an authored-cluster spatial join because the measured placement
-does not serialize `TeamId` as a scalar override.
+The builder materializes a progressive `gem_insertion` transform as an SDK
+`SpawnPoint` only when it lies inside an exact installed HQ polygon, then adds
+it to that HQ's `InfantrySpawns` array. Lower-level alternate-spawn rows are
+likewise emitted only when an exact capture or HQ polygon contains them. The
+transform and instance GUID remain exact, and uncontained rows are not assigned
+by proximity.
 
 ## Rush and Breakthrough Blockly compatibility
 
@@ -245,11 +241,9 @@ that is not visible from geometry alone:
 The builder now implements that arithmetic directly. Sector anchors, objective
 positions, HQ transforms, play-area polygons, MCOMs, capture areas, spawns, and
 vehicles still come from the installed manifests. The community scenes are not
-copied into the addon. When the installed layer has fewer HQ placements than
-the Blockly API's unique per-phase IDs require, the generated compatibility
-alias duplicates the nearest same-team game-authored HQ transform and spawn
-children and carries `bf6_template_hq_alias = true` provenance. The alias is
-not claimed as an additional retail instance and does not invent a placement.
+copied into the addon. When the installed layer does not prove a distinct HQ
+placement or phase relationship, the builder leaves that relationship
+explicitly incomplete instead of duplicating or spatially guessing an HQ.
 
 ## Complete measured GEM-family disposition
 
