@@ -119,8 +119,15 @@ func _init() -> void:
 							"edb24581-1ad9-48b0-9a4c-907f9fde7f50")
 					if mode == "conquest" and level in ["mp_dumbo", "mp_badlands"]:
 						_check_no_loose_conquest_boundaries(built, filename)
-					if level == "mp_aftermath" and mode == "conquest":
+					if level in ["mp_aftermath", "mp_aftermath_portal"] and mode == "conquest":
 						_check_aftermath_hq_areas(built, filename)
+						_check_combat_area(built, filename,
+							"5748a1d0-b891-43b4-9331-ac6a0050e046" if level == "mp_aftermath" \
+							else "ea588511-aa3b-45df-830a-11243d2d223c")
+						if _count_scene(built.get_node("Play Area"), "OBBVolume.tscn") != 0:
+							failures += 1
+							print("FAIL ", filename,
+								": unowned map-global boxes leaked into Play Area")
 					if mode == "conquest" and level in ["mp_abbasid", "mp_battery"] and \
 							built.get_node_or_null("Vehicles/Unassigned") != null:
 						failures += 1
@@ -498,6 +505,7 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 		print("FAIL ", filename, ": Rush MCOM objectives are not under Objectives/Sectors")
 		return
 	var seen_mcoms := 0
+	var previous_root_order := -1
 	if sectors != null:
 		for sector_index in range(sectors.get_child_count()):
 			var sector := sectors.get_child(sector_index)
@@ -513,6 +521,16 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 				if str(mcom.name) != expected_name:
 					failures += 1
 					print("FAIL ", filename, ": Rush MCOM slot name ", mcom.name)
+			var source_guid := str(sector.get_meta("bf6_source_instance_guid", ""))
+			var root_order := _element_root_order_for_guid(manifest, source_guid)
+			if root_order < previous_root_order:
+				failures += 1
+				print("FAIL ", filename, ": Rush sectors are not in authored phase order")
+			previous_root_order = root_order
+			if _count_manifest_gem(manifest, "gem_hq") > 0 and \
+					(sector.get("HQs") == null or sector.get("HQs").is_empty()):
+				failures += 1
+				print("FAIL ", filename, ": Rush sector has no staged HQ link ", sector.name)
 	if seen_mcoms != expected_mcoms:
 		failures += 1
 		print("FAIL ", filename, ": Rush MCOM count ", seen_mcoms, "/", expected_mcoms)
@@ -652,30 +670,57 @@ func _check_hq_insertion_spawns(root: Node, manifest: Dictionary,
 
 
 func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: String) -> void:
-	var expected := int((manifest.get("counts", {}) as Dictionary).get("captures", 0))
 	var sectors := root.get_node_or_null("Objectives/Sectors")
+	var expected := _count_manifest_gem(manifest, "gem_capturepoint") if sectors == null else \
+		int(sectors.get_meta("bf6_active_capture_records", 0))
 	if expected > 0 and sectors == null:
 		failures += 1
 		print("FAIL ", filename, ": Breakthrough objectives have no sectors")
 		return
 	var seen := 0
+	var previous_root_order := -1
 	if sectors != null:
 		for sector in sectors.get_children():
 			var captures = sector.get("CapturePoints")
-			if captures == null or captures.size() < 1 or captures.size() > 2:
+			if captures == null or captures.size() < 1 or captures.size() > 3:
 				failures += 1
 				print("FAIL ", filename, ": invalid Breakthrough sector ", sector.name)
 				continue
 			for slot in range(captures.size()):
 				seen += 1
-				var expected_name := "CapturePoint%s" % ("A" if slot == 0 else "B")
+				var expected_name := "CapturePoint%s" % String.chr(65 + slot)
 				if str(captures[slot].name) != expected_name:
 					failures += 1
 					print("FAIL ", filename, ": Breakthrough local objective name ",
 						captures[slot].name)
+				if int(captures[slot].get("InitialOwner")) != 2:
+					failures += 1
+					print("FAIL ", filename,
+						": Breakthrough objective does not begin owned by Team 2 ",
+						captures[slot].name)
+			var source_guid := str(sector.get_meta("bf6_source_instance_guid", ""))
+			var root_order := _element_root_order_for_guid(manifest, source_guid)
+			if root_order < previous_root_order:
+				failures += 1
+				print("FAIL ", filename,
+					": Breakthrough sectors are not in authored phase order")
+			previous_root_order = root_order
+			if _count_manifest_gem(manifest, "gem_hq") > 0 and \
+					(sector.get("HQs") == null or sector.get("HQs").is_empty()):
+				failures += 1
+				print("FAIL ", filename,
+					": Breakthrough sector has no staged HQ link ", sector.name)
 	if seen != expected:
 		failures += 1
 		print("FAIL ", filename, ": Breakthrough sector objectives ", seen, "/", expected)
+
+
+func _element_root_order_for_guid(manifest: Dictionary, guid: String) -> int:
+	for value in manifest.get("elements", []):
+		var element := value as Dictionary
+		if str(element.get("instance_guid", "")) == guid:
+			return int(element.get("root_order", -1))
+	return -1
 
 
 func _count_scene(node: Node, scene_name: String) -> int:
@@ -836,17 +881,36 @@ func _check_no_loose_conquest_boundaries(root: Node, filename: String) -> void:
 
 
 func _check_aftermath_hq_areas(root: Node, filename: String) -> void:
+	var expected_retail := {
+		"TEAM_1_HQ": ["9cc81e7a-279c-4130-9020-13b1d3626edb",
+			"661a59ab-36df-4c95-bbcb-a27814f12c7a"],
+		"TEAM_2_HQ": ["bb62d3c6-f20e-4f79-996b-e5fd922f3126",
+			"a440a878-ea10-433d-81e0-8887593a3b43"],
+	}
+	var expected_portal := {
+		"TEAM_1_HQ": ["cdf7cc38-48f3-4fa9-b25d-2a2b4cdc2b6f",
+			"d5c6264e-117a-44e7-a5fd-a5f3304e633b"],
+		"TEAM_2_HQ": ["3961f648-3b29-4203-baa4-7db42ef60319",
+			"e4d3e2c2-804c-40e7-a5d5-64af8107b6c5"],
+	}
+	var expected := expected_portal if filename.begins_with("mp_aftermath_portal_") \
+		else expected_retail
 	var hq_count := 0
-	var area_count := 0
 	for child in root.get_children():
-		if not str(child.name).begins_with("TEAM_"):
-			continue
-		hq_count += 1
-		if child.get("HQArea") != null:
-			area_count += 1
-	if hq_count != 3 or area_count != 3:
+		if str(child.name).begins_with("TEAM_"):
+			hq_count += 1
+	if hq_count != 2:
 		failures += 1
-		print("FAIL ", filename, ": Aftermath HQ areas ", area_count, "/3")
+		print("FAIL ", filename, ": Aftermath must have two insertion-backed HQs")
+	for node_name in expected:
+		var hq := root.get_node_or_null(node_name)
+		var area: Node = hq.get("HQArea") if hq != null else null
+		if hq == null or area == null or \
+				str(hq.get_meta("bf6_source_instance_guid", "")) != expected[node_name][0] or \
+				str(area.get_meta("bf6_source_instance_guid", "")) != expected[node_name][1]:
+			failures += 1
+			print("FAIL ", filename, ": ", node_name,
+				" does not use its insertion-backed HQ and authored base area")
 
 
 func _check_capstone_flyer_overrides(root: Node, filename: String) -> void:
