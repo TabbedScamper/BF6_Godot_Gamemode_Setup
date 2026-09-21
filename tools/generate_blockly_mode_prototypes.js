@@ -36,6 +36,14 @@ function boolean(value) {
   return block("Boolean", { fields: { BOOL: value ? "TRUE" : "FALSE" } });
 }
 
+function textValue(value) {
+  return block("Text", { fields: { TEXT: value } });
+}
+
+function message(value) {
+  return api("Message", textValue(value));
+}
+
 function chain(...actions) {
   const usable = actions.filter(Boolean);
   for (let index = 0; index + 1 < usable.length; index += 1) {
@@ -121,6 +129,122 @@ function workspace(variables, rules) {
 
 function globalVariable(name) {
   return { name, id: `bf6_var_${name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`, type: "Global" };
+}
+
+function playerVariable(name) {
+  return { name, id: `bf6_player_${name.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`, type: "Player" };
+}
+
+function appendAction(actionRoot, addition) {
+  let tail = actionRoot;
+  while (tail.next) tail = tail.next.block;
+  tail.next = input(addition);
+}
+
+function appendRules(document, additions) {
+  const root = document.mod.blocks.blocks[0].inputs.RULES.block;
+  let tail = root;
+  while (tail.next) tail = tail.next.block;
+  tail.next = input(chain(...additions));
+}
+
+function addPlayerStatistic(variable, playerFactory, amount = 1) {
+  return setVariable(variable,
+    api("Add", getVariable(variable, playerFactory()), number(amount)), playerFactory());
+}
+
+function playerScore(stats, playerFactory) {
+  return api(
+    "Add",
+    api("Add", api("Multiply", getVariable(stats.kills, playerFactory()), number(100)),
+      api("Multiply", getVariable(stats.assists, playerFactory()), number(50))),
+    api("Add", api("Multiply", getVariable(stats.revives, playerFactory()), number(100)),
+      api("Multiply", getVariable(stats.objectives, playerFactory()), number(200))),
+  );
+}
+
+function updatePlayerScoreboard(stats, playerFactory) {
+  return api(
+    "SetScoreboardPlayerValues",
+    playerFactory(),
+    playerScore(stats, playerFactory),
+    getVariable(stats.kills, playerFactory()),
+    getVariable(stats.deaths, playerFactory()),
+    getVariable(stats.assists, playerFactory()),
+    getVariable(stats.objectives, playerFactory()),
+  );
+}
+
+function addCreatorStyleFramework(document, modeName, options = {}) {
+  const teamCount = options.teamCount ?? 2;
+  const stats = {
+    kills: playerVariable("Kills"),
+    deaths: playerVariable("Deaths"),
+    assists: playerVariable("Assists"),
+    revives: playerVariable("Revives"),
+    objectives: playerVariable("Objectives"),
+  };
+  document.mod.variables.push(...Object.values(stats));
+
+  const firstRule = document.mod.blocks.blocks[0].inputs.RULES.block;
+  appendAction(firstRule.inputs.ACTIONS.block, chain(
+    api("EnableAllPlayerDeploy", boolean(true)),
+    api("PauseGameModeTime", boolean(false)),
+    api("SetScoreboardColumnNames", message("Score"), message("K"), message("D"),
+      message("A"), message("Objectives")),
+    api("SetScoreboardColumnWidths", number(40), number(10), number(10), number(10), number(20)),
+    ...(teamCount === 2 ? [api("SetScoreboardHeader", message("Team 1"), message("Team 2"))] : []),
+  ));
+
+  const eventPlayer = () => api("EventPlayer");
+  const revivePlayer = () => api("EventOtherPlayer");
+  const initializePlayer = chain(
+    ...Object.values(stats).map((variable) => setVariable(variable, number(0), eventPlayer())),
+    updatePlayerScoreboard(stats, eventPlayer),
+  );
+  const sharedRules = [
+    rule("Player Initialise", "OnPlayerJoinGame", initializePlayer),
+    rule("Player Earned Kill", "OnPlayerEarnedKill", chain(
+      addPlayerStatistic(stats.kills, eventPlayer),
+      updatePlayerScoreboard(stats, eventPlayer),
+    )),
+    rule("Kill Assist Tracker", "OnPlayerEarnedKillAssist", chain(
+      addPlayerStatistic(stats.assists, eventPlayer),
+      updatePlayerScoreboard(stats, eventPlayer),
+    )),
+    rule("Revive Tracker", "OnRevived", chain(
+      addPlayerStatistic(stats.revives, revivePlayer),
+      updatePlayerScoreboard(stats, revivePlayer),
+    )),
+    rule("Death Tracker", "OnPlayerUndeploy", chain(
+      addPlayerStatistic(stats.deaths, eventPlayer),
+      updatePlayerScoreboard(stats, eventPlayer),
+    )),
+  ];
+
+  if (options.defenderTeam) {
+    sharedRules.push(rule(
+      `${modeName} defenders win when time expires`,
+      "Ongoing",
+      api("EndGameMode", team(options.defenderTeam)),
+      api("LessThanEqualTo", api("GetMatchTimeRemaining"), number(0)),
+    ));
+  } else if (teamCount === 2) {
+    for (const teamNumber of [1, 2]) {
+      const opponent = teamNumber === 1 ? 2 : 1;
+      sharedRules.push(rule(
+        `Team ${teamNumber} wins on time by score`,
+        "Ongoing",
+        api("EndGameMode", team(teamNumber)),
+        api("And",
+          api("LessThanEqualTo", api("GetMatchTimeRemaining"), number(0)),
+          api("GreaterThan", api("GetGameModeScore", team(teamNumber)),
+            api("GetGameModeScore", team(opponent)))),
+      ));
+    }
+  }
+  appendRules(document, sharedRules);
+  return document;
 }
 
 function gameStartActions(targetScore, timeLimit) {
@@ -376,8 +500,9 @@ function escalationWorkspace() {
     "OnCapturePointCaptured",
     api(
       "SetGameModeScore",
-      api("EventTeam"),
-      api("Add", api("GetGameModeScore", api("EventTeam")), number(5)),
+      api("GetCurrentOwnerTeam", api("EventCapturePoint")),
+      api("Add", api("GetGameModeScore",
+        api("GetCurrentOwnerTeam", api("EventCapturePoint"))), number(5)),
     ),
   );
   const canShrink = api(
@@ -422,11 +547,13 @@ function operationsWorkspace() {
   sequence = 0;
   const iterator = globalVariable("ObjectiveIterator");
   const current = globalVariable("CurrentObjectiveIndex");
+  const attackerTickets = globalVariable("AttackerTickets");
   const setup = chain(
     api("SetGameModeScore", team(1), number(0)),
     api("SetGameModeScore", team(2), number(0)),
     api("SetGameModeTimeLimit", number(1500)),
     setVariable(current, number(0)),
+    setVariable(attackerTickets, number(100)),
     captureSetupLoop(iterator, false),
     ifAction(
       api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
@@ -438,6 +565,7 @@ function operationsWorkspace() {
   );
   const advance = chain(
     api("EnableGameModeObjective", valueInArray(allCapturePoints(), getVariable(current)), boolean(false)),
+    setVariable(attackerTickets, api("Add", getVariable(attackerTickets), number(25))),
     setVariable(current, api("Add", getVariable(current), number(1))),
     api("SetGameModeScore", team(1), getVariable(current)),
     ifAction(
@@ -452,7 +580,7 @@ function operationsWorkspace() {
       api("EndGameMode", team(1)),
     ),
   );
-  return workspace([iterator, current], [
+  return workspace([iterator, current, attackerTickets], [
     rule("Initialize Operations review flow", "OnGameModeStarted", setup),
     rule(
       "Advance after attacker capture",
@@ -460,9 +588,21 @@ function operationsWorkspace() {
       advance,
       api(
         "And",
-        api("Equals", api("EventTeam"), team(1)),
+        api("Equals", api("GetCurrentOwnerTeam", api("EventCapturePoint")), team(1)),
         api("Equals", api("EventCapturePoint"), valueInArray(allCapturePoints(), getVariable(current))),
       ),
+    ),
+    rule(
+      "Remove attacker reinforcement on undeploy",
+      "OnPlayerUndeploy",
+      setVariable(attackerTickets, api("Subtract", getVariable(attackerTickets), number(1))),
+      api("Equals", team(api("EventPlayer")), team(1)),
+    ),
+    rule(
+      "Defenders win when attacker reinforcements reach zero",
+      "Ongoing",
+      api("EndGameMode", team(2)),
+      api("LessThanEqualTo", getVariable(attackerTickets), number(0)),
     ),
   ]);
 }
@@ -470,11 +610,15 @@ function operationsWorkspace() {
 function strikepointWorkspace() {
   sequence = 0;
   const iterator = globalVariable("ObjectiveIterator");
+  const team1Lives = globalVariable("Team1Lives");
+  const team2Lives = globalVariable("Team2Lives");
   const targetScore = 15;
   const setup = gameStartActions(targetScore, 600);
   let tail = setup;
   while (tail.next) tail = tail.next.block;
   tail.next = input(chain(
+    setVariable(team1Lives, number(20)),
+    setVariable(team2Lives, number(20)),
     captureSetupLoop(iterator, false),
     ifAction(
       api("GreaterThan", api("CountOf", allCapturePoints()), number(0)),
@@ -482,7 +626,7 @@ function strikepointWorkspace() {
     ),
   ));
   const killerTeam = () => team(api("EventPlayer"));
-  return workspace([iterator], [
+  return workspace([iterator, team1Lives, team2Lives], [
     rule("Initialize Strikepoint review round", "OnGameModeStarted", setup),
     rule(
       "Award elimination point",
@@ -495,10 +639,27 @@ function strikepointWorkspace() {
       "OnCapturePointCaptured",
       api(
         "SetGameModeScore",
-        api("EventTeam"),
-        api("Add", api("GetGameModeScore", api("EventTeam")), number(3)),
+        api("GetCurrentOwnerTeam", api("EventCapturePoint")),
+        api("Add", api("GetGameModeScore",
+          api("GetCurrentOwnerTeam", api("EventCapturePoint"))), number(3)),
       ),
     ),
+    rule(
+      "Remove Team 1 life on undeploy",
+      "OnPlayerUndeploy",
+      setVariable(team1Lives, api("Subtract", getVariable(team1Lives), number(1))),
+      api("Equals", team(api("EventPlayer")), team(1)),
+    ),
+    rule(
+      "Remove Team 2 life on undeploy",
+      "OnPlayerUndeploy",
+      setVariable(team2Lives, api("Subtract", getVariable(team2Lives), number(1))),
+      api("Equals", team(api("EventPlayer")), team(2)),
+    ),
+    rule("Team 2 eliminates Team 1", "Ongoing", api("EndGameMode", team(2)),
+      api("LessThanEqualTo", getVariable(team1Lives), number(0))),
+    rule("Team 1 eliminates Team 2", "Ongoing", api("EndGameMode", team(1)),
+      api("LessThanEqualTo", getVariable(team2Lives), number(0))),
     ...victoryRules(targetScore),
   ]);
 }
@@ -705,7 +866,7 @@ function validateAgainstPortalSchema(name, document, schema) {
   }
   const blocklyTypes = new Set([
     "modBlock", "ruleBlock", "conditionBlock", "variableReferenceBlock",
-    "Number", "Boolean", "If", "ForVariable",
+    "Number", "Boolean", "Text", "If", "ForVariable",
   ]);
   const unknown = [...new Set(
     collectBlocks(document.mod.blocks)
@@ -738,11 +899,36 @@ function validateAgainstPortalSchema(name, document, schema) {
       .filter((eventType) => !eventNames.has(eventType)),
   )];
   if (unknownEvents.length) throw new Error(`${name}: events absent from Portal schema: ${unknownEvents.join(", ")}`);
+
+  const eventParameters = new Map((schema.events ?? []).map((entry) =>
+    [entry.name, new Set((entry.parameters ?? []).map((parameter) => parameter.name))]));
+  const payloadParameter = new Map();
+  for (const entry of schema.values ?? []) {
+    if (entry.eventParameter) payloadParameter.set(entry.name, entry.eventParameter);
+  }
+  for (const eventRule of collectBlocks(document.mod.blocks).filter((entry) => entry.type === "ruleBlock")) {
+    const allowed = eventParameters.get(eventRule.fields?.EVENTTYPE) ?? new Set();
+    const invalidPayloads = [...new Set(collectBlocks(eventRule.inputs)
+      .map((entry) => [entry.type, payloadParameter.get(entry.type)])
+      .filter(([, parameter]) => parameter && !allowed.has(parameter))
+      .map(([type]) => type))];
+    if (invalidPayloads.length) {
+      throw new Error(`${name}: rule ${eventRule.fields?.NAME} uses payloads unavailable to ` +
+        `${eventRule.fields?.EVENTTYPE}: ${invalidPayloads.join(", ")}`);
+    }
+  }
 }
 
 const contracts = {
   schema_version: 1,
   principle: "Retail game data supplies map objects and transforms. Blockly only translates behavior exposed by Portal.",
+  shared_framework: [
+    "deployment and match timer initialization",
+    "five-column player scoreboard",
+    "kill, death, assist, and revive tracking",
+    "score-target and time-expiry victory handling",
+    "two-team or four-team experience composition as required by the mode",
+  ],
   modes: {
     domination: {
       delivery: "playable_prototype",
@@ -842,41 +1028,48 @@ const contracts = {
 };
 
 const outputs = {
-  "domination_game_data.workspace.json": dominationWorkspace(),
-  "team_deathmatch_game_data.workspace.json": teamDeathmatchWorkspace(),
-  "king_of_the_hill_game_data.workspace.json": kingOfTheHillWorkspace(),
-  "escalation_review.workspace.json": escalationWorkspace(),
-  "operations_review.workspace.json": operationsWorkspace(),
-  "strikepoint_review.workspace.json": strikepointWorkspace(),
-  "squad_deathmatch_review.workspace.json": multiTeamDeathmatchWorkspace("Squad Deathmatch", 4, 50),
-  "gauntlet_review.workspace.json": multiTeamDeathmatchWorkspace("Gauntlet elimination scaffold", 4, 20),
-  "obliteration_review.workspace.json": mcomObjectiveWorkspace("Obliteration", 6, 3, 30),
-  "squad_obliteration_review.workspace.json": mcomObjectiveWorkspace("Squad Obliteration", 6, 3, 25),
-  "sabotage_review.workspace.json": sabotageWorkspace(),
-  "payload_review.workspace.json": payloadWorkspace(),
-  "carrier_strike_review.workspace.json": carrierStrikeWorkspace(),
+  "domination_game_data.workspace.json": addCreatorStyleFramework(dominationWorkspace(), "Domination"),
+  "team_deathmatch_game_data.workspace.json": addCreatorStyleFramework(teamDeathmatchWorkspace(), "Team Deathmatch"),
+  "king_of_the_hill_game_data.workspace.json": addCreatorStyleFramework(kingOfTheHillWorkspace(), "King of the Hill"),
+  "escalation_review.workspace.json": addCreatorStyleFramework(escalationWorkspace(), "Escalation"),
+  "operations_review.workspace.json": addCreatorStyleFramework(operationsWorkspace(), "Operations", { defenderTeam: 2 }),
+  "strikepoint_review.workspace.json": addCreatorStyleFramework(strikepointWorkspace(), "Strikepoint"),
+  "squad_deathmatch_review.workspace.json": addCreatorStyleFramework(
+    multiTeamDeathmatchWorkspace("Squad Deathmatch", 4, 50), "Squad Deathmatch", { teamCount: 4 }),
+  "gauntlet_review.workspace.json": addCreatorStyleFramework(
+    multiTeamDeathmatchWorkspace("Gauntlet elimination scaffold", 4, 20), "Gauntlet", { teamCount: 4 }),
+  "obliteration_review.workspace.json": addCreatorStyleFramework(
+    mcomObjectiveWorkspace("Obliteration", 6, 3, 30), "Obliteration"),
+  "squad_obliteration_review.workspace.json": addCreatorStyleFramework(
+    mcomObjectiveWorkspace("Squad Obliteration", 6, 3, 25), "Squad Obliteration"),
+  "sabotage_review.workspace.json": addCreatorStyleFramework(
+    sabotageWorkspace(), "Sabotage", { defenderTeam: 2 }),
+  "payload_review.workspace.json": addCreatorStyleFramework(
+    payloadWorkspace(), "Payload", { defenderTeam: 2 }),
+  "carrier_strike_review.workspace.json": addCreatorStyleFramework(carrierStrikeWorkspace(), "Carrier Strike"),
   "mode_contracts.json": contracts,
 };
 
 const experienceTitles = {
-  "domination_game_data.workspace.json": "Game Data Domination Review",
-  "team_deathmatch_game_data.workspace.json": "Game Data Team Deathmatch Review",
-  "king_of_the_hill_game_data.workspace.json": "Game Data King of the Hill Review",
-  "escalation_review.workspace.json": "Game Data Escalation Review",
-  "operations_review.workspace.json": "Game Data Operations Review",
-  "strikepoint_review.workspace.json": "Game Data Strikepoint Review",
-  "squad_deathmatch_review.workspace.json": "Game Data Squad Deathmatch Review",
-  "gauntlet_review.workspace.json": "Game Data Gauntlet Review",
-  "obliteration_review.workspace.json": "Game Data Obliteration Review",
-  "squad_obliteration_review.workspace.json": "Game Data Squad Obliteration Review",
-  "sabotage_review.workspace.json": "Game Data Sabotage Review",
-  "payload_review.workspace.json": "Game Data Payload Review",
-  "carrier_strike_review.workspace.json": "Game Data Carrier Strike Review",
+  "domination_game_data.workspace.json": { title: "Game Data Domination Review" },
+  "team_deathmatch_game_data.workspace.json": { title: "Game Data Team Deathmatch Review" },
+  "king_of_the_hill_game_data.workspace.json": { title: "Game Data King of the Hill Review" },
+  "escalation_review.workspace.json": { title: "Game Data Escalation Review" },
+  "operations_review.workspace.json": { title: "Game Data Operations Review" },
+  "strikepoint_review.workspace.json": { title: "Game Data Strikepoint Review" },
+  "squad_deathmatch_review.workspace.json": { title: "Game Data Squad Deathmatch Review", teamCount: 4 },
+  "gauntlet_review.workspace.json": { title: "Game Data Gauntlet Review", teamCount: 4 },
+  "obliteration_review.workspace.json": { title: "Game Data Obliteration Review" },
+  "squad_obliteration_review.workspace.json": { title: "Game Data Squad Obliteration Review" },
+  "sabotage_review.workspace.json": { title: "Game Data Sabotage Review" },
+  "payload_review.workspace.json": { title: "Game Data Payload Review" },
+  "carrier_strike_review.workspace.json": { title: "Game Data Carrier Strike Review" },
 };
 
-for (const [workspaceFilename, title] of Object.entries(experienceTitles)) {
+for (const [workspaceFilename, experience] of Object.entries(experienceTitles)) {
   const experienceFilename = workspaceFilename.replace(".workspace.json", ".experience.json");
-  outputs[experienceFilename] = experienceDocument(title, outputs[workspaceFilename]);
+  outputs[experienceFilename] = experienceDocument(
+    experience.title, outputs[workspaceFilename], experience.teamCount ?? 2);
 }
 
 const schemaArgument = process.argv.indexOf("--schema");
@@ -915,7 +1108,7 @@ function validateCatalogCoverage() {
   console.log(`catalog coverage: ${indexedModes.size} modes, ${indexedModes.size - existingCreatorTemplates.size} workspace-backed modes, 3 existing creator templates`);
 }
 
-function experienceDocument(title, workspace) {
+function experienceDocument(title, workspace, teamCount) {
   return {
     mutators: {
       MaxPlayerCount_PerTeam: 32,
@@ -926,10 +1119,8 @@ function experienceDocument(title, workspace) {
     description: "Game-data-backed mode logic prepared for creator review. Add the desired map and the matching imported spatial layout after import.",
     mapRotation: [],
     workspace,
-    teamComposition: [
-      [1, { humanCapacity: 32 }],
-      [2, { humanCapacity: 32 }],
-    ],
+    teamComposition: Array.from({ length: teamCount }, (_, index) =>
+      [index + 1, { humanCapacity: teamCount === 2 ? 32 : 16 }]),
     gameMode: "ModBuilderCustom",
     attachments: [],
   };

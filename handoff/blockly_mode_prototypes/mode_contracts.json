@@ -1,6 +1,13 @@
 {
   "schema_version": 1,
   "principle": "Retail game data supplies map objects and transforms. Blockly only translates behavior exposed by Portal.",
+  "shared_framework": [
+    "deployment and match timer initialization",
+    "five-column player scoreboard",
+    "kill, death, assist, and revive tracking",
+    "score-target and time-expiry victory handling",
+    "two-team or four-team experience composition as required by the mode"
+  ],
   "modes": {
     "domination": {
       "delivery": "playable_prototype",

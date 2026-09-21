@@ -50,6 +50,28 @@ diffing, and regeneration. Importing one of those as an experience will report
 The rules are intentionally small so the mode creator can inspect and replace
 individual decisions without untangling presentation, bot, audio, or UI code.
 
+## Shared creator-style framework
+
+Every generated mode now includes the same readable lifecycle pattern used by
+the supplied creator templates:
+
+- game start enables deployment, starts the timer, and configures a five-column
+  scoreboard;
+- player join initializes per-player kills, deaths, assists, revives, and
+  objective-score state;
+- kill, assist, revive, and undeploy events update the player scoreboard;
+- symmetric modes resolve an expired timer by team score;
+- attacker/defender modes give the defending team the timeout win;
+- Operations tracks attacker reinforcements and awards a reinforcement refill
+  when a phase objective is captured;
+- Strikepoint tracks team lives in addition to its objective and score race;
+- Squad Deathmatch and Gauntlet create four actual Portal teams with 16-player
+  capacities instead of declaring four teams only inside Blockly.
+
+This is the functional Portal framework, not proof of the hidden retail state
+machine. AI, announcer audio, cosmetic UI animation, equipment grants, team
+switching, and creator-only testing controls were deliberately not copied.
+
 ## Evidence labels
 
 - **Game-derived**: object identity, transform, volume, spawn, HQ, and vehicle
