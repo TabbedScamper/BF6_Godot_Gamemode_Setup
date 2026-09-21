@@ -1,13 +1,16 @@
 // Exports the installed game's classified game-mode layout through libbf6.
 // The resulting manifest retains both the lossless source row and the
 // classifier's role, geometry, flag association, and provenance.
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <map>
 #include <ostream>
 #include <string>
+#include <tuple>
 #include <vector>
 #include "bf6_core.h"
 
@@ -56,6 +59,187 @@ static void raw_element(std::ostream& out, const bf6_gm_entity& r)
             << ",\"source_field\":" << r.link_fields[i] << '}';
     }
     out << "]}";
+}
+
+static std::string ebx_name(const char* value)
+{
+    std::string result = value ? value : "";
+    if (result.size() > 4 && result.compare(result.size() - 4, 4, ".ebx") == 0)
+        result.resize(result.size() - 4);
+    return result;
+}
+
+struct Point3 { float x, y, z; };
+struct ShapeTransform {
+    Point3 p{0, 0, 0};
+    float q[4]{0, 0, 0, 1};
+    float basis[9]{1, 0, 0, 0, 1, 0, 0, 0, 1};
+    bool direct_basis = false;
+};
+struct PointKey {
+    int x, z;
+    bool operator<(const PointKey& other) const { return std::tie(x, z) < std::tie(other.x, other.z); }
+    bool operator==(const PointKey& other) const { return x == other.x && z == other.z; }
+    bool operator!=(const PointKey& other) const { return !(*this == other); }
+};
+struct EdgeKey {
+    PointKey a, b;
+    bool operator<(const EdgeKey& other) const { return std::tie(a, b) < std::tie(other.a, other.b); }
+};
+
+static PointKey point_key(const Point3& p)
+{
+    return {(int)std::lround(p.x * 1000.f), (int)std::lround(p.z * 1000.f)};
+}
+
+static Point3 rotate_point(const float q[4], const Point3& p)
+{
+    const Point3 u{q[0], q[1], q[2]};
+    const float s = q[3];
+    const float dot = u.x * p.x + u.y * p.y + u.z * p.z;
+    const float uu = u.x * u.x + u.y * u.y + u.z * u.z;
+    const Point3 cross{u.y * p.z - u.z * p.y,
+                       u.z * p.x - u.x * p.z,
+                       u.x * p.y - u.y * p.x};
+    return {2.f * dot * u.x + (s * s - uu) * p.x + 2.f * s * cross.x,
+            2.f * dot * u.y + (s * s - uu) * p.y + 2.f * s * cross.y,
+            2.f * dot * u.z + (s * s - uu) * p.z + 2.f * s * cross.z};
+}
+
+static bool generated_shape_transforms(bf6_ctx* context, const std::string& name,
+                                       int expected, const float* fallback_xform,
+                                       std::vector<ShapeTransform>& result)
+{
+    bf6_schematic* graph = bf6_partition_graph_read(context, name.c_str());
+    if (!graph) return false;
+    result.assign((size_t)expected, ShapeTransform{});
+    /* A one-hull generated asset omits the aggregate child-transform node; its
+     * collision vertices are already in the shape asset's authored space. */
+    if (expected == 1 && graph->node_count == 1) {
+        for (int i = 0; i < 9; ++i) result[0].basis[i] = fallback_xform[i];
+        result[0].p = {fallback_xform[9], fallback_xform[10], fallback_xform[11]};
+        result[0].direct_basis = true;
+        bf6_free(context, graph);
+        return true;
+    }
+    std::vector<unsigned char> have_pos((size_t)expected, 0);
+    for (int fi = 0; fi < graph->field_count; ++fi) {
+        const bf6_schem_field& f = graph->fields[fi];
+        if (f.value_kind != BF6_SCHEM_VALUE_REAL || f.path_depth < 3 ||
+            f.path_hashes[0] != 0xc8c9b6bf || f.array_indices[0] < 0 ||
+            f.array_indices[0] >= expected) continue;
+        const int index = f.array_indices[0];
+        float* target = nullptr;
+        if (f.path_hashes[1] == 0xa4862c49) {
+            if (f.path_hashes[2] == 0x3901db14) target = &result[(size_t)index].p.x;
+            else if (f.path_hashes[2] == 0x42fc0f5e) target = &result[(size_t)index].p.y;
+            else if (f.path_hashes[2] == 0x32a99b9c) target = &result[(size_t)index].p.z;
+            if (target) have_pos[(size_t)index] |= (f.path_hashes[2] == 0x3901db14 ? 1 :
+                f.path_hashes[2] == 0x42fc0f5e ? 2 : 4);
+        } else if (f.path_hashes[1] == 0x71f50735) {
+            if (f.path_hashes[2] == 0x3901db14) target = &result[(size_t)index].q[0];
+            else if (f.path_hashes[2] == 0x42fc0f5e) target = &result[(size_t)index].q[1];
+            else if (f.path_hashes[2] == 0x32a99b9c) target = &result[(size_t)index].q[2];
+            else if (f.path_hashes[2] == 0x7c8062f2) target = &result[(size_t)index].q[3];
+        }
+        if (target) *target = (float)f.real_value;
+    }
+    bf6_free(context, graph);
+    for (unsigned char mask : have_pos) if (mask != 7) return false;
+    return true;
+}
+
+/* Generated VectorShapeAssets store an aggregate PhysicsResource. Each child
+ * hull is one exact convex decomposition piece and c8c9b6bf stores its authored
+ * transform. Shared decomposition edges cancel exactly; the remaining loop is
+ * the authored exterior. Failure is returned rather than spatially guessing. */
+static bool generated_shape_boundary(bf6_ctx* context, const std::string& name,
+                                     const float* fallback_xform,
+                                     std::vector<float>& points, float& height)
+{
+    bf6_physics* physics = bf6_physics_read(context, name.c_str());
+    if (!physics || physics->shape_count <= 0) {
+        std::fprintf(stderr, "capture shape %s: missing physics shapes\n", name.c_str());
+        if (physics) bf6_free(context, physics);
+        return false;
+    }
+    std::vector<ShapeTransform> transforms;
+    if (!generated_shape_transforms(context, name, physics->shape_count, fallback_xform,
+                                    transforms)) {
+        std::fprintf(stderr, "capture shape %s: child transform count does not match %d hulls\n",
+                     name.c_str(), physics->shape_count);
+        bf6_free(context, physics); return false;
+    }
+    std::map<EdgeKey, int> edge_counts;
+    std::map<PointKey, Point3> authored;
+    float min_y = INFINITY, max_y = -INFINITY;
+    for (int si = 0; si < physics->shape_count; ++si) {
+        const bf6_phys_shape& shape = physics->shapes[si];
+        if (shape.vertex_first < 0 || shape.vertex_count < 6 || (shape.vertex_count & 1)) {
+            std::fprintf(stderr, "capture shape %s: unsupported hull %d (%u vertices)\n",
+                         name.c_str(), si, (unsigned)shape.vertex_count);
+            bf6_free(context, physics); return false;
+        }
+        std::vector<Point3> lower;
+        const ShapeTransform& transform = transforms[(size_t)si];
+        for (int vi = 0; vi < shape.vertex_count; ++vi) {
+            const int at = (shape.vertex_first + vi) * 3;
+            Point3 local{physics->vertices[at], physics->vertices[at + 1],
+                         physics->vertices[at + 2]};
+            Point3 world = transform.direct_basis ? Point3{
+                transform.basis[0] * local.x + transform.basis[3] * local.y + transform.basis[6] * local.z,
+                transform.basis[1] * local.x + transform.basis[4] * local.y + transform.basis[7] * local.z,
+                transform.basis[2] * local.x + transform.basis[5] * local.y + transform.basis[8] * local.z}
+                : rotate_point(transform.q, local);
+            world.x += transform.p.x; world.y += transform.p.y; world.z += transform.p.z;
+            min_y = std::min(min_y, world.y); max_y = std::max(max_y, world.y);
+            if (vi < shape.vertex_count / 2) lower.push_back(world);
+        }
+        for (size_t vi = 0; vi < lower.size(); ++vi) {
+            PointKey a = point_key(lower[vi]);
+            PointKey b = point_key(lower[(vi + 1) % lower.size()]);
+            authored[a] = lower[vi]; authored[b] = lower[(vi + 1) % lower.size()];
+            EdgeKey edge{a < b ? a : b, a < b ? b : a};
+            ++edge_counts[edge];
+        }
+    }
+    bf6_free(context, physics);
+    std::map<PointKey, std::vector<PointKey>> neighbours;
+    int boundary_edges = 0;
+    for (const auto& item : edge_counts) {
+        if (item.second != 1) continue;
+        neighbours[item.first.a].push_back(item.first.b);
+        neighbours[item.first.b].push_back(item.first.a);
+        ++boundary_edges;
+    }
+    if (boundary_edges < 3) return false;
+    for (const auto& item : neighbours) if (item.second.size() != 2) {
+        std::fprintf(stderr, "capture shape %s: non-manifold projected boundary (%zu neighbours)\n",
+                     name.c_str(), item.second.size());
+        return false;
+    }
+    PointKey start = neighbours.begin()->first, previous = start, current = start;
+    std::vector<PointKey> loop;
+    do {
+        loop.push_back(current);
+        const std::vector<PointKey>& nexts = neighbours[current];
+        PointKey next = (loop.size() == 1 || nexts[0] != previous) ? nexts[0] : nexts[1];
+        previous = current; current = next;
+        if ((int)loop.size() > boundary_edges) return false;
+    } while (!(current == start));
+    if ((int)loop.size() != boundary_edges) {
+        std::fprintf(stderr, "capture shape %s: %d boundary edges form multiple loops\n",
+                     name.c_str(), boundary_edges);
+        return false;
+    }
+    const float middle_y = (min_y + max_y) * .5f;
+    points.clear(); points.reserve(loop.size() * 3);
+    for (const PointKey& key : loop) {
+        const Point3& p = authored[key];
+        points.push_back(p.x); points.push_back(middle_y); points.push_back(p.z);
+    }
+    height = max_y - min_y;
+    return height > 0.f;
 }
 
 static int conquest_flag_for_root(const char* level, int root)
@@ -116,6 +300,9 @@ int main(int argc, char** argv)
     char error[512] = {};
     bf6_ctx* context = bf6_open(argv[1], error, sizeof(error));
     if (!context) { std::fprintf(stderr, "open failed: %s\n", error); return 1; }
+    if (!bf6_mount_all(context, 1, error, sizeof(error))) {
+        std::fprintf(stderr, "mount failed: %s\n", error); bf6_close(context); return 1;
+    }
 
     bf6_gm_stats raw_stats{};
     const int raw_count = bf6_level_gamemodes(context, argv[2], nullptr, 0,
@@ -281,7 +468,7 @@ int main(int argc, char** argv)
     std::ofstream out(argv[4], std::ios::binary);
     if (!out) { std::fprintf(stderr, "cannot write %s\n", argv[4]); bf6_close(context); return 1; }
     out << std::setprecision(9);
-    out << "{\n  \"schema\":3,\n  \"source\":{\"kind\":\"installed_bf6\",\"level\":";
+    out << "{\n  \"schema\":4,\n  \"source\":{\"kind\":\"installed_bf6\",\"level\":";
     text(out, argv[2]); out << ",\"mode\":"; text(out, argv[3]); out << "},\n";
     out << "  \"objects\":[\n";
     for (int i = 0; i < count; ++i) {
@@ -384,6 +571,68 @@ int main(int argc, char** argv)
         out << "    "; raw_element(out, r);
         first_element = false;
     }
+    /* Capture volumes are not inferred from the loose polygons in the level.
+     * A placed gem_capturepoint explicitly binds property 0x5C3A072B to a
+     * generated VectorShapeAsset. Read that asset directly and preserve the
+     * controller-to-shape identity in the manifest. */
+    out << "\n  ],\n  \"capture_shapes\":[\n";
+    bool first_capture_shape = true;
+    int exact_capture_shapes = 0;
+    for (const bf6_gm_entity& r : raw) {
+        if (!r.mode || std::strcmp(r.mode, argv[3]) || !r.gem_link ||
+            std::strcmp(r.gem_link, "gem_capturepoint") || !r.gem_shape ||
+            !*r.gem_shape) continue;
+        const std::string shape_name = ebx_name(r.gem_shape);
+        bf6_vector_shapes* shapes = bf6_vector_shapes_read(context, shape_name.c_str());
+        if (!shapes || shapes->count == 0) {
+            if (shapes) bf6_free(context, shapes);
+            std::vector<float> boundary;
+            float height = 0.f;
+            if (!generated_shape_boundary(context, shape_name, r.xform, boundary, height)) {
+                std::fprintf(stderr, "capture shape %s: exact boundary unavailable\n",
+                             shape_name.c_str());
+                continue;
+            }
+            if (!first_capture_shape) out << ",\n";
+            first_capture_shape = false;
+            out << "    {\"controller_instance_guid\":"; text(out, r.instance_guid);
+            out << ",\"controller_partition\":"; text(out, r.partition);
+            out << ",\"controller_root_order\":" << r.root_order
+                << ",\"flag\":" << (!std::strcmp(argv[3], "conquest") ?
+                    conquest_flag_for_root(argv[2], r.root_order) : -1)
+                << ",\"shape_asset\":"; text(out, r.gem_shape);
+            out << ",\"shape_property\":" << r.gem_shape_property
+                << ",\"shape_index\":0,\"world_points\":";
+            floats(out, boundary.data(), (int)boundary.size());
+            out << ",\"height\":" << height
+                << ",\"flags\":0,\"realm\":0"
+                << ",\"binding\":\"installed_gem_instance_parameter_generated_vector_shape\"}";
+            ++exact_capture_shapes;
+            continue;
+        }
+        for (int shape_index = 0; shape_index < shapes->count; ++shape_index) {
+            const bf6_vector_shape& shape = shapes->shapes[shape_index];
+            if (!shape.is_volume || shape.point_count < 3 || !shape.points) continue;
+            if (!first_capture_shape) out << ",\n";
+            first_capture_shape = false;
+            out << "    {\"controller_instance_guid\":"; text(out, r.instance_guid);
+            out << ",\"controller_partition\":"; text(out, r.partition);
+            out << ",\"controller_root_order\":" << r.root_order
+                << ",\"flag\":" << (!std::strcmp(argv[3], "conquest") ?
+                    conquest_flag_for_root(argv[2], r.root_order) : -1)
+                << ",\"shape_asset\":"; text(out, r.gem_shape);
+            out << ",\"shape_property\":" << r.gem_shape_property
+                << ",\"shape_index\":" << shape_index
+                << ",\"world_points\":";
+            floats(out, shape.points, shape.point_count * 3);
+            out << ",\"height\":" << shape.height
+                << ",\"flags\":" << shape.flags
+                << ",\"realm\":" << shape.realm
+                << ",\"binding\":\"installed_gem_instance_parameter_vector_shape\"}";
+            ++exact_capture_shapes;
+        }
+        bf6_free(context, shapes);
+    }
     out << "\n  ],\n  \"counts\":{\"objects\":" << layout.objects
         << ",\"spawns\":" << layout.spawns << ",\"captures\":" << layout.captures
         << ",\"zones\":" << layout.zones << ",\"combat\":" << layout.combat
@@ -391,6 +640,7 @@ int main(int argc, char** argv)
         << ",\"resupply\":" << layout.resupply << ",\"mcoms\":" << layout.mcoms
         << ",\"bombs\":" << layout.bombs << ",\"specialareas\":" << layout.specialareas
         << ",\"slots\":" << layout.slots << ",\"unlinked\":" << layout.unlinked
+        << ",\"exact_capture_shapes\":" << exact_capture_shapes
         << ",\"extra_hq_aa\":" << extras << ",\"dropped\":" << (layout.dropped_junk + layout.dropped_owned +
              layout.dropped_prop_box + layout.dropped_gem_other + layout.dropped_dup +
              layout.dropped_twin + layout.dropped_other) << "}\n}\n";

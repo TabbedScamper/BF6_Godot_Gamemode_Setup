@@ -8,7 +8,7 @@ const TemplateAddons = preload("template_addons.gd")
 const PREVIEW_SETTING := "bf6_gamemode_setup/high_poly_vehicle_previews"
 const MODE_DESCRIPTIONS := {
 	"conquest": "Two teams capture and hold persistent objectives across the map. Tickets drain from deaths and enemy-controlled flags; vehicles can belong to HQs or objectives.",
-	"breakthrough": "Attackers must hold every objective in the active sector at once to advance the frontline. Team 2 attacks from the opening side and Team 1 defends toward the final side; labels restart as A, B, and where authored C in every sector.",
+	"breakthrough": "Attackers must hold every objective in the active sector at once to advance the frontline. Team 1 attacks from the opening side and Team 2 defends toward the final side; labels restart as A, B, and where authored C in every sector.",
 	"rush": "Attackers arm and destroy every M-COM in the active sector while defenders defuse them. Clearing a sector advances its staged HQs, spawns, and vehicles; attackers lose if their tickets reach zero.",
 	"escalation": "Two teams capture territory while the set of active control points shrinks over successive stages, concentrating the battle toward the final objectives.",
 	"domination": "A fast, infantry-focused territory mode. Teams capture and hold several persistent control points to reach the score limit.",

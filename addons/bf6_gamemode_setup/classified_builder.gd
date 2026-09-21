@@ -90,7 +90,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var source := document.get("source", {}) as Dictionary
 	var level := str(source.get("level", ""))
 	var mode := str(source.get("mode", ""))
-	if int(document.get("schema", 0)) not in [2, 3] or level == "" or mode == "":
+	if int(document.get("schema", 0)) not in [2, 3, 4] or level == "" or mode == "":
 		return "Classified layout manifest is invalid"
 	var existing := _find(map_root, layout_id)
 	if existing != null:
@@ -139,8 +139,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		_build_capstone_out_of_bounds(objects, zones_root, map_root)
 
 	var capture_rows: Array = []
-	if mode in ["breakthrough", "operations"]:
-		capture_rows = _breakthrough_capture_rows(objects, elements)
+	if mode in ["conquest", "breakthrough", "operations"] and \
+			not (document.get("capture_shapes", []) as Array).is_empty():
+		capture_rows = _exact_capture_rows(document, elements, mode)
 	else:
 		for value in objects:
 			var candidate := value as Dictionary
@@ -168,8 +169,6 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				int(capture_binding.get("root_order", -1)))
 			capture.set_meta("bf6_capture_volume_binding",
 				str(capture_binding.get("method", "")))
-			capture.set_meta("bf6_capture_volume_distance_m",
-				float(capture_binding.get("distance_m", -1.0)))
 		captures_root.add_child(capture)
 		capture.owner = map_root
 		var area := _polygon(row, "Area-%s" % String.chr(65 + flag), Color(1.0, 0.55, 0.1, 0.42))
@@ -214,8 +213,14 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var hq := hqs[hq_index] as Node3D
 		var hq_team := int(hq.get_meta("bf6_progressive_team", 0))
 		if hq_team == 0:
-			hq_team = hq_index + 1 if hqs.size() <= 2 else \
-				_hq_faction_for_point(hqs, hq.position)
+			# Progressive retail ownership is runtime-fed. When a Portal template
+			# requires a team, use its documented Team-1-attacks alternating slot
+			# contract in authored order, never map position.
+			hq_team = (hq_index % 2) + 1 if mode in ["rush", "breakthrough", "operations"] \
+				else (hq_index + 1 if hqs.size() <= 2 else _hq_faction_for_point(hqs, hq.position))
+			if mode in ["rush", "breakthrough", "operations"]:
+				hq.set_meta("bf6_progressive_team_basis",
+					"Portal template contract; authored HQ order retained")
 		hq.set("Team", hq_team)
 		hq.set("AltTeam", 2 if hq_team == 1 else 1)
 		if hq.has_meta("bf6_progressive_phase"):
@@ -226,7 +231,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				"Portal HQ ObjId, team, and phase hierarchy assigned for the Blockly contract; " +
 				"transform and spawn data remain game-derived.")
 			hq.set_meta("bf6_faction_assignment",
-				"phase-local attack direction from installed gem_sector geometry")
+				"Portal Team-1-attacks contract applied to authored HQ order")
 		else:
 			hq.set("ObjId", hq_index + 1)
 			hq.name = "TEAM_%d_HQ" % hq_team if hqs.size() <= 2 else \
@@ -251,7 +256,11 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var insertion_rows := _mode_elements(elements, "gem_insertion")
 	insertion_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.get("root_order", -1)) < int(b.get("root_order", -1)))
-	var has_authored_hq_insertions := not insertion_rows.is_empty() and not hqs.is_empty()
+	# gem_insertion is a pre-round insertion controller, not a serialized Portal
+	# SpawnPoint/HQ relationship. Its placement record contains no HQ reference,
+	# so progressive modes deliberately do not turn it into an invented spawn.
+	var has_authored_hq_insertions := not insertion_rows.is_empty() and not hqs.is_empty() and \
+		mode not in ["rush", "breakthrough", "operations"]
 	if has_authored_hq_insertions:
 		for value in insertion_rows:
 			var insertion := value as Dictionary
@@ -266,9 +275,6 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			spawn.set_meta(PROVENANCE_META, "%s instance %s root %s" % [
 				str(insertion.get("layer", "")), str(insertion.get("instance_guid", "?")),
 				str(insertion.get("root_order", "-"))])
-			spawn.set_meta("bf6_source_instance_guid", str(insertion.get("instance_guid", "")))
-			spawn.set_meta("bf6_spawn_binding", "installed_gem_insertion")
-			spawn.set_meta("bf6_spawn_team", int(hq.get("Team")))
 			hq.add_child(spawn)
 			spawn.owner = map_root
 			hq_spawns[hq_index].append(spawn)
@@ -278,6 +284,12 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	for value in objects:
 		var row := value as Dictionary
 		if int(row.get("role", 0)) != 1:
+			continue
+		# AlternateSpawnEntityData carries authored fallback positions, but the
+		# installed data does not identify them as Portal player spawns or assign
+		# them to a progressive team/objective. Do not synthesize those links for
+		# Rush/Breakthrough; explicit gem_insertion records above remain intact.
+		if mode in ["rush", "breakthrough", "operations"]:
 			continue
 		var flag := _normalized_flag(level, mode, row)
 		var spawn_key := "Flag_%s" % String.chr(65 + flag) if flag >= 0 else "Unassigned"
@@ -301,8 +313,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	# AlternateSpawnEntityData records. They still belong to the nearby live
 	# objective and must populate both Portal team arrays when the game record is
 	# neutral, exactly like the template contract.
-	var captures_own_loose_spawns := mode in [
-		"conquest", "carrierstrike", "escalation", "breakthrough", "operations"]
+	var captures_own_loose_spawns := mode in ["conquest", "carrierstrike", "escalation"]
 	for spawn_value in loose_spawns:
 		var spawn := spawn_value as Node3D
 		# These nodes are assembled before the generated branch enters the scene
@@ -317,9 +328,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var hq_index := _nearest_index(hqs, point) if not hqs.is_empty() else -1
 		var hq_distance := point.distance_squared_to((hqs[hq_index] as Node3D).position) \
 			if hq_index >= 0 else INF
-		var progressive_objective_spawn := mode in ["breakthrough", "operations"]
 		if captures_own_loose_spawns and nearest_flag >= 0 and \
-				(progressive_objective_spawn or capture_distance <= hq_distance):
+				capture_distance <= hq_distance:
 			var capture := captures[nearest_flag] as Node3D
 			_reparent_from_layout_space(spawn, capture, map_root)
 			var key := "Flag_%s" % String.chr(65 + nearest_flag)
@@ -388,9 +398,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			# appear as a misleading "Special Area 1" scene node.
 			pass
 		elif role == 101:
-			var aa_point := _vec3(row.get("centre", []))
-			var nearest_hq_index := _nearest_index(hqs, aa_point) if not hqs.is_empty() else -1
-			var aa_team := _hq_faction_for_point(hqs, aa_point)
+			# OwnerTeam is runtime-fed when the placement stores team 0. Do not
+			# manufacture ownership from the nearest HQ.
+			var aa_team := int(row.get("team", 0))
 			var aa := _scene("automatic_aa", _automatic_aa_name(row, aa_team))
 			aa.transform = _raw_transform(row)
 			aa.set_meta(PROVENANCE_META, _source(row))
@@ -414,12 +424,6 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				aa.set_meta("bf6_protection_binding", "installed_gem_instance_parameter")
 				aa.set_meta("bf6_protection_instance_guid",
 					str(protection_shape.get("instance_guid", "")))
-			elif nearest_hq_index >= 0:
-				var nearest: Node = hqs[nearest_hq_index]
-				if nearest.get("HQArea") != null:
-					aa.set("ProtectionAreaVolume", nearest.get("HQArea"))
-					aa.set_meta("bf6_protection_hq", str(nearest.name))
-					aa.set_meta("bf6_protection_binding", "legacy_nearest_hq_fallback")
 			VehicleSkin.sync_automatic_aa(aa, map_root)
 		if role in [6, 7, 8, 9, 10, 101]:
 			progress_current += 1
@@ -723,17 +727,16 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 		grouped.append([])
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return _root_order(a) < _root_order(b))
-	for value in rows:
-		var row := value as Dictionary
-		var sector_index := _nearest_element_with_capacity(sector_rows, grouped,
-			_vec3(row.get("centre", [])), 2)
-		if sector_index >= 0:
-			(grouped[sector_index] as Array).append(row)
+	for row_index in range(rows.size()):
+		var sector_index := floori(float(row_index) / 2.0)
+		if sector_index >= grouped.size():
+			break
+		(grouped[sector_index] as Array).append(rows[row_index])
 	var sectors_root := _folder(objectives_root, "Sectors", owner)
 	sectors_root.set_meta("bf6_authored_mcom_records", rows.size())
 	sectors_root.set_meta("bf6_active_sector_slots", mini(rows.size(), sector_rows.size() * 2))
 	sectors_root.set_meta("bf6_selection_basis",
-		"installed gem_sector placements; nearest authored MCOMs, maximum two per sector")
+		"exact authored M-COM order projected into the Portal template's A/B phase pairs")
 	var grouped_hqs := _progressive_hq_groups_from_metadata(hqs, sector_rows.size())
 	var shell := _build_progressive_sector_shells(sectors_root, owner, sector_rows,
 		grouped_hqs, objects, {})
@@ -925,23 +928,14 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 	# TotalSectors as CountOf(All Sectors) - 2, then addresses phases as 101+n.
 	# Preserve that executable contract while sourcing positions and shapes only
 	# from the installed game's GEM records.
-	_ensure_progressive_hq_pairs(grouped_hqs, sector_rows,
-		sectors_root.get_parent().get_parent(), owner)
 	var targets: Array[Vector3] = []
 	var first_anchor := _element_transform(sector_rows[0] as Dictionary).origin
 	var last_anchor := _element_transform(sector_rows[-1] as Dictionary).origin
-	var first_direction := Vector3.FORWARD
-	var last_direction := Vector3.FORWARD
-	if sector_rows.size() > 1:
-		first_direction = (_element_transform(sector_rows[1] as Dictionary).origin -
-			first_anchor).normalized()
-		last_direction = (last_anchor -
-			_element_transform(sector_rows[-2] as Dictionary).origin).normalized()
-	var start_target := first_anchor - first_direction * 100.0
-	var end_target := last_anchor + last_direction * 100.0
+	var start_target := first_anchor
+	var end_target := last_anchor
 	if not grouped_hqs.is_empty():
-		var first_attacker := _progressive_hq_for_team(grouped_hqs[0] as Array, 2)
-		var last_defender := _progressive_hq_for_team(grouped_hqs[-1] as Array, 1)
+		var first_attacker := _progressive_hq_for_team(grouped_hqs[0] as Array, 1)
+		var last_defender := _progressive_hq_for_team(grouped_hqs[-1] as Array, 2)
 		if first_attacker != null:
 			start_target = (first_attacker as Node3D).position
 		if last_defender != null:
@@ -951,8 +945,11 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 		targets.append(_element_transform(row as Dictionary).origin)
 	targets.append(end_target)
 
-	var area_assignments := _progressive_sector_area_assignments(objects, targets,
-		excluded_area_sources)
+	# The placement layer contains no sector-to-polygon reference. Do not bind a
+	# nearby play-area/OOB polygon and present it as a retail sector relationship.
+	var area_assignments: Array = []
+	area_assignments.resize(targets.size())
+	area_assignments.fill({})
 	var sectors: Array = []
 	var claimed := {}
 	for index in range(targets.size()):
@@ -999,7 +996,7 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 			trigger.owner = owner
 		else:
 			sector.set_meta("bf6_sector_area_binding",
-				"unavailable: installed layout contains no unambiguous polygon")
+				"unassigned: retail sector membership/area is runtime-fed")
 		sectors.append(sector)
 
 	for phase in range(sector_rows.size()):
@@ -1008,10 +1005,10 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 		for value in phase_hqs:
 			var hq := value as Node3D
 			_reparent_from_layout_space(hq, active_sector, owner)
-			# Team 2 occupies the opening/attacker side of each phase; Team 1
+			# Team 1 occupies the opening/attacker side of each phase; Team 2
 			# occupies the forward/defender side. Link each HQ to that adjacent
 			# game-authored sector polygon rather than to the active centre.
-			var area_index := phase if int(hq.get("Team")) == 2 else phase + 2
+			var area_index := phase if int(hq.get("Team")) == 1 else phase + 2
 			var hq_area = (sectors[area_index] as Node).get("SectorArea")
 			if hq_area != null:
 				hq.set("HQArea", hq_area)
@@ -1027,75 +1024,6 @@ static func _progressive_hq_for_team(hqs: Array, team: int) -> Node:
 		if int(hq.get("Team")) == team:
 			return hq
 	return null
-
-
-static func _ensure_progressive_hq_pairs(grouped_hqs: Array, sector_rows: Array,
-		layout_root: Node, owner: Node) -> void:
-	# A few installed layers contain fewer HQ placements than Andy's Portal rules
-	# address (one distinct ID for both teams in every phase). Fill only that API
-	# gap with an explicit alias of the nearest game-authored HQ. Its transform and
-	# spawn children remain game data; the alias itself is not claimed as a stored
-	# retail instance.
-	var sources: Array = []
-	for group in grouped_hqs:
-		for value in group:
-			sources.append(value)
-	for phase in range(grouped_hqs.size()):
-		var group := grouped_hqs[phase] as Array
-		for team in [1, 2]:
-			if _progressive_hq_for_team(group, team) != null:
-				continue
-			var source: Node3D = null
-			var best_distance := 2147483647
-			for value in sources:
-				var candidate := value as Node3D
-				if int(candidate.get("Team")) != team:
-					continue
-				var candidate_phase := int(candidate.get_meta("bf6_progressive_phase", -1))
-				var distance := absi(candidate_phase - phase)
-				if distance < best_distance:
-					best_distance = distance
-					source = candidate
-			if source == null:
-				continue
-			var alias := source.duplicate() as Node3D
-			alias.name = "TEAM_%d_HQ%d" % [team, phase + 1]
-			alias.transform = source.transform
-			alias.set("Team", team)
-			alias.set("AltTeam", 2 if team == 1 else 1)
-			alias.set("ObjId", (300 if team == 1 else 400) + phase + 1)
-			_set_array(alias, "VehicleSpawners", [])
-			alias.set("VehicleSpawnersEnabled", false)
-			alias.set_meta("bf6_progressive_phase", phase)
-			alias.set_meta("bf6_progressive_team", team)
-			alias.set_meta("bf6_template_hq_alias", true)
-			alias.set_meta("bf6_template_hq_alias_basis",
-				"missing per-phase Blockly ID; nearest same-team installed HQ")
-			_mark_template_adjustment(alias,
-				"Compatibility HQ alias required by the Blockly per-phase ID contract; " +
-				"this is not a distinct retail HQ instance.")
-			alias.set_meta("bf6_retail_instance_status",
-				"compatibility alias; not a distinct game-authored instance")
-			alias.set_meta("bf6_reused_source_instance_guid",
-				str(source.get_meta("bf6_source_instance_guid", "")))
-			layout_root.add_child(alias)
-			_set_owner_recursive(alias, owner)
-			_mark_reused_hq_spawns(alias)
-			group.append(alias)
-			sources.append(alias)
-
-
-static func _mark_reused_hq_spawns(node: Node) -> void:
-	if node.has_meta("bf6_spawn_binding"):
-		node.set_meta("bf6_spawn_binding", "installed_gem_insertion_reused_hq")
-	for child in node.get_children():
-		_mark_reused_hq_spawns(child)
-
-
-static func _set_owner_recursive(node: Node, owner: Node) -> void:
-	node.owner = owner
-	for child in node.get_children():
-		_set_owner_recursive(child, owner)
 
 
 static func _progressive_sector_area_assignments(objects: Array,
@@ -1226,25 +1154,30 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 	ordered_flags.sort_custom(func(a: Variant, b: Variant) -> bool:
 		return int((captures[a] as Node).get_meta("bf6_capture_root_order", -1)) < \
 			int((captures[b] as Node).get_meta("bf6_capture_root_order", -1)))
-	var polygon_assignments := _breakthrough_polygon_sector_assignments(
-		captures, sector_rows, objects)
-	for flag in ordered_flags:
-		var capture := captures[flag] as Node3D
-		var sector_index := int(polygon_assignments.get(flag, -1))
-		if sector_index < 0 or (grouped[sector_index] as Array).size() >= 3:
-			sector_index = _nearest_element_with_capacity(sector_rows, grouped,
-				capture.position, 3)
-		if sector_index >= 0:
+	# Sector membership is runtime-fed. Preserve both authored orders and spread
+	# the exact objective count across every authored sector. Several retail maps
+	# have fewer than two objectives per sector (Atoll is 10 across 6), so never
+	# fabricate a B objective merely to satisfy the Portal template convention.
+	var capture_cursor := 0
+	var base_per_sector := floori(float(ordered_flags.size()) / float(grouped.size()))
+	var sectors_with_extra := ordered_flags.size() % grouped.size()
+	for sector_index in range(grouped.size()):
+		var sector_count := base_per_sector + (1 if sector_index < sectors_with_extra else 0)
+		for _slot in range(sector_count):
+			if capture_cursor >= ordered_flags.size():
+				break
+			var flag = ordered_flags[capture_cursor]
+			capture_cursor += 1
+			var capture := captures[flag] as Node3D
 			(grouped[sector_index] as Array).append({"flag": flag, "node": capture})
 			capture.set_meta("bf6_sector_binding",
-				"installed phase polygon containment" if polygon_assignments.has(flag) else \
-				"nearest gem_sector fallback")
+				"authored-order Portal projection; retail membership is runtime-fed")
 	var sectors_root := _folder(objectives_root, "Sectors", owner)
 	sectors_root.set_meta("bf6_authored_capture_controllers",
 		_mode_elements(elements, "gem_capturepoint").size())
 	sectors_root.set_meta("bf6_active_capture_records", captures.size())
 	sectors_root.set_meta("bf6_selection_basis",
-		"one-to-one game capture-controller/polygon join; maximum three objectives per sector")
+		"exact game capture controllers and VectorShapeAssets; disclosed authored-order projection")
 	var grouped_hqs := _progressive_hq_groups_from_metadata(hqs, sector_rows.size())
 	var shell := _build_progressive_sector_shells(sectors_root, owner, sector_rows,
 		grouped_hqs, objects, excluded_area_sources)
@@ -1262,10 +1195,10 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 			_reparent_from_layout_space(capture, sector, owner)
 			capture.name = "CapturePoint%s" % String.chr(65 + slot)
 			capture.set("ObjId", 1100 + sector_index * 100 + slot)
-			capture.set("InitialOwner", 1)
+			capture.set("InitialOwner", 2)
 			_mark_template_adjustment(capture,
 				"Sector-local label and ObjId follow the Breakthrough Blockly contract. " +
-				"Initial owner is Team 1 to match the corrected installed-map direction; " +
+				"Initial owner is Team 2 to match the corrected installed-map direction; " +
 				"capture transform and volume remain game-derived.")
 			capture.set_meta("bf6_breakthrough_source_flag", int(member.get("flag", -1)))
 			sector_captures.append(capture)
@@ -1314,66 +1247,60 @@ static func _breakthrough_polygon_sector_assignments(captures: Dictionary,
 	return assignments
 
 
-static func _breakthrough_capture_rows(objects: Array, elements: Array) -> Array:
-	# Later Breakthrough phases are commonly emitted as ordinary polygon rows;
-	# only the base-template objectives retain role 2.  The installed
-	# gem_capturepoint transforms identify the live meaning of those polygons.
-	# Match controllers and reasonably-sized authored polygons one-to-one. This
-	# also rejects superseded controllers which share a replacement's polygon.
-	var controllers := _mode_elements(elements, "gem_capturepoint")
-	var polygons: Array = []
-	for value in objects:
-		var row := value as Dictionary
-		if int(row.get("role", 0)) not in [2, 3]:
-			continue
-		if (row.get("world_points", []) as Array).size() < 9:
-			continue
-		if float(row.get("area_m2", INF)) > 25000.0:
-			continue
-		polygons.append(row)
-	var pairs: Array = []
-	for controller_index in range(controllers.size()):
-		var point := _element_transform(controllers[controller_index] as Dictionary).origin
-		for polygon_index in range(polygons.size()):
-			var row := polygons[polygon_index] as Dictionary
-			pairs.append({
-				"controller": controller_index,
-				"polygon": polygon_index,
-				"distance": point.distance_to(_vec3(row.get("centre", []))),
-			})
-	pairs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("distance", INF)) < float(b.get("distance", INF)))
-	var used_controllers := {}
-	var used_polygons := {}
-	var matched: Array = []
-	for value in pairs:
-		var pair := value as Dictionary
-		if float(pair.get("distance", INF)) > 60.0:
-			break
-		var controller_index := int(pair.get("controller", -1))
-		var polygon_index := int(pair.get("polygon", -1))
-		if used_controllers.has(controller_index) or used_polygons.has(polygon_index):
-			continue
-		used_controllers[controller_index] = true
-		used_polygons[polygon_index] = true
-		matched.append(pair)
-	matched.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int((controllers[int(a.get("controller", -1))] as Dictionary).get(
-			"root_order", -1)) < int((controllers[int(b.get("controller", -1))] as Dictionary).get(
-			"root_order", -1)))
+static func _exact_capture_rows(document: Dictionary, elements: Array, mode: String) -> Array:
+	# Schema 4 preserves the placed capture controller's explicit 0x5C3A072B
+	# VectorShapeAsset binding and reads that asset directly. No loose polygon is
+	# selected by distance or containment.
+	var controllers := {}
+	for value in _mode_elements(elements, "gem_capturepoint"):
+		var controller := value as Dictionary
+		controllers[str(controller.get("instance_guid", ""))] = controller
+	var shapes: Array = document.get("capture_shapes", [])
 	var rows: Array = []
-	for flag in range(matched.size()):
-		var pair := matched[flag] as Dictionary
-		var controller := controllers[int(pair.get("controller", -1))] as Dictionary
-		var row := (polygons[int(pair.get("polygon", -1))] as Dictionary).duplicate(true)
-		row["flag"] = flag
-		row["capture_binding"] = {
-			"instance_guid": str(controller.get("instance_guid", "")),
-			"root_order": int(controller.get("root_order", -1)),
-			"method": "one_to_one_spatial_gem_capturepoint",
-			"distance_m": float(pair.get("distance", -1.0)),
-		}
-		rows.append(row)
+	for value in shapes:
+		var shape := value as Dictionary
+		var guid := str(shape.get("controller_instance_guid", ""))
+		if not controllers.has(guid):
+			continue
+		var controller := controllers[guid] as Dictionary
+		var points := shape.get("world_points", []) as Array
+		if points.size() < 9:
+			continue
+		var centre := Vector3.ZERO
+		for index in range(0, points.size(), 3):
+			centre += Vector3(float(points[index]), float(points[index + 1]),
+				float(points[index + 2]))
+		centre /= float(points.size() / 3)
+		rows.append({
+			"role": 2,
+			"flag": int(shape.get("flag", -1)),
+			"centre": [centre.x, centre.y, centre.z],
+			"world_points": points,
+			"height": float(shape.get("height", 0.0)),
+			"raw": {
+				"layer": str(controller.get("layer", "")),
+				"partition": str(controller.get("partition", "")),
+				"instance": int(controller.get("instance", -1)),
+				"root_order": int(controller.get("root_order", -1)),
+				"instance_guid": guid,
+				"transform": controller.get("transform", []),
+			},
+			"capture_binding": {
+				"instance_guid": guid,
+				"root_order": int(controller.get("root_order", -1)),
+				"method": str(shape.get("binding", "")),
+				"shape_asset": str(shape.get("shape_asset", "")),
+				"shape_property": int(shape.get("shape_property", 0)),
+			},
+		})
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return _root_order(a) < _root_order(b))
+	if mode in ["breakthrough", "operations"]:
+		# Retail's sector membership is runtime-fed. Preserve exact authored
+		# controller order for the Portal template's sequential A/B slots; this is
+		# an ordering projection, never a spatial association.
+		for index in range(rows.size()):
+			(rows[index] as Dictionary)["flag"] = index
 	return rows
 
 
@@ -1400,25 +1327,10 @@ static func _progressive_sector_rows(mode: String, elements: Array,
 	var phase_count := mini(rows.size(), int(ceil(mcoms.size() / 2.0)))
 	if phase_count <= 0 or phase_count >= rows.size():
 		return rows
-	# Some retail Rush layers retain dormant gem_sector records. Blockly advances
-	# in MCOM pairs, so only the sector anchors nearest the live MCOM placements
-	# are phases. This preserves game positions while preventing empty phases from
-	# inflating Andy's CountOf(Sectors)-2 state machine.
-	var scored: Array = []
-	for row_index in range(rows.size()):
-		var anchor := _element_transform(rows[row_index] as Dictionary).origin
-		var score := INF
-		for value in mcoms:
-			score = minf(score, anchor.distance_squared_to(
-				_vec3((value as Dictionary).get("centre", []))))
-		scored.append({"index": row_index, "score": score})
-	scored.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("score", INF)) < float(b.get("score", INF)))
-	var selected: Array = []
-	for index in range(phase_count):
-		selected.append(rows[int((scored[index] as Dictionary).get("index", -1))])
-	_sort_mode_elements_by_root_order(selected)
-	return selected
+	# Some layers retain dormant sector controllers. The placement data does not
+	# link an M-COM to a sector, so retain authored controller order only; never
+	# choose controllers by spatial proximity.
+	return rows.slice(0, phase_count)
 
 
 static func _sort_mode_elements_by_root_order(rows: Array) -> void:
@@ -1443,35 +1355,23 @@ static func _group_nodes_by_elements(nodes: Array, rows: Array, capacity: int) -
 
 
 static func _group_progressive_hqs(hqs: Array, sector_rows: Array) -> Array:
-	# Staged HQs have no explicit sector reference. Match the complete set by
-	# distance confidence so root-order traversal cannot consume a later phase's
-	# nearby HQ and split its two-team pair.
+	# The placement layer does not serialize HQ-to-sector membership. The Portal
+	# template requires two HQ slots per phase, so preserve the authored HQ array
+	# order as an explicitly marked compatibility projection. Never reassign by
+	# distance or map direction.
 	var grouped: Array = []
 	for _row in sector_rows:
 		grouped.append([])
 	if hqs.is_empty() or sector_rows.is_empty():
 		return grouped
-	var candidates: Array = []
-	for hq_index in range(hqs.size()):
-		var hq := hqs[hq_index] as Node3D
-		for sector_index in range(sector_rows.size()):
-			var anchor := _element_transform(sector_rows[sector_index] as Dictionary).origin
-			candidates.append({
-				"hq": hq_index,
-				"sector": sector_index,
-				"distance": hq.position.distance_squared_to(anchor),
-			})
-	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return float(a.get("distance", INF)) < float(b.get("distance", INF)))
-	var used := {}
-	for value in candidates:
-		var candidate := value as Dictionary
-		var hq_index := int(candidate.get("hq", -1))
-		var sector_index := int(candidate.get("sector", -1))
-		if used.has(hq_index) or (grouped[sector_index] as Array).size() >= 2:
-			continue
-		(grouped[sector_index] as Array).append(hqs[hq_index])
-		used[hq_index] = true
+	var ordered := hqs.duplicate()
+	ordered.sort_custom(func(a: Node, b: Node) -> bool:
+		return int(a.get_meta("bf6_root_order", -1)) < int(b.get_meta("bf6_root_order", -1)))
+	for hq_index in range(ordered.size()):
+		var sector_index := floori(float(hq_index) / 2.0)
+		if sector_index >= grouped.size():
+			break
+		(grouped[sector_index] as Array).append(ordered[hq_index])
 	return grouped
 
 
@@ -1492,35 +1392,17 @@ static func _assign_progressive_hq_teams(grouped: Array, sector_rows: Array) -> 
 		var phase_hqs := grouped[phase] as Array
 		if phase_hqs.is_empty():
 			continue
-		var anchor := _element_transform(sector_rows[phase] as Dictionary).origin
-		var direction := Vector3.ZERO
-		if phase + 1 < sector_rows.size():
-			direction = _element_transform(sector_rows[phase + 1] as Dictionary).origin - anchor
-		elif phase > 0:
-			direction = anchor - _element_transform(sector_rows[phase - 1] as Dictionary).origin
-		if direction.length_squared() > 0.0001:
-			direction = direction.normalized()
-		if phase_hqs.size() == 1:
-			var lone := phase_hqs[0] as Node3D
-			var lone_team := 2 if direction.length_squared() <= 0.0001 or \
-					(lone.position - anchor).dot(direction) <= 0.0 else 1
-			lone.set_meta("bf6_progressive_phase", phase)
-			lone.set_meta("bf6_progressive_team", lone_team)
-			continue
 		phase_hqs.sort_custom(func(a: Node3D, b: Node3D) -> bool:
-			if direction.length_squared() <= 0.0001:
-				return int(a.get_meta("bf6_root_order", -1)) < \
-					int(b.get_meta("bf6_root_order", -1))
-			return (a.position - anchor).dot(direction) < (b.position - anchor).dot(direction))
+			return int(a.get_meta("bf6_root_order", -1)) < \
+				int(b.get_meta("bf6_root_order", -1)))
 		for local_index in range(phase_hqs.size()):
 			var hq := phase_hqs[local_index] as Node3D
 			hq.set_meta("bf6_progressive_phase", phase)
-			# Installed progression runs from the opening HQ toward the final HQ.
-			# Portal's progressive templates use Team 2 for the opening attacker
-			# side and Team 1 for the forward defender side.
-			hq.set_meta("bf6_progressive_team", 2 if local_index == 0 else 1)
+			# Team polarity is the Portal/Blockly contract, not a spatial inference:
+			# Team 1 attacks and Team 2 defends.
+			hq.set_meta("bf6_progressive_team", 1 if local_index == 0 else 2)
 			hq.set_meta("bf6_progressive_team_basis",
-				"installed phase direction; Team2 opening, Team1 forward")
+				"Portal template contract; authored HQ order retained")
 
 
 static func _nearest_element_index(rows: Array, point: Vector3) -> int:
@@ -1745,21 +1627,6 @@ static func _build_vehicle(row: Dictionary, objective_shared_root: Node,
 	var raw := row.get("raw", {}) as Dictionary
 	var selector := int(raw.get("gem_selector", row.get("gem_value", -1)))
 	var is_stationary := bool(row.get("stationary", false))
-	var point := _vec3(row.get("centre", []))
-	var contained_flag := _containing_capture(captures, point)
-	var nearest_flag := contained_flag if contained_flag >= 0 else \
-		(_nearest_capture(captures, point) if not captures.is_empty() else -1)
-	var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).position) \
-		if nearest_flag >= 0 else INF
-	var nearest_hq := _nearest_index(hqs, point) if not hqs.is_empty() else -1
-	var contained_hq := _containing_hq(hqs, point)
-	var hq_distance := point.distance_squared_to((hqs[nearest_hq] as Node3D).position) \
-		if nearest_hq >= 0 else INF
-	if contained_hq >= 0:
-		nearest_hq = contained_hq
-	var belongs_to_hq := not is_stationary and nearest_hq >= 0 and \
-		(contained_hq >= 0 or (contained_flag < 0 and hq_distance < capture_distance))
-
 	if is_stationary:
 		var stationary_type := int(STATIONARY_SELECTOR_TYPES.get(selector, -1))
 		var valid_stationary := stationary_type >= 0
@@ -1775,6 +1642,36 @@ static func _build_vehicle(row: Dictionary, objective_shared_root: Node,
 	var vehicle_types: Array = VEHICLE_CLASS_TYPES.get(selector, [])
 	var vehicle_class_name := str(VEHICLE_CLASS_NAMES.get(selector,
 		"UnknownClass%d" % selector))
+	if mode in ["rush", "breakthrough", "operations"]:
+		# Forward/HQ activation is supplied by the retail runtime graph; the
+		# placement stores no HQ/objective reference. Keep the exact transform and
+		# selector visible, but do not assign it by proximity.
+		var exact_type := int(vehicle_types[0]) if not vehicle_types.is_empty() else -1
+		var exact_name: String = str(VEHICLE_NAMES[exact_type]) if exact_type >= 0 else \
+			"UnassignedSelector%d" % selector
+		var unassigned := _create_vehicle(row, objective_shared_root, owner, selector,
+			exact_type, exact_name, false, exact_type >= 0)
+		unassigned.set("ObjId", -1)
+		unassigned.set("P_AutoSpawnEnabled", true)
+		unassigned.name = "RuntimeUnassigned_%s_Root%02d" % [exact_name, _root_order(row)]
+		unassigned.set_meta("bf6_runtime_association",
+			"unassigned: retail HQ/objective activation is runtime-fed")
+		unassigned.set_meta("bf6_source_vehicle_record", true)
+		return
+	var point := _vec3(row.get("centre", []))
+	var contained_flag := _containing_capture(captures, point)
+	var nearest_flag := contained_flag if contained_flag >= 0 else \
+		(_nearest_capture(captures, point) if not captures.is_empty() else -1)
+	var capture_distance := point.distance_squared_to((captures[nearest_flag] as Node3D).position) \
+		if nearest_flag >= 0 else INF
+	var nearest_hq := _nearest_index(hqs, point) if not hqs.is_empty() else -1
+	var contained_hq := _containing_hq(hqs, point)
+	var hq_distance := point.distance_squared_to((hqs[nearest_hq] as Node3D).position) \
+		if nearest_hq >= 0 else INF
+	if contained_hq >= 0:
+		nearest_hq = contained_hq
+	var belongs_to_hq := nearest_hq >= 0 and \
+		(contained_hq >= 0 or (contained_flag < 0 and hq_distance < capture_distance))
 	if vehicle_types.is_empty():
 		var unknown_parent: Node = objective_shared_root
 		var unknown_team_index := -1

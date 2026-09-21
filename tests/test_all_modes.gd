@@ -58,7 +58,8 @@ func _init() -> void:
 						print("FAIL ", filename, ": represented vehicle rows ", actual_vehicles, "/", expected_vehicles)
 					var expected_linked_spawns := int((manifest.get("counts", {}) as Dictionary).get("spawns", 0)) \
 						if mode in ["conquest", "carrierstrike", "escalation"] else 0
-					if expected_linked_spawns == 0 and mode in ["conquest", "carrierstrike",
+					if expected_linked_spawns == 0 and mode not in ["rush", "breakthrough",
+							"operations"] and mode in ["conquest", "carrierstrike",
 							"escalation", "domination", "breakthrough", "operations", "koth",
 							"kingofthehill", "strikepoint"]:
 						for object_value in manifest.get("objects", []):
@@ -189,6 +190,18 @@ func _count_meta_key(node: Node, key: String) -> int:
 
 func _check_capture_provenance(built: Node, manifest: Dictionary,
 		filename: String) -> void:
+	for value in manifest.get("capture_shapes", []):
+		var shape := value as Dictionary
+		var guid := str(shape.get("controller_instance_guid", ""))
+		var capture := _find_meta_value(built, "bf6_capture_instance_guid", guid)
+		if capture == null:
+			failures += 1
+			print("FAIL ", filename, ": missing exact capture-shape provenance ", guid)
+			continue
+		if not str(capture.get_meta("bf6_capture_volume_binding", "")).begins_with(
+				"installed_gem_instance_parameter_"):
+			failures += 1
+			print("FAIL ", filename, ": capture volume is not game-reference bound ", guid)
 	for value in manifest.get("objects", []):
 		var row := value as Dictionary
 		var binding := row.get("capture_binding", {}) as Dictionary
@@ -500,12 +513,13 @@ func _check_automatic_aa_teams(node: Node, filename: String) -> void:
 		if str(node.name).begins_with("@"):
 			failures += 1
 			print("FAIL ", filename, ": automatic AA has generated name ", node.name)
-		if team not in [1, 2]:
+		if team not in [0, 1, 2]:
 			failures += 1
-			print("FAIL ", filename, ": automatic AA has no team ", node.name)
-		if not str(node.name).contains("Team%d" % team):
+			print("FAIL ", filename, ": automatic AA has invalid game team ", node.name)
+		var expected_owner := "Neutral" if team == 0 else "Team%d" % team
+		if not str(node.name).contains(expected_owner):
 			failures += 1
-			print("FAIL ", filename, ": automatic AA name hides team ", node.name)
+			print("FAIL ", filename, ": automatic AA name hides owner ", node.name)
 	for child in node.get_children():
 		_check_automatic_aa_teams(child, filename)
 
@@ -581,10 +595,6 @@ func _check_rush_contract(root: Node, manifest: Dictionary, filename: String) ->
 				failures += 1
 				print("FAIL ", filename, ": Rush sectors are not in authored phase order")
 			previous_root_order = root_order
-			if _count_manifest_gem(manifest, "gem_hq") > 0 and \
-					(sector.get("HQs") == null or sector.get("HQs").is_empty()):
-				failures += 1
-				print("FAIL ", filename, ": Rush sector has no staged HQ link ", sector.name)
 			_check_progressive_hq_pair(sector, manifest, filename, "Rush")
 	if seen_mcoms != expected_mcoms:
 		failures += 1
@@ -788,37 +798,22 @@ func _collect_meta_nodes(node: Node, key: String, result: Array[Node]) -> void:
 
 func _check_hq_insertion_spawns(root: Node, manifest: Dictionary,
 		filename: String) -> void:
-	var expected := 0
-	for value in manifest.get("elements", []):
-		var row := value as Dictionary
-		if str(row.get("gem", "")) == "gem_insertion" and \
-				not str(row.get("layer", "")).ends_with("/gameplay_global"):
-			expected += 1
-	var hq_count := _count_name_prefix(root, "TEAM_")
-	var actual := _count_meta(root, "bf6_spawn_binding", "installed_gem_insertion")
-	if hq_count > 0 and actual != expected:
+	var mode := str((manifest.get("source", {}) as Dictionary).get("mode", ""))
+	if mode in ["rush", "breakthrough", "operations"] and \
+			_count_name_prefix(root, "Spawn_HQ_") != 0:
 		failures += 1
-		print("FAIL ", filename, ": authored HQ insertion spawns ", actual, "/", expected)
-	if filename == "mp_atoll_conquest.layout.json":
-		for team in [1, 2]:
-			var hq := root.get_node_or_null("TEAM_%d_HQ" % team)
-			var count := 0 if hq == null else \
-				_count_meta(hq, "bf6_spawn_binding", "installed_gem_insertion")
-			if count != 8:
-				failures += 1
-				print("FAIL ", filename, ": Team ", team, " HQ insertion count ", count, "/8")
+		print("FAIL ", filename,
+			": progressive mode fabricated HQ spawns from unlinked game placements")
 
 
 func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: String) -> void:
 	var sectors := root.get_node_or_null("Objectives/Sectors")
-	var expected := _count_manifest_gem(manifest, "gem_capturepoint") if sectors == null else \
-		int(sectors.get_meta("bf6_active_capture_records", 0))
+	var expected := (manifest.get("capture_shapes", []) as Array).size()
 	if expected > 0 and sectors == null:
 		failures += 1
 		print("FAIL ", filename, ": Breakthrough objectives have no sectors")
 		return
 	var seen := 0
-	var exact_polygon_memberships := 0
 	var previous_root_order := -1
 	if sectors != null:
 		var authored_sectors := _count_manifest_gem(manifest, "gem_sector")
@@ -829,36 +824,31 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 			if sector_index == 0 or sector_index == sectors.get_child_count() - 1:
 				continue
 			var captures = sector.get("CapturePoints")
-			if captures == null or captures.size() > 3:
+			if captures == null or captures.is_empty() or captures.size() > 3:
 				failures += 1
 				print("FAIL ", filename, ": invalid Breakthrough sector ", sector.name)
 				continue
 			for slot in range(captures.size()):
 				seen += 1
-				if str(captures[slot].get_meta("bf6_sector_binding", "")) == \
-						"installed phase polygon containment":
-					exact_polygon_memberships += 1
+				if str(captures[slot].get_meta("bf6_sector_binding", "")) != \
+						"authored-order Portal projection; retail membership is runtime-fed":
+					failures += 1
+					print("FAIL ", filename,
+						": Breakthrough objective used a spatial sector guess ", captures[slot].name)
 				var expected_name := "CapturePoint%s" % String.chr(65 + slot)
 				if str(captures[slot].name) != expected_name:
 					failures += 1
 					print("FAIL ", filename, ": Breakthrough local objective name ",
 						captures[slot].name)
-				if int(captures[slot].get("InitialOwner")) != 1:
+				if int(captures[slot].get("InitialOwner")) != 2:
 					failures += 1
 					print("FAIL ", filename,
-						": Breakthrough objective does not begin owned by Team 1 ",
+						": Breakthrough objective does not begin owned by Team 2 ",
 						captures[slot].name)
 				var capture_area = captures[slot].get("CaptureArea")
 				if capture_area == null or (capture_area as Node).get_parent() != captures[slot]:
 					failures += 1
 					print("FAIL ", filename, ": Breakthrough objective has no linked volume ",
-						captures[slot].name)
-				var team_1_spawns = captures[slot].get("InfantrySpawnPoints_Team1")
-				var team_2_spawns = captures[slot].get("InfantrySpawnPoints_Team2")
-				if team_1_spawns == null or team_1_spawns.is_empty() or \
-						team_2_spawns == null or team_2_spawns.is_empty():
-					failures += 1
-					print("FAIL ", filename, ": Breakthrough objective has no linked team spawns ",
 						captures[slot].name)
 				var expected_id := 1000 + sector_index * 100 + slot
 				if int(captures[slot].get("ObjId")) != expected_id:
@@ -872,24 +862,10 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 				print("FAIL ", filename,
 					": Breakthrough sectors are not in authored phase order")
 			previous_root_order = root_order
-			if _count_manifest_gem(manifest, "gem_hq") > 0 and \
-					(sector.get("HQs") == null or sector.get("HQs").is_empty()):
-				failures += 1
-				print("FAIL ", filename,
-					": Breakthrough sector has no staged HQ link ", sector.name)
 			_check_progressive_hq_pair(sector, manifest, filename, "Breakthrough")
 	if seen != expected:
 		failures += 1
 		print("FAIL ", filename, ": Breakthrough sector objectives ", seen, "/", expected)
-	var exact_regressions := {
-		"mp_atoll_breakthrough.layout.json": 10,
-		"mp_isolated_breakthrough.layout.json": 7,
-	}
-	if exact_regressions.has(filename) and \
-			exact_polygon_memberships != int(exact_regressions[filename]):
-		failures += 1
-		print("FAIL ", filename, ": exact phase-polygon memberships ",
-			exact_polygon_memberships, "/", exact_regressions[filename])
 
 
 func _check_progressive_template_shell(sectors: Node, authored_phases: int,
@@ -922,7 +898,7 @@ func _check_progressive_template_shell(sectors: Node, authored_phases: int,
 						print("FAIL ", filename, ": ", mode_name,
 							" HQ is outside its phase sector ", (hq as Node).name)
 					var team := int((hq as Node).get("Team"))
-					var adjacent := sectors.get_child(index - 1 if team == 2 else index + 1)
+					var adjacent := sectors.get_child(index - 1 if team == 1 else index + 1)
 					if adjacent.get("SectorArea") != null and \
 							(hq as Node).get("HQArea") != adjacent.get("SectorArea"):
 						failures += 1
@@ -954,11 +930,9 @@ func _check_template_compatibility_provenance(root: Node, filename: String) -> v
 			print("FAIL ", filename, ": optional Andy asset leaked into core build: ", branch)
 	var aliases: Array[Node] = []
 	_collect_meta_nodes(root, "bf6_template_hq_alias", aliases)
-	for alias in aliases:
-		if not alias.has_meta("bf6_template_modified") or \
-				str(alias.get_meta("bf6_retail_instance_status", "")).is_empty():
-			failures += 1
-			print("FAIL ", filename, ": HQ alias is not clearly disclosed: ", alias.name)
+	if not aliases.is_empty():
+		failures += 1
+		print("FAIL ", filename, ": core build contains synthetic HQ aliases")
 
 
 func _collect_progressive_vehicles(node: Node, result: Array[Node]) -> void:

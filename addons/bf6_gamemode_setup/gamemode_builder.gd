@@ -97,7 +97,7 @@ static func build(root: Node, layout_id: String, paths: Dictionary, replace_exis
 	if problem != "":
 		return problem
 	var document := _read_json(str(paths["manifest"]))
-	if int(document.get("schema", 0)) in [2, 3]:
+	if int(document.get("schema", 0)) in [2, 3, 4]:
 		return ClassifiedBuilder.build(root, layout_id, document, paths, replace_existing, progress)
 	if layout_id != "mp_isolated/conquest":
 		return "This plugin version does not support %s" % layout_id
