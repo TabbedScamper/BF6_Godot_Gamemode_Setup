@@ -7,6 +7,8 @@ extends RefCounted
 
 const SKIN_META := "bf6_vehicle_skin"
 const TYPE_META := "bf6_vehicle_skin_type"
+const MARKER_META := "bf6_sdk_marker_reserved"
+const SDK_MARKER_NAME := "SDKMarker"
 const BUNDLED_DIR := "res://addons/bf6_gamemode_setup/assets/vehicles"
 const VEHICLE_KEYS := [
 	"VEH_Abrams", "VEH_Leopard", "VEH_Cheetah", "VEH_CV90", "VEH_Gepard",
@@ -30,11 +32,14 @@ const MODEL_ALIASES := {
 }
 const RESUPPLY_MODEL := \
 	"res://addons/bf6_gamemode_setup/assets/VehicleResupplyStation_Game.tscn"
+static var previews_enabled := false
 
 
 static func sync_tree(root: Node) -> bool:
 	if root == null:
 		return false
+	if not previews_enabled:
+		return restore_tree(root)
 	var changed := false
 	var pending: Array[Node] = [root]
 	while not pending.is_empty():
@@ -42,6 +47,39 @@ static func sync_tree(root: Node) -> bool:
 		changed = sync_node(node, root) or changed
 		for child in node.get_children():
 			pending.append(child)
+	return changed
+
+
+# Undo every editor-only preview mutation when the addon is disabled.  The SDK
+# PackedScenes are never edited: only their live instances are adjusted while
+# this plugin is active.
+static func restore_tree(root: Node) -> bool:
+	if root == null:
+		return false
+	var changed := false
+	var pending: Array[Node] = [root]
+	while not pending.is_empty():
+		var node := pending.pop_back() as Node
+		for child in node.get_children():
+			# restore_node() frees preview children below, so never retain one in
+			# the traversal stack after its parent has restored it.
+			if not child.has_meta(SKIN_META):
+				pending.append(child)
+		changed = restore_node(node) or changed
+	return changed
+
+
+static func restore_node(node: Node) -> bool:
+	var changed := false
+	for child in node.get_children():
+		if child.has_meta(SKIN_META):
+			node.remove_child(child)
+			child.free()
+			changed = true
+	_set_marker_visible(node, true)
+	changed = _restore_sdk_marker_name(node) or changed
+	if node.has_meta(TYPE_META):
+		node.remove_meta(TYPE_META)
 	return changed
 
 
@@ -88,6 +126,7 @@ static func _sync_model(spawner: Node3D, selected: int, keys: Array) -> bool:
 			spawner.remove_child(existing)
 			existing.free()
 			_set_marker_visible(spawner, true)
+			_restore_sdk_marker_name(spawner)
 			spawner.remove_meta(TYPE_META)
 			return true
 		return false
@@ -107,8 +146,12 @@ static func _packaged_model_path(model_key: String) -> String:
 
 static func _sync_path(spawner: Node3D, selected: int, expected_path: String,
 		model_key: String) -> bool:
+	if not previews_enabled:
+		return restore_node(spawner)
 	var existing := _skin_child(spawner)
 	if existing != null and str(existing.scene_file_path) == expected_path:
+		if expected_path.get_extension().to_lower() == "glb":
+			_reserve_sdk_marker_name(spawner)
 		_set_marker_visible(spawner, false)
 		spawner.set_meta(TYPE_META, selected)
 		return false
@@ -119,14 +162,21 @@ static func _sync_path(spawner: Node3D, selected: int, expected_path: String,
 	var packed := load(expected_path) as PackedScene
 	if packed == null:
 		_set_marker_visible(spawner, true)
+		_restore_sdk_marker_name(spawner)
 		return false
 	var skin := packed.instantiate() as Node3D
 	if skin == null:
 		_set_marker_visible(spawner, true)
+		_restore_sdk_marker_name(spawner)
 		return false
 	# Portal's level validator intentionally permits imported GLB instances only
 	# when their root is named Mesh.  Any vehicle/type name here produces a modal
 	# "mesh file should not be directly added" warning on every selection change.
+	if expected_path.get_extension().to_lower() == "glb":
+		# SDK spawners already contain a child named Mesh. Godot otherwise renames
+		# this GLB to Mesh2 during add_child(), after which Portal's validator emits
+		# the modal "mesh file should not be directly added" alert.
+		_reserve_sdk_marker_name(spawner)
 	skin.name = "Mesh"
 	skin.set_meta(SKIN_META, true)
 	if expected_path.begins_with(BUNDLED_DIR + "/"):
@@ -192,6 +242,25 @@ static func _skin_child(spawner: Node) -> Node3D:
 		if child is Node3D and child.has_meta(SKIN_META):
 			return child as Node3D
 	return null
+
+
+static func _reserve_sdk_marker_name(spawner: Node) -> void:
+	for child in spawner.get_children():
+		if child.has_meta(SKIN_META) or child.name != "Mesh":
+			continue
+		child.name = SDK_MARKER_NAME
+		child.set_meta(MARKER_META, true)
+		return
+
+
+static func _restore_sdk_marker_name(spawner: Node) -> bool:
+	for child in spawner.get_children():
+		if not child.has_meta(MARKER_META):
+			continue
+		child.name = "Mesh"
+		child.remove_meta(MARKER_META)
+		return true
+	return false
 
 
 static func _set_marker_visible(spawner: Node, value: bool) -> void:

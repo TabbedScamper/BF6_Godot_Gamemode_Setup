@@ -9,6 +9,7 @@ var failures := 0
 
 
 func _init() -> void:
+	VehicleSkin.previews_enabled = true
 	var root := Node3D.new()
 	for selected in range(VehicleSkin.VEHICLE_KEYS.size()):
 		var spawner := (load(VEHICLE_SCENE) as PackedScene).instantiate() as Node3D
@@ -16,6 +17,13 @@ func _init() -> void:
 		spawner.set("VehicleType", selected)
 		VehicleSkin.sync_spawner(spawner, root)
 		_check_skin(spawner, str(VehicleSkin.VEHICLE_KEYS[selected]))
+		_check(spawner.get_node_or_null("SDKMarker") != null,
+			"%s reserves the original SDK marker name" % VehicleSkin.VEHICLE_KEYS[selected])
+		VehicleSkin.restore_node(spawner)
+		_check(spawner.get_node_or_null("Mesh") != null,
+			"%s restores the original SDK marker" % VehicleSkin.VEHICLE_KEYS[selected])
+		_check(_skin_count(spawner) == 0,
+			"%s removes its editor-only skin on unload" % VehicleSkin.VEHICLE_KEYS[selected])
 		spawner.free()
 
 	for selected in range(VehicleSkin.STATIONARY_KEYS.size()):
@@ -31,6 +39,18 @@ func _init() -> void:
 	VehicleSkin.sync_automatic_aa(automatic_aa, root)
 	_check_skin(automatic_aa, "VEH_Stationary_AutomaticAA")
 	automatic_aa.free()
+
+	# The installed default is opt-in: when disabled, only the original SDK
+	# marker remains and no imported GLB child is created.
+	VehicleSkin.previews_enabled = false
+	var stock := (load(VEHICLE_SCENE) as PackedScene).instantiate() as Node3D
+	root.add_child(stock)
+	VehicleSkin.sync_spawner(stock, root)
+	_check(_skin_count(stock) == 0, "disabled previews keep the stock SDK model")
+	_check(stock.get_node_or_null("Mesh") != null,
+		"disabled previews keep the stock SDK Mesh child")
+	stock.free()
+	VehicleSkin.previews_enabled = true
 	root.free()
 	if failures == 0:
 		print("PASS: every SDK vehicle choice uses its bundled game model")
@@ -57,6 +77,14 @@ func _check_skin(spawner: Node3D, requested_key: String) -> void:
 	_check(int(census.meshes) > 0, "%s contains meshes" % requested_key)
 	_check(int(census.bad_materials) == 0, "%s uses the SDK-white override" % requested_key)
 	_check(int(census.physics) == 0, "%s contains no collision or physics nodes" % requested_key)
+
+
+func _skin_count(spawner: Node) -> int:
+	var count := 0
+	for child in spawner.get_children():
+		if child.has_meta(VehicleSkin.SKIN_META):
+			count += 1
+	return count
 
 
 func _census(node: Node, census: Dictionary) -> void:

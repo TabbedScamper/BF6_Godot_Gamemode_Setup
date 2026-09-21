@@ -5,9 +5,10 @@ const Builder = preload("gamemode_builder.gd")
 const Fetch = preload("layout_fetch.gd")
 const VehicleSkin = preload("vehicle_skin.gd")
 const TemplateAddons = preload("template_addons.gd")
+const PREVIEW_SETTING := "bf6_gamemode_setup/high_poly_vehicle_previews"
 const MODE_DESCRIPTIONS := {
 	"conquest": "Two teams capture and hold persistent objectives across the map. Tickets drain from deaths and enemy-controlled flags; vehicles can belong to HQs or objectives.",
-	"breakthrough": "Attackers must hold every objective in the active sector at once to advance the frontline. Team 2 begins as defender; labels restart as A, B, and where authored C in every sector.",
+	"breakthrough": "Attackers must hold every objective in the active sector at once to advance the frontline. Team 2 attacks from the opening side and Team 1 defends toward the final side; labels restart as A, B, and where authored C in every sector.",
 	"rush": "Attackers arm and destroy every M-COM in the active sector while defenders defuse them. Clearing a sector advances its staged HQs, spawns, and vehicles; attackers lose if their tickets reach zero.",
 	"escalation": "Two teams capture territory while the set of active control points shrinks over successive stages, concentrating the battle toward the final objectives.",
 	"domination": "A fast, infantry-focused territory mode. Teams capture and hold several persistent control points to reach the score limit.",
@@ -33,6 +34,7 @@ var _status: Label
 var _clear_button: Button
 var _template_addons_button: Button
 var _swap_factions_button: Button
+var _high_poly_previews: CheckBox
 var _progress_box: VBoxContainer
 var _progress_label: Label
 var _progress_bar: ProgressBar
@@ -45,6 +47,10 @@ var _selection: EditorSelection
 
 
 func _enter_tree() -> void:
+	var editor_settings := get_editor_interface().get_editor_settings()
+	if not editor_settings.has_setting(PREVIEW_SETTING):
+		editor_settings.set_setting(PREVIEW_SETTING, false)
+	VehicleSkin.previews_enabled = bool(editor_settings.get_setting(PREVIEW_SETTING))
 	_fetch = Fetch.new()
 	_fetch.name = "LayoutFetch"
 	add_child(_fetch)
@@ -61,6 +67,11 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	# Preview meshes and the temporary SDK marker rename live only while this
+	# addon is active. Disabling or uninstalling it restores the open scene.
+	var edited_root := _root()
+	if edited_root != null:
+		VehicleSkin.restore_tree(edited_root)
 	if _inspector != null and _inspector.property_edited.is_connected(
 			_on_inspector_property_edited):
 		_inspector.property_edited.disconnect(_on_inspector_property_edited)
@@ -101,6 +112,12 @@ func _create_dock() -> void:
 	_mode_description.custom_minimum_size = Vector2(220, 0)
 	_mode_description.text = "Select a game mode to see how its objectives work."
 	_dock.add_child(_mode_description)
+	_high_poly_previews = CheckBox.new()
+	_high_poly_previews.text = "High-poly vehicle and emplacement previews"
+	_high_poly_previews.tooltip_text = "Replace SDK vehicle, emplacement, AA, and resupply markers with bundled untextured game-model previews. This does not modify SDK source scenes."
+	_high_poly_previews.button_pressed = VehicleSkin.previews_enabled
+	_high_poly_previews.toggled.connect(_on_high_poly_previews_toggled)
+	_dock.add_child(_high_poly_previews)
 	_status = Label.new()
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.custom_minimum_size = Vector2(220, 0)
@@ -163,6 +180,18 @@ func _sync_vehicle_skins() -> void:
 	var root := _root()
 	if root != null:
 		VehicleSkin.sync_tree(root)
+
+
+func _on_high_poly_previews_toggled(enabled: bool) -> void:
+	VehicleSkin.previews_enabled = enabled
+	get_editor_interface().get_editor_settings().set_setting(PREVIEW_SETTING, enabled)
+	var root := _root()
+	if root == null:
+		return
+	if enabled:
+		VehicleSkin.sync_tree(root)
+	else:
+		VehicleSkin.restore_tree(root)
 
 
 func _on_inspector_property_edited(property: StringName) -> void:

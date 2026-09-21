@@ -297,7 +297,12 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			loose_spawns.append(spawn)
 		progress_current += 1
 		_report(progress, "Creating infantry spawns…", progress_current, progress_total)
-	var captures_own_loose_spawns := mode in ["conquest", "carrierstrike", "escalation"]
+	# Progressive capture controllers do not carry a flag number on their retail
+	# AlternateSpawnEntityData records. They still belong to the nearby live
+	# objective and must populate both Portal team arrays when the game record is
+	# neutral, exactly like the template contract.
+	var captures_own_loose_spawns := mode in [
+		"conquest", "carrierstrike", "escalation", "breakthrough", "operations"]
 	for spawn_value in loose_spawns:
 		var spawn := spawn_value as Node3D
 		# These nodes are assembled before the generated branch enters the scene
@@ -312,7 +317,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		var hq_index := _nearest_index(hqs, point) if not hqs.is_empty() else -1
 		var hq_distance := point.distance_squared_to((hqs[hq_index] as Node3D).position) \
 			if hq_index >= 0 else INF
-		if captures_own_loose_spawns and nearest_flag >= 0 and capture_distance <= hq_distance:
+		var progressive_objective_spawn := mode in ["breakthrough", "operations"]
+		if captures_own_loose_spawns and nearest_flag >= 0 and \
+				(progressive_objective_spawn or capture_distance <= hq_distance):
 			var capture := captures[nearest_flag] as Node3D
 			_reparent_from_layout_space(spawn, capture, map_root)
 			var key := "Flag_%s" % String.chr(65 + nearest_flag)
@@ -933,12 +940,12 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 	var start_target := first_anchor - first_direction * 100.0
 	var end_target := last_anchor + last_direction * 100.0
 	if not grouped_hqs.is_empty():
-		var first_team_1 := _progressive_hq_for_team(grouped_hqs[0] as Array, 1)
-		var last_team_2 := _progressive_hq_for_team(grouped_hqs[-1] as Array, 2)
-		if first_team_1 != null:
-			start_target = (first_team_1 as Node3D).position
-		if last_team_2 != null:
-			end_target = (last_team_2 as Node3D).position
+		var first_attacker := _progressive_hq_for_team(grouped_hqs[0] as Array, 2)
+		var last_defender := _progressive_hq_for_team(grouped_hqs[-1] as Array, 1)
+		if first_attacker != null:
+			start_target = (first_attacker as Node3D).position
+		if last_defender != null:
+			end_target = (last_defender as Node3D).position
 	targets.append(start_target)
 	for row in sector_rows:
 		targets.append(_element_transform(row as Dictionary).origin)
@@ -1001,7 +1008,10 @@ static func _build_progressive_sector_shells(sectors_root: Node, owner: Node,
 		for value in phase_hqs:
 			var hq := value as Node3D
 			_reparent_from_layout_space(hq, active_sector, owner)
-			var area_index := phase if int(hq.get("Team")) == 1 else phase + 2
+			# Team 2 occupies the opening/attacker side of each phase; Team 1
+			# occupies the forward/defender side. Link each HQ to that adjacent
+			# game-authored sector polygon rather than to the active centre.
+			var area_index := phase if int(hq.get("Team")) == 2 else phase + 2
 			var hq_area = (sectors[area_index] as Node).get("SectorArea")
 			if hq_area != null:
 				hq.set("HQArea", hq_area)
@@ -1111,8 +1121,21 @@ static func _progressive_sector_area_assignments(objects: Array,
 			maxi(targets.size() - candidates.size(), 0))):
 		candidates.append(fallback_candidates[index])
 	var assignments: Array = []
+	assignments.resize(targets.size())
+	assignments.fill({})
 	var used := {}
-	for target in targets:
+	# Bind active phases before the two compatibility boundary sectors. The old
+	# greedy start-to-end pass let a broad opening polygon consume a later phase's
+	# exact containment match, which made sector zones appear out of order.
+	var target_order: Array = []
+	for index in range(1, maxi(targets.size() - 1, 1)):
+		target_order.append(index)
+	if not targets.is_empty():
+		target_order.append(0)
+	if targets.size() > 1:
+		target_order.append(targets.size() - 1)
+	for target_index in target_order:
+		var target := targets[target_index] as Vector3
 		var best := -1
 		var best_contains := false
 		var best_score := INF
@@ -1128,14 +1151,13 @@ static func _progressive_sector_area_assignments(objects: Array,
 				best_contains = contains
 				best_score = score
 		if best < 0:
-			assignments.append({})
 			continue
 		used[best] = true
-		assignments.append({
+		assignments[target_index] = {
 			"row": candidates[best],
 			"method": "smallest containing installed polygon" if best_contains else \
 				"nearest installed play-area polygon",
-		})
+		}
 	return assignments
 
 
@@ -1240,10 +1262,11 @@ static func _build_breakthrough_sectors(captures: Dictionary,
 			_reparent_from_layout_space(capture, sector, owner)
 			capture.name = "CapturePoint%s" % String.chr(65 + slot)
 			capture.set("ObjId", 1100 + sector_index * 100 + slot)
-			capture.set("InitialOwner", 2)
+			capture.set("InitialOwner", 1)
 			_mark_template_adjustment(capture,
-				"Sector-local label, ObjId, and initial owner assigned for the Breakthrough " +
-				"Blockly contract; capture transform and volume remain game-derived.")
+				"Sector-local label and ObjId follow the Breakthrough Blockly contract. " +
+				"Initial owner is Team 1 to match the corrected installed-map direction; " +
+				"capture transform and volume remain game-derived.")
 			capture.set_meta("bf6_breakthrough_source_flag", int(member.get("flag", -1)))
 			sector_captures.append(capture)
 		_set_array(sector, "CapturePoints", sector_captures)
@@ -1479,8 +1502,8 @@ static func _assign_progressive_hq_teams(grouped: Array, sector_rows: Array) -> 
 			direction = direction.normalized()
 		if phase_hqs.size() == 1:
 			var lone := phase_hqs[0] as Node3D
-			var lone_team := 1 if direction.length_squared() <= 0.0001 or \
-					(lone.position - anchor).dot(direction) <= 0.0 else 2
+			var lone_team := 2 if direction.length_squared() <= 0.0001 or \
+					(lone.position - anchor).dot(direction) <= 0.0 else 1
 			lone.set_meta("bf6_progressive_phase", phase)
 			lone.set_meta("bf6_progressive_team", lone_team)
 			continue
@@ -1492,7 +1515,12 @@ static func _assign_progressive_hq_teams(grouped: Array, sector_rows: Array) -> 
 		for local_index in range(phase_hqs.size()):
 			var hq := phase_hqs[local_index] as Node3D
 			hq.set_meta("bf6_progressive_phase", phase)
-			hq.set_meta("bf6_progressive_team", 1 if local_index == 0 else 2)
+			# Installed progression runs from the opening HQ toward the final HQ.
+			# Portal's progressive templates use Team 2 for the opening attacker
+			# side and Team 1 for the forward defender side.
+			hq.set_meta("bf6_progressive_team", 2 if local_index == 0 else 1)
+			hq.set_meta("bf6_progressive_team_basis",
+				"installed phase direction; Team2 opening, Team1 forward")
 
 
 static func _nearest_element_index(rows: Array, point: Vector3) -> int:
