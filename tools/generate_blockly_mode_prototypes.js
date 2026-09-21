@@ -858,6 +858,27 @@ const outputs = {
   "mode_contracts.json": contracts,
 };
 
+const experienceTitles = {
+  "domination_game_data.workspace.json": "Mode Reference Domination Review",
+  "team_deathmatch_game_data.workspace.json": "Mode Reference Team Deathmatch Review",
+  "king_of_the_hill_game_data.workspace.json": "Mode Reference King of the Hill Review",
+  "escalation_review.workspace.json": "Mode Reference Escalation Review",
+  "operations_review.workspace.json": "Mode Reference Operations Review",
+  "strikepoint_review.workspace.json": "Mode Reference Strikepoint Review",
+  "squad_deathmatch_review.workspace.json": "Mode Reference Squad Deathmatch Review",
+  "gauntlet_review.workspace.json": "Mode Reference Gauntlet Review",
+  "obliteration_review.workspace.json": "Mode Reference Obliteration Review",
+  "squad_obliteration_review.workspace.json": "Mode Reference Squad Obliteration Review",
+  "sabotage_review.workspace.json": "Mode Reference Sabotage Review",
+  "payload_review.workspace.json": "Mode Reference Payload Review",
+  "carrier_strike_review.workspace.json": "Mode Reference Carrier Strike Review",
+};
+
+for (const [workspaceFilename, title] of Object.entries(experienceTitles)) {
+  const experienceFilename = workspaceFilename.replace(".workspace.json", ".experience.json");
+  outputs[experienceFilename] = experienceDocument(title, outputs[workspaceFilename]);
+}
+
 const schemaArgument = process.argv.indexOf("--schema");
 const schemaPath = schemaArgument >= 0 ? process.argv[schemaArgument + 1] : null;
 const portalSchema = schemaPath ? JSON.parse(fs.readFileSync(schemaPath, "utf8")) : null;
@@ -870,6 +891,8 @@ for (const [filename, document] of Object.entries(outputs)) {
     const result = validate(filename, document);
     if (portalSchema) validateAgainstPortalSchema(filename, document, portalSchema);
     console.log(`${filename}: ${result.blockCount} blocks, ${result.variableCount} variables`);
+  } else if (filename.endsWith(".experience.json")) {
+    validateExperience(filename, document);
   }
   fs.writeFileSync(path.join(outputRoot, filename), `${JSON.stringify(document, null, 2)}\n`, "utf8");
 }
@@ -890,4 +913,40 @@ function validateCatalogCoverage() {
     throw new Error(`Catalog coverage failed; missing contracts: ${missingContracts.join(", ") || "none"}; missing workspaces: ${missingWorkspaces.join(", ") || "none"}`);
   }
   console.log(`catalog coverage: ${indexedModes.size} modes, ${indexedModes.size - existingCreatorTemplates.size} workspace-backed modes, 3 existing creator templates`);
+}
+
+function experienceDocument(title, workspace) {
+  return {
+    mutators: {
+      MaxPlayerCount_PerTeam: 32,
+      ScoreboardType: 3,
+    },
+    assetRestrictions: {},
+    name: title,
+    description: "Reference-backed mode logic prepared for creator review. Add the desired map and the matching imported spatial layout after import.",
+    mapRotation: [],
+    workspace,
+    teamComposition: [
+      [1, { humanCapacity: 32 }],
+      [2, { humanCapacity: 32 }],
+    ],
+    gameMode: "ModBuilderCustom",
+    attachments: [],
+  };
+}
+
+function validateExperience(filename, document) {
+  const required = ["mutators", "assetRestrictions", "name", "description", "mapRotation",
+    "workspace", "teamComposition", "gameMode", "attachments"];
+  const missing = required.filter((key) => !(key in document));
+  if (missing.length) throw new Error(`${filename}: missing experience fields ${missing.join(", ")}`);
+  if (document.gameMode !== "ModBuilderCustom") {
+    throw new Error(`${filename}: gameMode must be ModBuilderCustom`);
+  }
+  if (!document.workspace || !document.workspace.mod) {
+    throw new Error(`${filename}: Blockly payload must be nested at workspace.mod`);
+  }
+  if (document.mapRotation.length !== 0 || document.attachments.length !== 0) {
+    throw new Error(`${filename}: review experience must not copy map data or attachments`);
+  }
 }
