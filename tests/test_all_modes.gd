@@ -843,10 +843,22 @@ func _check_breakthrough_sectors(root: Node, manifest: Dictionary, filename: Str
 					failures += 1
 					print("FAIL ", filename, ": Breakthrough local objective name ",
 						captures[slot].name)
-				if int(captures[slot].get("InitialOwner")) != 2:
+				if int(captures[slot].get("InitialOwner")) != 1:
 					failures += 1
 					print("FAIL ", filename,
-						": Breakthrough objective does not begin owned by Team 2 ",
+						": Breakthrough objective does not begin owned by Team 1 ",
+						captures[slot].name)
+				var capture_area = captures[slot].get("CaptureArea")
+				if capture_area == null or (capture_area as Node).get_parent() != captures[slot]:
+					failures += 1
+					print("FAIL ", filename, ": Breakthrough objective has no linked volume ",
+						captures[slot].name)
+				var team_1_spawns = captures[slot].get("InfantrySpawnPoints_Team1")
+				var team_2_spawns = captures[slot].get("InfantrySpawnPoints_Team2")
+				if team_1_spawns == null or team_1_spawns.is_empty() or \
+						team_2_spawns == null or team_2_spawns.is_empty():
+					failures += 1
+					print("FAIL ", filename, ": Breakthrough objective has no linked team spawns ",
 						captures[slot].name)
 				var expected_id := 1000 + sector_index * 100 + slot
 				if int(captures[slot].get("ObjId")) != expected_id:
@@ -910,7 +922,7 @@ func _check_progressive_template_shell(sectors: Node, authored_phases: int,
 						print("FAIL ", filename, ": ", mode_name,
 							" HQ is outside its phase sector ", (hq as Node).name)
 					var team := int((hq as Node).get("Team"))
-					var adjacent := sectors.get_child(index - 1 if team == 1 else index + 1)
+					var adjacent := sectors.get_child(index - 1 if team == 2 else index + 1)
 					if adjacent.get("SectorArea") != null and \
 							(hq as Node).get("HQArea") != adjacent.get("SectorArea"):
 						failures += 1
