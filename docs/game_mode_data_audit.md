@@ -195,17 +195,19 @@ has its own installed instance GUID.
 
 The extractor now retains this exact GEM-parameter-to-cylinder edge. The
 builder converts the authored cylinder transform, radius, and height into a
-32-sided SDK `PolygonVolume`, parents it beneath the corresponding automatic
-AA, and assigns the result to `ProtectionAreaVolume`. Portal SDK 1.4.3 exposes
-no cylinder-volume class, so polygon tessellation is the only representation
-conversion in that chain. The former nearest-HQ-area assignment remains only
-as a labeled fallback for older manifests with no retained binding.
+32-sided SDK `PolygonVolume`, stores it in `AA-Defences` beside the turret to
+avoid inheriting its tilt, and assigns the result to `ProtectionAreaVolume`.
+Portal SDK 1.4.3 exposes no cylinder-volume class, so polygon tessellation is
+the only representation conversion in that chain. No protection volume is
+invented when a retained binding is absent.
 
 `OwnerTeam` is a decoded automatic-AA interface field, but it is not stored as
 a scalar override on the measured Atoll placements. The generated team value
-therefore remains a labeled HQ-anchor inference until the selector/runtime
-route that supplies `OwnerTeam` is proven. A decoded field name establishes
-the destination contract; it does not by itself establish a placed value.
+therefore uses a labeled HQ-area or nearest-HQ inference for Portal when the
+placement gives team zero. The retail graph selects between the local
+`OwnerTeam` and external `OwningTeam` at runtime; this inference is not an
+exact per-map ownership value. A decoded field name establishes the destination
+contract; it does not by itself establish a placed value.
 
 ## HQ insertion spawns
 

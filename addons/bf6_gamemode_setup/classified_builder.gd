@@ -523,14 +523,17 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			# appear as a misleading "Special Area 1" scene node.
 			pass
 		elif role == 101:
-			# OwnerTeam is runtime-fed when the placement stores team 0. Do not
-			# manufacture ownership from the nearest HQ.
-			var aa_team := int(row.get("team", 0))
+			var authored_team := int(row.get("team", 0))
+			var team_choice := _automatic_aa_team(hqs, _vec3(row.get("centre", []))) \
+				if authored_team == 0 else {"team": authored_team, "basis": "authored placement"}
+			var aa_team := int(team_choice.team)
 			var aa := _scene("automatic_aa", _automatic_aa_name(row, aa_team))
 			aa.transform = _raw_transform(row)
 			aa.set_meta(PROVENANCE_META, _source(row))
 			aa_root.add_child(aa)
 			aa.owner = map_root
+			aa.set_meta("bf6_owner_team_basis", str(team_choice.basis))
+			aa.set_meta("bf6_authored_owner_team", authored_team)
 			if aa_team > 0:
 				aa.set("OwnerTeam", aa_team)
 				aa.set_meta("bf6_owner_team", aa_team)
@@ -658,6 +661,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	_refresh_team_volume_colors(root)
 	_prune_empty_folders(root)
 	_sort_generated_hierarchy(root)
+	_humanize_tree_names(root)
 	var compatibility := _template_compatibility_summary(root)
 	if int(compatibility.adjustments) > 0:
 		root.set_meta("bf6_template_adjustment_count", int(compatibility.adjustments))
@@ -2081,6 +2085,33 @@ static func _automatic_aa_name(row: Dictionary, team: int) -> String:
 	return "AutomaticAA_%s_Root%02d" % [ownership, _root_order(row)]
 
 
+static func _automatic_aa_team(hqs: Array, point: Vector3) -> Dictionary:
+	var containing: Array = []
+	for hq in hqs:
+		var area := hq.get("HQArea") as Node3D
+		if area != null and _volume_contains_layout_point(hq, area, point):
+			containing.append(hq)
+	if not containing.is_empty():
+		var team := int(containing[0].get("Team"))
+		var single_team := team in [1, 2]
+		for hq in containing:
+			if int(hq.get("Team")) != team: single_team = false
+		if single_team:
+			return {"team": team, "basis": "inferred from containing game-derived HQArea"}
+	var nearest: Node3D = null
+	var best_distance := INF
+	for hq in hqs:
+		if int(hq.get("Team")) not in [1, 2]: continue
+		var distance: float = point.distance_squared_to(hq.position)
+		if distance < best_distance:
+			best_distance = distance
+			nearest = hq
+	if nearest != null:
+		return {"team": int(nearest.get("Team")),
+			"basis": "inferred from nearest game-derived HQ position"}
+	return {"team": 0, "basis": "unresolved: no assigned HQ"}
+
+
 static func _hq_faction_for_point(hqs: Array, point: Vector3) -> int:
 	if hqs.is_empty():
 		return 0
@@ -2301,6 +2332,59 @@ static func _sort_generated_hierarchy(root: Node) -> void:
 		elif str(child.name).begins_with("TEAM_2_HQ"):
 			order[str(child.name)] = 2
 	_sort_children_by_rank(root, order)
+
+
+static func _humanize_tree_names(parent: Node) -> void:
+	var replacements := {}
+	var reserved := {}
+	for child in parent.get_children():
+		if _readable_node_base(child) == str(child.name): reserved[str(child.name)] = true
+	for child in parent.get_children():
+		var base := _readable_node_base(child)
+		if base == str(child.name): continue
+		var candidate := base
+		var ordinal := 2
+		while reserved.has(candidate):
+			candidate = "%s_%02d" % [base, ordinal]
+			ordinal += 1
+		reserved[candidate] = true
+		replacements[child] = candidate
+	var temporary := 0
+	for child in replacements:
+		var placeholder := "__bf6_rename_%d" % temporary
+		while parent.has_node(placeholder):
+			temporary += 1
+			placeholder = "__bf6_rename_%d" % temporary
+		child.name = placeholder
+		temporary += 1
+	for child in replacements: child.name = replacements[child]
+	for child in parent.get_children(): _humanize_tree_names(child)
+
+
+static func _readable_node_base(node: Node) -> String:
+	var name := str(node.name)
+	var root_at := name.find("_Root")
+	if root_at >= 0:
+		var end := root_at + 5
+		if end < name.length() and name[end] == "-": end += 1
+		while end < name.length() and name[end] in "0123456789": end += 1
+		if end > root_at + 5 and name[end - 1] in "0123456789":
+			name = name.left(root_at) + name.substr(end)
+			name = name.trim_suffix("_")
+	var cut := name.rfind("_")
+	if cut < 0 or name.length() - cut != 9: return name
+	var suffix := name.substr(cut + 1)
+	for character in suffix:
+		if not character in "0123456789abcdefABCDEF": return name
+	var prefix := name.left(cut)
+	if prefix == "hq":
+		var team := int(node.get("Team"))
+		return "TEAM_%d_HQ_Additional" % team if team in [1, 2] else "HQ_Unassigned"
+	if prefix.begins_with("Spawn"): return "Spawn"
+	if prefix == "Area": return "UnassignedArea"
+	if prefix == "Protection": return "ProtectionArea"
+	if prefix == "Group": return "SchematicGroup"
+	return prefix
 
 
 static func _sort_children_by_name(parent: Node) -> void:

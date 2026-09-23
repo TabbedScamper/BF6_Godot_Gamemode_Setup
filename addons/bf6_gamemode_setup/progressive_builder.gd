@@ -110,6 +110,8 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 		register_node(sector, entry.id, nodes)
 		sector.set_meta("bf6_order_basis", "selected layout graph/link order")
 		sector.set_meta("bf6_progressive_phase", index - 1)
+		sector.set_meta("bf6_portal_sector_runtime_area",
+			"SectorArea; Retreat/Advance areas are linked game-data references, not validated Portal sector behavior")
 		var hqs: Array = []
 		var captures: Array = []
 		var mcoms: Array = []
@@ -193,6 +195,7 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 		if progress.is_valid(): progress.call("Linking game sectors", index, evidence.sectors.size())
 	var arrays := {}
 	var spawn_owners := {}
+	var area_links := {}
 	var scalar_targets := {}
 	for edge in evidence.attachments:
 		var property: String = PIN_PROPERTIES.get(int(edge.source_pin), "")
@@ -251,6 +254,9 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 		if edge.target_kind == "player_spawn":
 			if not spawn_owners.has(edge.target): spawn_owners[edge.target] = []
 			if not spawn_owners[edge.target].has(controller): spawn_owners[edge.target].append(controller)
+		elif edge.target_kind == "polygon_volume":
+			if not area_links.has(edge.target): area_links[edge.target] = []
+			area_links[edge.target].append({"controller": controller, "property": property})
 	for id in spawn_owners:
 		var spawn: Node3D = nodes[id]
 		if spawn_owners[id].size() == 1:
@@ -269,6 +275,40 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 			spawn.owner = owner
 		else:
 			spawn.set_meta("bf6_shared_spawn_owners", spawn_owners[id].map(func(node): return node.get_meta("bf6_source_identity")))
+	# Keep each game polygon singular, but place it beneath the most useful
+	# authored controller. The same polygon may also serve other inspector pins.
+	for id in area_links:
+		var area: Node3D = nodes[id]
+		var links: Array = area_links[id]
+		var best: Dictionary = {}
+		var best_rank := 99
+		for link in links:
+			var rank := area_role_rank(str(link.property))
+			if rank < best_rank:
+				best = link
+				best_rank = rank
+		if best.is_empty(): continue
+		var parent: Node3D = best.controller
+		var role: String = str(best.property)
+		var short_id: String = str(id).get_slice("#", 1).left(8)
+		var candidate: String = "%s_%s" % [parent.name, role]
+		if parent.has_node(candidate): candidate += "_" + short_id
+		var authored: Transform3D = area.transform
+		var parent_transform := Transform3D.IDENTITY
+		var ancestor: Node = parent
+		while ancestor != root:
+			if ancestor is Node3D: parent_transform = ancestor.transform * parent_transform
+			ancestor = ancestor.get_parent()
+		area.owner = null
+		area.get_parent().remove_child(area)
+		parent.add_child(area)
+		area.transform = parent_transform.affine_inverse() * authored
+		area.name = candidate
+		area.owner = owner
+		area.set_meta("bf6_area_tree_role", role)
+		if links.size() > 1:
+			area.set_meta("bf6_shared_area_links", links.map(func(link):
+				return "%s/%s" % [link.controller.get_meta("bf6_source_identity", ""), link.property]))
 	# Portal exposes player enter/exit callbacks on AreaTrigger, not SectorArea.
 	# Reuse the exact game-linked polygon; the trigger itself is an API adapter.
 	for index in range(1, sector_nodes.size() - 1):
@@ -336,7 +376,18 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 			var parent: Node = helper._folder(root, "AA-Defences", owner)
 			var aa: Node3D = helper._add_plain(row, "automatic_aa", parent, owner)
 			register_node(aa, id, nodes)
-			if int(row.get("team", 0)) > 0: aa.set("OwnerTeam", int(row.team))
+			var authored_team := int(row.get("team", 0))
+			var hqs: Array = []
+			for sector in sector_nodes:
+				hqs.append_array(sector.get("HQs"))
+			var choice: Dictionary = helper._automatic_aa_team(hqs,
+				helper._vec3(row.get("centre", []))) if authored_team == 0 else \
+				{"team": authored_team, "basis": "authored placement"}
+			var team := int(choice.team)
+			if team > 0: aa.set("OwnerTeam", team)
+			aa.name = helper._automatic_aa_name(row, team)
+			aa.set_meta("bf6_owner_team_basis", str(choice.basis))
+			aa.set_meta("bf6_authored_owner_team", authored_team)
 			var shape: Dictionary = row.get("protection_shape", {})
 			if not shape.is_empty():
 				var protection: Node3D = helper._spatial_protection_polygon(shape, "Protection_" + str(id).get_slice("#", 1).left(8))
@@ -408,12 +459,21 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 	helper._refresh_team_volume_colors(root)
 	helper._prune_empty_folders(root)
 	helper._sort_generated_hierarchy(root)
+	helper._humanize_tree_names(root)
 	return "Built %s: %d exact sectors, %d attachment links; %d unresolved records (see bf6_import_warnings)." % [key, evidence.sectors.size(), linked_count, warnings.size()]
 
 static func register_node(node: Node, id: String, nodes: Dictionary) -> void:
 	nodes[id] = node
 	node.set_meta("bf6_source_identity", id)
 	node.set_meta("bf6_source_instance_guid", id.get_slice("#", 1))
+
+
+static func area_role_rank(property: String) -> int:
+	match property:
+		"CaptureArea": return 0
+		"SectorArea": return 1
+		"HQArea": return 2
+		_: return 3
 
 
 static func group_vehicles_by_authored_scope(root: Node, owner: Node,
