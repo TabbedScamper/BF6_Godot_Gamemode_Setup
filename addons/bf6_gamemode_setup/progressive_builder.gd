@@ -3,6 +3,7 @@ extends RefCounted
 
 # Identity-only progressive import. No distance, containment or root-order joins.
 const LINKS := "res://addons/bf6_gamemode_setup/data/progressive_links.json"
+const SCHEMATIC_VEHICLES := "res://addons/bf6_gamemode_setup/data/progressive_schematic_vehicles.json"
 const PIN_PROPERTIES := {
 	0xB545C66B: "HQArea", 0x3CA9EBF6: "CaptureArea", 0x95A790AE: "SectorArea",
 	0xDCF5607C: "InfantrySpawns", 0x8FF15F16: "ForwardSpawns",
@@ -27,6 +28,9 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 	if str(source.get("mode", "")) not in ["rush", "breakthrough"]:
 		return "Exact progressive importer only accepts Rush or Breakthrough."
 	var evidence: Dictionary = pack.get("layouts", {}).get(key, {})
+	var schematic_pack = JSON.parse_string(FileAccess.get_file_as_string(SCHEMATIC_VEHICLES))
+	var schematic_groups: Dictionary = schematic_pack.get("layouts", {}).get(key, {}) \
+		if schematic_pack is Dictionary else {}
 	if evidence.is_empty() or evidence.get("sectors", []).is_empty():
 		return "Exact progressive selection is unresolved for %s; existing scene preserved." % key
 	var rows := {}
@@ -74,6 +78,9 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 	root.owner = owner
 	root.set_meta("bf6_gamemode_setup", layout_id)
 	root.set_meta("bf6_source", "installed game links: " + str(evidence.layout))
+	root.set_meta("bf6_relationship_status",
+		"exact selected sector, objective, HQ, spawn, vehicle, and supported area links; live activation unverified")
+	helper._apply_retail_mode_settings(root, str(source.mode))
 	root.set_meta("bf6_order_status", str(pack.status))
 	root.set_meta("bf6_order_conditions", pack.conditions)
 	root.set_meta("bf6_hq_control_baseline", pack.get("hq_control_baseline", {}))
@@ -262,6 +269,40 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 			spawn.owner = owner
 		else:
 			spawn.set_meta("bf6_shared_spawn_owners", spawn_owners[id].map(func(node): return node.get_meta("bf6_source_identity")))
+	# Portal exposes player enter/exit callbacks on AreaTrigger, not SectorArea.
+	# Reuse the exact game-linked polygon; the trigger itself is an API adapter.
+	for index in range(1, sector_nodes.size() - 1):
+		var sector: Node3D = sector_nodes[index]
+		var area: Node = sector.get("SectorArea")
+		if area == null:
+			warnings.append("No exact SectorArea for Portal trigger %d" % (600 + index))
+			continue
+		var trigger: Node3D = helper._scene("area_trigger", "AreaTrigger_Sector%d" % index)
+		trigger.set("ObjId", 600 + index)
+		trigger.set("Area", area)
+		trigger.set_meta("bf6_portal_adapter", "AreaTrigger over game-linked SectorArea")
+		trigger.set_meta("bf6_source_area_identity", area.get_meta("bf6_source_identity", ""))
+		sector.add_child(trigger)
+		trigger.owner = owner
+	for index in [0, sector_nodes.size() - 1]:
+		var adjacent: Node3D = sector_nodes[1 if index == 0 else index - 1]
+		var team := 1 if index == 0 else 2
+		var candidates: Array = []
+		for hq in adjacent.get("HQs"):
+			if int(hq.get("Team")) == team and hq.get("HQArea") != null:
+				candidates.append(hq.get("HQArea"))
+		if candidates.size() != 1:
+			warnings.append("No unique exact Team %d HQArea for boundary trigger %d" % [team, 600 + index])
+			continue
+		var area: Node = candidates[0]
+		var boundary: Node3D = sector_nodes[index]
+		var trigger: Node3D = helper._scene("area_trigger", "AreaTrigger_Boundary%d" % index)
+		trigger.set("ObjId", 600 + index)
+		trigger.set("Area", area)
+		trigger.set_meta("bf6_portal_adapter", "AreaTrigger over game-linked HQArea")
+		trigger.set_meta("bf6_source_area_identity", area.get_meta("bf6_source_identity", ""))
+		boundary.add_child(trigger)
+		trigger.owner = owner
 	# Preserve exact selected vehicle records without inventing faction choice.
 	for id in entities:
 		if not rows.has(id): continue
@@ -278,6 +319,7 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 		vehicle.set("ObjId", -1)
 		vehicle.set("P_AutoSpawnEnabled", true)
 		vehicle.set_meta("bf6_source_vehicle_record", true)
+		vehicle.set_meta("bf6_progressive_vehicle", not stationary)
 		vehicle.set_meta("bf6_vehicle_type_status", "exact class; faction unresolved" if vehicle_type < 0 else "single concrete type")
 		if vehicle_type < 0: warnings.append("Vehicle faction requires runtime-role mapping: " + str(id))
 	# Other selected placements keep their existing SDK rendering helpers.
@@ -345,6 +387,8 @@ static func build(owner: Node, layout_id: String, document: Dictionary,
 		vehicle.set_meta("bf6_vehicle_faction_candidates", types)
 		helper.VehicleSkin.sync_spawner(vehicle, owner)
 		warnings.erase("Vehicle faction requires runtime-role mapping: " + str(id))
+	group_vehicles_by_authored_scope(root, owner, nodes, evidence, entities,
+		schematic_groups, helper)
 	var camera_elements: Array = []
 	for element in document.get("elements", []):
 		if entities.has(identity(element)): camera_elements.append(element)
@@ -370,3 +414,75 @@ static func register_node(node: Node, id: String, nodes: Dictionary) -> void:
 	nodes[id] = node
 	node.set_meta("bf6_source_identity", id)
 	node.set_meta("bf6_source_instance_guid", id.get_slice("#", 1))
+
+
+static func group_vehicles_by_authored_scope(root: Node, owner: Node,
+		nodes: Dictionary, evidence: Dictionary, entities: Dictionary,
+		schematic_groups: Dictionary, helper) -> void:
+	var parents := {}
+	for edge in evidence.memberships:
+		if not parents.has(edge.target): parents[edge.target] = []
+		if not parents[edge.target].has(edge.source): parents[edge.target].append(edge.source)
+	var sector_numbers := {}
+	for index in range(evidence.sectors.size()):
+		sector_numbers[evidence.sectors[index].id] = index + 1
+	for id in nodes:
+		var vehicle: Node = nodes[id]
+		if not vehicle.get_meta("bf6_progressive_vehicle", false): continue
+		var pending: Array = parents.get(id, []).duplicate()
+		var visited := {}
+		var scopes := {}
+		while not pending.is_empty():
+			var parent_id: String = pending.pop_back()
+			if visited.has(parent_id): continue
+			visited[parent_id] = true
+			var blueprint: String = str(entities.get(parent_id, ""))
+			if blueprint.contains("/gem_hq.ebx#"):
+				scopes["hq/" + parent_id] = parent_id
+			elif blueprint.contains("/gem_capturepoint.ebx#") or \
+					blueprint.contains("/gem_objective_mcom.ebx#"):
+				scopes["objective/" + parent_id] = parent_id
+			elif sector_numbers.has(parent_id):
+				scopes["sector/" + parent_id] = parent_id
+			else:
+				pending.append_array(parents.get(parent_id, []))
+		var parent: Node = helper._folder(root, "Vehicles", owner)
+		if scopes.size() == 1:
+			var scope_key: String = scopes.keys()[0]
+			var scope_id: String = scopes[scope_key]
+			var scope_node: Node = nodes.get(scope_id)
+			var phase := 0
+			if scope_key.begins_with("hq/") and scope_node != null:
+				phase = int(scope_node.get_meta("bf6_progressive_phase", -1)) + 1
+				var team := int(scope_node.get("Team"))
+				parent = helper._folder(helper._folder(parent, "HQ", owner),
+					"Team%d" % team, owner)
+				parent = helper._folder(parent, "Sector%d" % phase, owner)
+			elif scope_key.begins_with("objective/") and scope_node != null:
+				phase = int(scope_node.get_parent().get_meta("bf6_progressive_phase", -1)) + 1
+				parent = helper._folder(helper._folder(parent, "Objectives", owner),
+					"Sector%d" % phase, owner)
+				parent = helper._folder(parent, str(scope_node.name), owner)
+			elif scope_key.begins_with("sector/"):
+				parent = helper._folder(helper._folder(parent, "Sectors", owner),
+					"Sector%d" % int(sector_numbers[scope_id]), owner)
+			vehicle.set_meta("bf6_vehicle_scope", scope_key)
+		elif scopes.is_empty() and schematic_groups.has(id):
+			var group_id: String = str(schematic_groups[id])
+			parent = helper._folder(helper._folder(parent, "Schematic Groups", owner),
+				"Group_" + group_id.get_slice("#", 1).left(8), owner)
+			vehicle.set_meta("bf6_vehicle_scope", "schematic/" + group_id)
+			vehicle.set_meta("bf6_schematic_group_identity", group_id)
+			vehicle.set_meta("bf6_runtime_activation", "group-selected game record; live activation not proven")
+		else:
+			parent = helper._folder(parent, "Unassigned", owner)
+			vehicle.set_meta("bf6_vehicle_scope",
+				"no unique selected controller" if scopes.is_empty() else "multiple selected controllers")
+			if scopes.size() > 1: vehicle.set_meta("bf6_vehicle_scope_candidates", scopes.keys())
+		if vehicle.get_parent() == parent: continue
+		var authored_transform: Transform3D = vehicle.transform
+		vehicle.owner = null
+		vehicle.get_parent().remove_child(vehicle)
+		parent.add_child(vehicle)
+		vehicle.transform = authored_transform
+		vehicle.owner = owner

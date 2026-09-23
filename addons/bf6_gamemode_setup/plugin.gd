@@ -5,6 +5,7 @@ const Builder = preload("gamemode_builder.gd")
 const Fetch = preload("layout_fetch.gd")
 const VehicleSkin = preload("vehicle_skin.gd")
 const TemplateAddons = preload("template_addons.gd")
+const PROGRESSIVE_LINKS := "res://addons/bf6_gamemode_setup/data/progressive_links.json"
 const PREVIEW_SETTING := "bf6_gamemode_setup/high_poly_vehicle_previews"
 const MODE_DESCRIPTIONS := {
 	"conquest": "Two teams capture and hold persistent objectives across the map. Tickets drain from deaths and enemy-controlled flags; vehicles can belong to HQs or objectives.",
@@ -44,9 +45,13 @@ var _rows: Array = []
 var _busy := false
 var _inspector: EditorInspector
 var _selection: EditorSelection
+var _progressive_layouts: Dictionary = {}
 
 
 func _enter_tree() -> void:
+	var progressive_pack = JSON.parse_string(FileAccess.get_file_as_string(PROGRESSIVE_LINKS))
+	if progressive_pack is Dictionary:
+		_progressive_layouts = progressive_pack.get("layouts", {})
 	var editor_settings := get_editor_interface().get_editor_settings()
 	if not editor_settings.has_setting(PREVIEW_SETTING):
 		editor_settings.set_setting(PREVIEW_SETTING, false)
@@ -290,8 +295,14 @@ func _on_layout_selected(index: int) -> void:
 func _description_for_entry(entry: Dictionary) -> String:
 	var key := str(entry.get("key", "")).to_lower()
 	var mode := key.get_slice("/", 1) if key.contains("/") else key
-	return str(MODE_DESCRIPTIONS.get(mode,
+	var description := str(MODE_DESCRIPTIONS.get(mode,
 		"Uses the installed game's authored spatial layout for this mode."))
+	if mode in ["rush", "breakthrough"]:
+		var evidence: Dictionary = _progressive_layouts.get(key, {})
+		return description + (" Sector order, objectives, HQs, spawns, vehicles, and supported areas use exact game links; live activation is not verified." \
+			if not evidence.get("sectors", []).is_empty() else \
+			" Exact sector links are unresolved for this map, so the builder will not guess.")
+	return description + " Game-derived placements are available; some mode-specific runtime relationships remain unverified."
 
 
 func _report_build_progress(message: String, current: int, total: int) -> void:

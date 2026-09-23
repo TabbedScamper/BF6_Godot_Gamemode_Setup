@@ -1,0 +1,290 @@
+{
+  "source": "installed bomb-mode layout00 selected GEM membership",
+  "scope": "authored candidate sites; live bomb selection and activation unverified",
+  "layouts": {
+    "mp_abbasid/squadobliteration": {
+      "layout": "game/glaciermp/gamemodes/squadobliteration/layouts/squadobliteration_layout00.ebx#a19de24b-1d65-4f88-b623-17566de430ea",
+      "sector": "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#3292469b-0476-49a3-a70f-489606d77ccf",
+      "bombs": [
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#649ee547-955d-4fe3-ab92-e4a2409562e4"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#18c2d8ca-f3b9-4bfa-9c69-08691b49471e",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#0b3497c1-36df-4757-a437-a0f807c9be49",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#cc7cffc1-e7f7-497c-95f9-19a135f16a40",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#1bfcf890-7b98-4d99-8f82-fd2f9c290a63",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#2fdd4cf7-cca6-41ad-bb47-4431cf7e1b1a",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#e76ae072-a118-4735-b773-abb341afe056"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#fd0136a3-bae0-4cd1-9dc5-bc978a1233a0",
+        "game/glaciermp/levels/mp_abbasid/_layers_gameplay/squadobliteration0#dc3597f3-baf6-4ad7-ab6f-3ddc863a3112"
+      ],
+      "membership_link_indices": [
+        1474,
+        1475,
+        1476,
+        1477,
+        1478,
+        1479,
+        1480,
+        1481,
+        1482
+      ]
+    },
+    "mp_aftermath/squadobliteration": {
+      "layout": "game/glaciermp/gamemodes/squadobliteration/layouts/squadobliteration_layout00.ebx#a19de24b-1d65-4f88-b623-17566de430ea",
+      "sector": "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#01e25fa7-e07e-46bb-977a-bfd077371196",
+      "bombs": [
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#ec5b81e2-10a4-485d-b053-a8c59f292575"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#f78186a7-68a9-457e-b563-41936e334c25",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#514004cf-44f7-492b-853f-1c6102a51fc1",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#39d3c039-4061-4236-b817-e1ba7b4ef04e",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#4e9311a0-91c4-4fdd-a3d3-edf5a470b5c4",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#05e1d9a6-b85f-49f7-9960-1711c526f229",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#712ad74d-a396-4dd1-9379-e1fee17dee9c"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#775e087c-beaf-43bb-b4c9-42c3626a6bb9",
+        "game/glaciermp/levels/mp_aftermath/_layers_gameplay/squadobliteration0#6d1bd155-ff71-4a4e-b1a0-e089cb9125e8"
+      ],
+      "membership_link_indices": [
+        1048,
+        1049,
+        1050,
+        1051,
+        1052,
+        1053,
+        1054,
+        1055,
+        1056
+      ]
+    },
+    "mp_battery/squadobliteration": {
+      "layout": "game/glaciermp/gamemodes/squadobliteration/layouts/squadobliteration_layout00.ebx#a19de24b-1d65-4f88-b623-17566de430ea",
+      "sector": "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#56dc038c-4f9d-4560-b286-84941cf4c88f",
+      "bombs": [
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#6e097e22-059d-48c3-a723-bb0a6507dabe"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#fad6c423-e2ba-448b-8396-adb2acf5fb64",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#0bf30391-c3dc-4204-91e8-341e3f20b3c4",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#45c96175-f41f-40a2-a9b9-78d267b928df",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#8ed575ed-3442-4148-8f1b-aedd5803b619",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#9257b719-1dde-47e9-8326-d29eedeb64fb",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#b13f0138-bee6-40a4-8d91-96a25ca9a7f9"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#be90527f-778f-47fa-ad4c-f739e1434096",
+        "game/glaciermp/levels/mp_battery/_layers_gameplay/squadobliteration0#f6e7e690-2090-4472-b5be-e46668638860"
+      ],
+      "membership_link_indices": [
+        540,
+        541,
+        542,
+        543,
+        544,
+        545,
+        546,
+        547,
+        548
+      ]
+    },
+    "mp_contaminated/obliteration": {
+      "layout": "game/glaciermp/gamemodes/obliteration/layouts/obliteration_layout00.ebx#4c98283e-4d16-4500-8fe6-da8b32695716",
+      "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#f9b6a110-20cb-4b88-bf5e-1707c769e8ea",
+      "bombs": [
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#3c9863e5-e1e1-429b-99d8-29984ff96c43",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#27ae0fee-2041-4a06-bca4-b9f806a8a494",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#04ceee7c-219a-4216-9722-c77fb611671d",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#0a38d973-c6d2-4a81-b647-94982cb5c7ac",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#219d9431-fb33-473b-9d95-8bfb5c44daaf",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#36960e31-b85b-4309-9c6c-b38e935f0226",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#2779fe41-a975-4639-810e-1adaae711c68",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#4010f904-c7d3-43f9-9990-fdd9fadea23d",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#32f97b5a-7adf-4523-aeff-ec2393209db7",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#13b119c1-065c-4bf3-ae55-133713517922",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#428656c0-e79f-45a8-80b5-7a7e27beadf4",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#307e9599-04d6-4b76-854f-2e1920c860ba"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#63e6057a-5045-41e2-b0a8-9e86e741fddb",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#572e6d01-7d19-46f6-8aca-fdd1f334e377",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#4f746d39-2689-46a7-887d-f0f3fe219538",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#6479b575-8a3a-445d-880f-7477ee356df3",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#70229f96-3228-4285-9e0f-b4137a427282",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#71c870d3-ae9a-4658-b2eb-e6c83b9414c5"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#f0bc1cd4-29b7-4582-af88-6611f1a000e3",
+        "game/glaciermp/levels/mp_contaminated/_layers_gameplay/obliteration/obliteration0#e016a7c7-2bc8-482c-8aa1-e28e65313d93"
+      ],
+      "membership_link_indices": [
+        642,
+        643,
+        644,
+        645,
+        646,
+        647,
+        649,
+        650,
+        651,
+        652,
+        653,
+        654,
+        655,
+        656,
+        657,
+        658,
+        659,
+        660,
+        661,
+        662
+      ]
+    },
+    "mp_eastwood/obliteration": {
+      "layout": "game/glaciermp/gamemodes/obliteration/layouts/obliteration_layout00.ebx#4c98283e-4d16-4500-8fe6-da8b32695716",
+      "sector": "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#edc8e8a2-8ebb-4680-b7b2-fc34db53b6a5",
+      "bombs": [
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#31b1a401-0232-4570-bff1-5474a9e0f20a",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#526aae80-81f8-41cb-9497-7f5d143c76f3",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#38323d29-fbca-4d18-ba0e-c1c1d433ce62",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#4d5bb010-205b-4365-ad3e-a6c3adfa5d65",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#1887d56f-0a71-4383-9f26-ab5fd4187fd1",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#4f797148-0f24-48c9-811a-d944a850b6b5",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#21037814-1701-482e-a6d2-0b5ed72da8e9",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#227953b4-08c4-4557-8a27-b8005d30b57f",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#1d8cce2b-4cc3-4620-9ca6-f3f573b215d8",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#205cc4e7-452c-46ba-9bbb-0e264309c44d",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#17421368-8d73-45ff-89c1-ecdd0cec3ae0",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#3c56160b-1fb0-4f00-bd9f-cee09d10c961"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#6837047b-ac79-4ae9-a4cc-e6f3d53d26c6",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#6d4825f7-410a-400e-bbef-be255adf040f",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#754d5f6f-631e-443d-940b-a1c6348909f9",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#60893feb-708b-4758-adb6-cf99e653f28b",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#546c6977-4383-45f8-938a-a95d326deb19",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#53178f14-e8a3-49c3-9fe4-d05b4c3f34cb"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#ea77203b-6d8f-428b-8687-7442a9ab6c33",
+        "game/glaciermp/levels/mp_eastwood/_layers_gameplay/obliteration0#e1782669-58a7-47ac-a7e0-2b8b004edbd2"
+      ],
+      "membership_link_indices": [
+        528,
+        529,
+        530,
+        531,
+        532,
+        533,
+        535,
+        536,
+        537,
+        538,
+        539,
+        540,
+        541,
+        542,
+        543,
+        544,
+        545,
+        546,
+        547,
+        548
+      ]
+    },
+    "mp_golmudrailway/obliteration": {
+      "layout": "game/glaciermp/gamemodes/obliteration/layouts/obliteration_layout00.ebx#4c98283e-4d16-4500-8fe6-da8b32695716",
+      "sector": "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#fcad9a54-e313-450c-9757-9023c66b3673",
+      "bombs": [
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#401c3b7f-9868-4b6b-887d-552964d6a260",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#23407e99-9490-4909-9b3f-8be01d21f2ac",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#1fae39bc-beb9-4e87-8f6d-0cba033d1b3c",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#19fccca5-e1c3-439e-9572-263917b9f91d",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#295f8ac5-c9e5-4c98-a483-b50877a1df8f",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#56e6094c-bf20-47e0-81bc-e33d954f36c8",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#559ad553-8c87-429a-9681-693bbcb17487",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#36db65a3-70df-4e7b-94ea-4cbab8a825b8",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#48c4fe9a-471e-4344-9d98-7dc1d6f232fe",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#592c13c2-c61a-44d8-b466-050d69dd2e50",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#2256949c-257c-43f1-87c2-aebfb20681dc",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#4b32f9eb-8594-47b0-a291-7d7d8162f4fd"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#85197558-f7e6-43b4-bf05-35af5e5282f9",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#8fe40220-31f1-4102-b858-1a226fbcac53",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#6afe21c5-6a69-4458-94de-b3d8fc43c180",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#8096eb59-09d1-442f-9949-3559029601c4",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#804b72bd-b8ac-4fe8-b490-2786ca31376f",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#848d0382-dbac-4d47-8098-0fdba4adcccb"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#f1bc1adb-ef7e-4e8d-a7b4-118a1f9069f5",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#f70cbbed-ac22-4e00-9a99-7fa585b743b9",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#8e7a0b18-9e2e-4eb5-a490-c8ca0abc8e3b",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#3cdc4c8f-141c-4fac-83ad-69849cc20b9b",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#307e95e2-25d9-4fce-9b92-d60d2e157c0a",
+        "game/glaciermp/levels/mp_golmudrailway/_layers_gameplay/obliteration/mp_obliteration0#483826a3-62ec-4fcf-b4b2-4fdb7ec65e5d"
+      ],
+      "membership_link_indices": [
+        414,
+        415,
+        416,
+        417,
+        418,
+        419,
+        420,
+        421,
+        422,
+        423,
+        424,
+        425,
+        426,
+        427,
+        428,
+        429,
+        430,
+        431,
+        432,
+        433,
+        434,
+        435,
+        436,
+        437
+      ]
+    },
+    "mp_plaza/squadobliteration": {
+      "layout": "game/glaciermp/gamemodes/squadobliteration/layouts/squadobliteration_layout00.ebx#a19de24b-1d65-4f88-b623-17566de430ea",
+      "sector": "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#e4b7d13c-5056-414a-ae91-58b7157952f9",
+      "bombs": [
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#4d72d88d-2437-4011-862b-21fcbf4b7e5f"
+      ],
+      "mcoms": [
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#56d4d684-8e8c-4024-ad9e-eb963ea4971e",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#22abbfed-87f0-41cd-822b-a3681e093880",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#a13e7ef1-c790-4806-928b-140bb26bd38e",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#7b1fa93e-eecc-4729-9969-aae9fc20a060",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#b4971b31-3178-492e-a5b4-aa81541ab784",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#bb231f4f-3f58-462e-9567-2626fd242ac5"
+      ],
+      "hqs": [
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#995d3bb3-3d3f-43f7-8cbc-fff18835211d",
+        "game/glaciermp/levels/mp_plaza/_layers_gameplay/squadobliteration0#36577afc-ccdf-48b0-9c39-d2a31a310382"
+      ],
+      "membership_link_indices": [
+        488,
+        489,
+        490,
+        491,
+        492,
+        493,
+        494,
+        495,
+        496
+      ]
+    }
+  }
+}

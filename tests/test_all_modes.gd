@@ -5,6 +5,11 @@ const Builder = preload("res://addons/bf6_gamemode_setup/gamemode_builder.gd")
 const DATA_DIR := "C:/BF6_Dev/BF6_Godot_Gamemode_Setup/data"
 const CATALOG := DATA_DIR + "/layout_catalog.json"
 const CONQUEST_IDENTITIES := "C:/BF6_Dev/BF6_Godot_Gamemode_Setup/tests/conquest_objective_identities.json"
+const PROGRESSIVE_LINKS := "res://addons/bf6_gamemode_setup/data/progressive_links.json"
+const RETAIL_SETTINGS := "res://addons/bf6_gamemode_setup/data/retail_mode_runtime_contracts.json"
+const KOTH_CANDIDATES := "res://addons/bf6_gamemode_setup/data/koth_candidates.json"
+const OPERATIONS_CANDIDATES := "res://addons/bf6_gamemode_setup/data/operations_candidates.json"
+const BOMB_CANDIDATES := "res://addons/bf6_gamemode_setup/data/bomb_candidates.json"
 const VEHICLE_CLASS_TYPES := {
 	0: [13, 9], 1: [17, 3], 2: [0, 1], 3: [2, 4], 4: [16, 14],
 	5: [15, 18], 6: [8, 6], 7: [5, 19], 8: [10], 9: [12, 20],
@@ -20,8 +25,21 @@ func _init() -> void:
 	var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOG))
 	var conquest_identities: Dictionary = JSON.parse_string(
 		FileAccess.get_file_as_string(CONQUEST_IDENTITIES))
+	var progressive_pack: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(PROGRESSIVE_LINKS))
+	var retail_settings: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(RETAIL_SETTINGS))
+	var koth_candidates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(KOTH_CANDIDATES))
+	var operations_candidates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(OPERATIONS_CANDIDATES))
+	var bomb_candidates: Dictionary = JSON.parse_string(
+		FileAccess.get_file_as_string(BOMB_CANDIDATES))
 	var requested_modes := OS.get_cmdline_user_args()
 	var tested := 0
+	var unresolved := 0
+	var rejected_koth := 0
+	var unresolved_operations := 0
 	for level in (catalog.get("maps", {}) as Dictionary):
 		var map: Dictionary = catalog.maps[level]
 		for mode_value in map.get("modes", []):
@@ -36,6 +54,79 @@ func _init() -> void:
 			var message := Builder.build(root, key, {
 				"manifest": "%s/%s" % [DATA_DIR, filename],
 			}, false)
+			if mode in ["koth", "kingofthehill"]:
+				var koth_row: Dictionary = koth_candidates.get("maps", {}).get(level, {})
+				if not koth_row.is_empty():
+					var koth_document: Dictionary = JSON.parse_string(
+						FileAccess.get_file_as_string("%s/%s" % [DATA_DIR, filename]))
+					var found_koth: Array = []
+					for element in koth_document.get("elements", []):
+						if str(element.get("gem", "")) == "gem_capturepoint":
+							found_koth.append(str(element.get("instance_guid", "")).to_lower())
+					found_koth.sort()
+					var expected_koth: Array = koth_row.capture_guids.duplicate()
+					expected_koth.sort()
+					if found_koth != expected_koth:
+						if not message.begins_with("KOTH candidate identities disagree") or root.get_child_count() != 0:
+							failures += 1
+							print("FAIL ", filename, ": mismatched KOTH candidate set was not refused")
+						else:
+							rejected_koth += 1
+						tested += 1
+						root.queue_free()
+						await process_frame
+						continue
+			if mode == "operations":
+				var operations_row: Dictionary = operations_candidates.get("maps", {}).get(level, {})
+				if not operations_row.is_empty():
+					var operations_document: Dictionary = JSON.parse_string(
+						FileAccess.get_file_as_string("%s/%s" % [DATA_DIR, filename]))
+					var available_operations := {}
+					for element in operations_document.get("elements", []):
+						available_operations[str(element.get("partition", "")) + "#" + str(element.get("instance_guid", ""))] = true
+					var missing_operations := false
+					for candidate in operations_row.sectors:
+						if not available_operations.has(candidate.sector): missing_operations = true
+						for member_id in candidate.captures + candidate.hqs:
+							if not available_operations.has(member_id): missing_operations = true
+					if missing_operations:
+						if not message.begins_with("Operations selected ") or root.get_child_count() != 0:
+							failures += 1
+							print("FAIL ", filename, ": incomplete Operations export was not refused")
+						else:
+							unresolved_operations += 1
+						tested += 1
+						root.queue_free()
+						await process_frame
+						continue
+			if mode in ["rush", "breakthrough"]:
+				var evidence: Dictionary = progressive_pack.get("layouts", {}).get(key, {})
+				if evidence.get("sectors", []).is_empty():
+					if not message.begins_with("Exact progressive selection is unresolved"):
+						failures += 1
+						print("FAIL ", filename, ": unresolved selection was not refused: ", message)
+					else:
+						unresolved += 1
+				else:
+					var exact: Node = Builder.find_build(root, key)
+					if exact == null or not message.begins_with("Built "):
+						failures += 1
+						print("FAIL ", filename, ": exact builder failed: ", message)
+					else:
+						if exact.get_meta("bf6_order_status", "") == "":
+							failures += 1
+							print("FAIL ", filename, ": exact order provenance is missing")
+						if (exact.get_meta("bf6_retail_mode_defaults", {}) as Dictionary).is_empty():
+							failures += 1
+							print("FAIL ", filename, ": retail mode defaults are missing")
+						var packed_exact := PackedScene.new()
+						if packed_exact.pack(root) != OK:
+							failures += 1
+							print("FAIL ", filename, ": exact scene did not pack")
+				tested += 1
+				root.queue_free()
+				await process_frame
+				continue
 			if not message.begins_with("Built "):
 				failures += 1
 				print("FAIL ", filename, ": ", message)
@@ -47,6 +138,53 @@ func _init() -> void:
 				else:
 					var manifest: Dictionary = JSON.parse_string(
 						FileAccess.get_file_as_string("%s/%s" % [DATA_DIR, filename]))
+					if mode in ["koth", "kingofthehill"]:
+						var selected_koth: Dictionary = koth_candidates.get("maps", {}).get(level, {})
+						if not selected_koth.is_empty():
+							if built.get_meta("bf6_koth_candidate_guids", []) != selected_koth.capture_guids:
+								failures += 1
+								print("FAIL ", filename, ": authored KOTH candidate order is missing")
+							var hill_sector: Node = built.get_node_or_null("Objectives/Runtime Sectors/SectorCandidate_01")
+							if hill_sector == null or hill_sector.get_meta("bf6_koth_candidate_guids", []) != selected_koth.capture_guids:
+								failures += 1
+								print("FAIL ", filename, ": KOTH sector lost candidate link order")
+					if mode == "operations":
+						var selected_operations: Dictionary = operations_candidates.get("maps", {}).get(level, {})
+						for candidate in selected_operations.get("sectors", []):
+							var sector_node: Node = _find_meta_value(built, "bf6_source_identity", str(candidate.sector))
+							if sector_node == null:
+								failures += 1
+								print("FAIL ", filename, ": exact Operations sector missing ", candidate.sector)
+								continue
+							var capture_ids: Array = (sector_node.get("CapturePoints") as Array).map(
+								func(node): return str(node.get_meta("bf6_capture_instance_guid", "")))
+							var hq_ids: Array = (sector_node.get("HQs") as Array).map(
+								func(node): return str(node.get_meta("bf6_source_instance_guid", "")))
+							if capture_ids != (candidate.captures as Array).map(func(id): return str(id).get_slice("#", 1)) or \
+								hq_ids != (candidate.hqs as Array).map(func(id): return str(id).get_slice("#", 1)):
+								failures += 1
+								print("FAIL ", filename, ": Operations membership changed ", candidate.sector)
+					if mode in ["obliteration", "squadobliteration"]:
+						var selected_bomb: Dictionary = bomb_candidates.get("layouts", {}).get(key, {})
+						if not selected_bomb.is_empty():
+							var bomb_sector: Node = _find_meta_value(built, "bf6_source_identity", str(selected_bomb.sector))
+							if bomb_sector == null:
+								failures += 1
+								print("FAIL ", filename, ": selected bomb-mode sector missing")
+							else:
+								var mcom_ids: Array = (bomb_sector.get("MCOMs") as Array).map(
+									func(node): return str(node.get_meta("bf6_source_identity", "")))
+								var hq_ids: Array = (bomb_sector.get("HQs") as Array).map(
+									func(node): return str(node.get_meta("bf6_source_identity", "")))
+								if mcom_ids != selected_bomb.mcoms or hq_ids != selected_bomb.hqs or \
+										bomb_sector.get_meta("bf6_bomb_candidate_guids", []) != selected_bomb.bombs:
+									failures += 1
+									print("FAIL ", filename, ": bomb-mode candidate membership changed")
+					var settings_key := "kingofthehill" if mode == "koth" else mode
+					if retail_settings.get("modes", {}).has(settings_key) and \
+							(built.get_meta("bf6_retail_mode_defaults", {}) as Dictionary).is_empty():
+						failures += 1
+						print("FAIL ", filename, ": decoded mode defaults are missing")
 					var actual_special := _count_meta(built, "bf6_unmapped_role", "gem_specialcombatarea")
 					if actual_special != 0:
 						failures += 1
@@ -170,7 +308,10 @@ func _init() -> void:
 			tested += 1
 			root.queue_free()
 			await process_frame
-	print("ALL MODES: ", tested, " tested, ", failures, " failures")
+	print("ALL MODES: ", tested, " tested, ", unresolved,
+		" progressive selections unresolved, ", rejected_koth,
+		" mismatched KOTH exports refused, ", unresolved_operations,
+		" incomplete Operations exports refused, ", failures, " failures")
 	quit(1 if failures else 0)
 
 

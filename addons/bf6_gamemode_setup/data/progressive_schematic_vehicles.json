@@ -1,0 +1,31 @@
+{
+  "source": "installed full GEM membership graph",
+  "scope": "selected schematic-group parent; not a proven live HQ/sector activation",
+  "layouts": {
+    "mp_contaminated/breakthrough": {
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0097f7f2-8c03-4587-8da1-e9588d825a81": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9e7466ef-0143-4e72-8dbe-5e186be85c45",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#025e3ae3-490e-41ae-8758-e661fe309947": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9a1562c4-e879-47c4-9df8-bb6b2bebc07c",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0bfe89d6-fc71-4e96-9cf4-6bfb67f0142f": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#95cf65f2-b2c7-4d3e-9caa-45a67b569a2b",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0db2e27c-f9ef-436e-9ab0-6a487ce71590": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#002932a5-9c63-4358-bb80-b5f13b8b7ee6",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#1713fc91-6e5e-4602-a403-ddc35006ac86": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#95cf65f2-b2c7-4d3e-9caa-45a67b569a2b",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#1e7187c4-4b4a-43e5-9ca2-fff3c5c4c268": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9a1562c4-e879-47c4-9df8-bb6b2bebc07c",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#2027f590-06f8-431a-9cab-cfb8f5cbd30a": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9c9b19b7-f1e1-4fe7-8be4-d9077648e3b0",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#25ebbdc3-8395-4f2d-a381-b5ad46b02265": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#002932a5-9c63-4358-bb80-b5f13b8b7ee6",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#2aed9efc-946f-4ddb-827d-47ea133a23f0": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#002932a5-9c63-4358-bb80-b5f13b8b7ee6",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#456a52dd-06ed-490c-889d-49cd479943b6": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9c9b19b7-f1e1-4fe7-8be4-d9077648e3b0",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#536eb6fc-4828-4dab-9b4e-7c670dc28a5e": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#faf49a0b-2140-4957-8815-6ad336caa747",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#54bca037-d6d2-4879-80da-2164faf8c58d": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9a1562c4-e879-47c4-9df8-bb6b2bebc07c",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#5717729d-32d2-42e2-920f-7e411d7fbf8a": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#1629e985-e597-41b8-aafe-7dc8ee9bbec2",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#69d3df46-da25-4636-88f6-7d6ef62202d2": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#faf49a0b-2140-4957-8815-6ad336caa747",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#6a3b3f3c-c541-47d3-a424-79fbbaa895bb": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#95cf65f2-b2c7-4d3e-9caa-45a67b569a2b",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#73cc0e82-12e1-4426-8d85-08679b5f7840": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#faf49a0b-2140-4957-8815-6ad336caa747",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#870321e8-7389-4949-8ec7-d4dd8768615f": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#ffe99bda-dddb-497b-8103-8c4742c3ebd7",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#a0de4a5d-79f1-4d25-b016-782d889f891a": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#002932a5-9c63-4358-bb80-b5f13b8b7ee6",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#b6dcc3bf-89a5-49d2-b768-152fcce8f625": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#95cf65f2-b2c7-4d3e-9caa-45a67b569a2b",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#b7eea7ee-669e-47ea-9ed0-cb5150f7de8a": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9c9b19b7-f1e1-4fe7-8be4-d9077648e3b0",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#ca49ab56-6a25-45f9-8505-7b03c362546f": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#1629e985-e597-41b8-aafe-7dc8ee9bbec2",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#cc39f131-568c-4505-b656-d534950c5269": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9c9b19b7-f1e1-4fe7-8be4-d9077648e3b0",
+      "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#f7910286-52b6-485c-a8ba-97cd93e06c0e": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0_schematic#9a1562c4-e879-47c4-9df8-bb6b2bebc07c"
+    }
+  }
+}

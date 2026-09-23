@@ -1,0 +1,301 @@
+{
+  "source": "installed Operations layout00 selected GEM membership",
+  "scope": "candidate membership only; gameplay sector/phase order unverified",
+  "maps": {
+    "mp_capstone": {
+      "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
+      "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#021a7ddd-c309-4586-9ed2-ad067e0689b7",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#cdddd426-72fe-4391-a834-7ef73fd56dd7",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#fdbee104-6a09-46c2-87b5-aedcc7774b08"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#9afb7c54-85cd-4ae1-8a71-01e275244c45",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#56f08a8c-7447-4db3-bede-9dfa658e6932"
+          ],
+          "membership_link_indices": [
+            1883,
+            1910,
+            1941,
+            1950
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#1b888515-cfc2-4fe9-8155-6cdec4465b8a",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#f734842e-1d57-44d0-8782-2127baf4eac8"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#18c565a3-a114-43ef-9143-32447f7f7b18",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#b27db76b-b3ee-4948-b228-9e67c875e91f"
+          ],
+          "membership_link_indices": [
+            1818,
+            1841,
+            1861
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#21f17fc7-aa7a-4ddd-8068-065d41d1409d",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#1967a8ee-b230-42d0-910c-12b80b9ac21f",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#7aefef93-50b1-4581-b75f-b7c9477f7a0d"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#0961985e-f86e-4a69-9265-5754be222677",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#8465f82d-648d-4e23-b1f7-7afb1a9e8b46"
+          ],
+          "membership_link_indices": [
+            1965,
+            2000,
+            2011,
+            2021
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#75f8d6ec-96db-4530-9232-bfbcc314c15b",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#6352d156-0617-42f8-ae91-a335d8d56aa8"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#90bdd75c-d580-41b4-b3b5-487a10027859",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#44e44310-f8de-43a2-a406-d9f8e4280cc3"
+          ],
+          "membership_link_indices": [
+            2067,
+            2095,
+            2104
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#78ca4ded-2c27-4647-9790-ef772b298b54",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#57415337-3187-4029-8df9-d408da89636e"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#40a27bb6-c71c-4a9a-9928-2b13621d992c",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#da248056-cfc9-4201-ab0a-1e9ed69ce83a"
+          ],
+          "membership_link_indices": [
+            2121,
+            2142,
+            2155
+          ]
+        }
+      ]
+    },
+    "mp_contaminated": {
+      "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
+      "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#089e6c9c-123a-4507-91d5-2d8c1a062e53",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#55bab52f-c6ea-4c04-98f8-241a267df972",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#51622bad-31c4-4ad5-87bf-9249ae746f39"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#6ca485fd-6efd-4c11-b793-98523134044b",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#203cc43b-853a-42d5-9349-ffb051acb6e3"
+          ],
+          "membership_link_indices": [
+            1891,
+            1892,
+            1897,
+            1898
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#a5eb676b-e603-40a9-bf91-abf7c794056e",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#a59d5c84-3f20-4eb6-acf8-cd08cab20979",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#2c478ecb-5c07-475f-9dd5-3876854a6c16"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#519ccb92-f6dd-4f30-b632-b5d760be64b7",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#c3235004-4721-4570-9859-3367f24e2291"
+          ],
+          "membership_link_indices": [
+            2104,
+            2114,
+            2210,
+            2212
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#b9c98f6b-98a6-41aa-a3c4-da9f91b96481",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0606911f-aa27-487e-9a7f-7edccd5b506b",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#d81aed33-3cf3-47a4-8045-c91cc30cb49a"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#900cbe3b-9ea1-4a90-b9c5-a352d25b80e9",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#fb28035d-ab2e-4c75-be49-56d807c59700"
+          ],
+          "membership_link_indices": [
+            1889,
+            1890,
+            1895,
+            1896
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#dcd03683-cdbb-453e-8a26-7ecc5fe4b02f",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#4778de6c-1b60-4deb-9b86-ce3f1c7400f5"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#ef251e7b-f7a7-42e4-9a52-ede2e45a3d0b",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#e779ee7b-1b84-4a9a-91f6-c3404f09c656"
+          ],
+          "membership_link_indices": [
+            1888,
+            1893,
+            1894
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#fbd59704-bc46-4181-bcd8-1b2f93803a2f",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#a50bc683-9426-429e-ad69-eb97c1e5e124"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#89fc3b1c-ef2b-4e80-a71a-e28a25eb10df",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#aff528d3-0fd7-43d6-8271-d817812506d2"
+          ],
+          "membership_link_indices": [
+            2224,
+            2225,
+            2244
+          ]
+        }
+      ]
+    },
+    "mp_subsurface": {
+      "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
+      "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#2f1cab66-284f-46bf-b2dd-afa979e63c53",
+          "captures": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#3ec749aa-8e3c-48f3-b408-8ada3534ebb7"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#fbe72587-2b53-4c82-8d38-5bbe905564bf",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#86659e3f-9eae-424a-933d-a92d9648c544"
+          ],
+          "membership_link_indices": [
+            106,
+            107,
+            127
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#4134beaf-3482-4e30-9fd9-508cae4c815d",
+          "captures": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#e983f356-a96a-438d-9e82-4bc8a65da41f"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#a505b76e-9c7c-4063-bbae-5bfd2218f446",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#384add55-4e06-45ab-9995-a2ac21dedf59"
+          ],
+          "membership_link_indices": [
+            104,
+            105,
+            126
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#42ae16af-ad9d-4a2c-9ff2-a7855f3efb92",
+          "captures": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#27427b47-0426-414f-89d9-8a013794a197",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#25cb515c-02d3-48dd-bdaa-f8ce093b70fe"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#68158dd9-de59-42a2-8ea0-032198cef107",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#bff2e711-ede1-47bd-af26-0bdebb65d5a9"
+          ],
+          "membership_link_indices": [
+            101,
+            102,
+            103,
+            111
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#4dc6c3ea-c756-4ce1-8f56-9838e9bb088c",
+          "captures": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#062b4954-7cff-49a5-b741-55cd9130dea8",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#502f41a5-744d-441d-8b0e-7eb78016f6d0"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#06407190-d6d7-459d-bd39-adc92658c65a",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#6831c18c-6e1e-4e5b-811d-f4af3bd0c9b5"
+          ],
+          "membership_link_indices": [
+            134,
+            135,
+            182,
+            186
+          ]
+        }
+      ]
+    },
+    "mp_tungsten": {
+      "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
+      "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#5ba2f271-5f0a-4b76-9811-0ba07ce3192f",
+          "captures": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0db4a086-709b-43a9-bc49-347fa9e04574",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9ac1002a-4140-4adb-ae25-5f5a16443dc6"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0a8c6bf0-e36e-4388-bfc2-05f98a2874f3",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#aa03da07-f06a-446c-bb49-1bce3f0f158d"
+          ],
+          "membership_link_indices": [
+            1193,
+            1231,
+            1243,
+            1262
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#846226c4-5c3d-4d6a-9aa6-396a38b9c60d",
+          "captures": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#41f03cdf-ea1e-4b5a-bb9c-be2b97b1c12b",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#53c1fb21-793d-48ad-abbe-0745ff38ee19"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#731d67d1-5c5f-4a93-b893-b518007f8fd5",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#a9697a8e-e3e0-45c7-a459-d7c756043231"
+          ],
+          "membership_link_indices": [
+            1089,
+            1124,
+            1136,
+            1148
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9fc6c589-0816-4f04-ba2b-0615ce63124c",
+          "captures": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#968e8977-2b1c-4e94-a1c8-29bee116b520",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#d133205c-ccb3-4d05-a615-081288755672"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#6a944900-daf6-4fb6-9339-ee167090a2d4",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#e8db1010-3dec-4a05-b376-2dabd7d019fc"
+          ],
+          "membership_link_indices": [
+            970,
+            1003,
+            1024,
+            1044
+          ]
+        }
+      ]
+    }
+  }
+}

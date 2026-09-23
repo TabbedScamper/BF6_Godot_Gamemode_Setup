@@ -1,0 +1,257 @@
+{
+  "source": "installed KOTH layout00 GEM sector membership links",
+  "scope": "authored candidates and link order; live hill rotation unverified",
+  "maps": {
+    "mp_abbasid": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "84c8fc08-b77b-409e-94b1-297f3c07c416",
+        "7e6e5736-7dd2-4b0a-98b8-0dad45c9ffb4",
+        "8f12e370-3058-4bbd-9b55-ac4d38b7e03d",
+        "946e1e5a-ad3c-4c13-a3a8-10b7a6011ab1",
+        "e475d4e9-cb37-4dd1-8be4-7cb2e05cedb2"
+      ],
+      "link_indices": [
+        203,
+        204,
+        205,
+        206,
+        293
+      ]
+    },
+    "mp_aftermath": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "39dd591e-b23c-4533-bfb9-fd344f94f406",
+        "7543f489-5cda-4faf-af6d-a6bdf6e9ac94",
+        "51e6bf82-d54a-4bb0-852f-b88561116129",
+        "579e700c-3ee8-4db2-b18e-04050e9e1a74",
+        "79da402a-9c51-40f3-a784-5021612ca5a1"
+      ],
+      "link_indices": [
+        439,
+        440,
+        441,
+        442,
+        443
+      ]
+    },
+    "mp_atoll": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "f6920ccb-f399-4741-bdb6-f55e020e8517",
+        "979f0c4e-b779-460b-a73a-3c24285e1202",
+        "4f2dbb66-0901-450e-883e-73b25d013b21",
+        "3aa5024d-938f-466d-8dee-e50349cf7b5f"
+      ],
+      "link_indices": [
+        333,
+        334,
+        335,
+        336
+      ]
+    },
+    "mp_badlands": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "a469c848-bcd7-4742-8329-bc781c3689b8",
+        "ae549b3a-7922-4736-b81f-462fd3e1fbbb",
+        "134b8cac-bb69-4e57-8025-eb2848c94a26",
+        "3a6f854d-e89f-4383-81ad-f60fb8840da3",
+        "29ff95c8-3398-4ed6-9c97-215086f05982"
+      ],
+      "link_indices": [
+        15,
+        16,
+        17,
+        18,
+        19
+      ]
+    },
+    "mp_battery": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "474d1dd8-4b86-4545-9721-043e4c01e8b9",
+        "8de795ab-a663-4aae-a92f-71a5c289d118",
+        "cb2572eb-d086-421e-a22a-774152a6b954",
+        "d90bf596-e329-4073-a55b-5aaeb2c5253b",
+        "5b0fe137-53bd-4eea-b054-48af12371a29"
+      ],
+      "link_indices": [
+        1058,
+        1059,
+        1060,
+        1061,
+        1062
+      ]
+    },
+    "mp_capstone": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "8f95c5fc-9562-4394-add7-a54f583aa931",
+        "074739c2-117c-41e6-a11b-f29ad5a7be7f",
+        "28e2f2f5-e21a-42c3-aafc-8c196be775bc",
+        "7e265ddb-7bd2-4e97-ac56-b50f91d66847",
+        "4696018f-9390-4439-9628-148f97d19cad"
+      ],
+      "link_indices": [
+        1331,
+        1332,
+        1333,
+        1334,
+        1335
+      ]
+    },
+    "mp_contaminated": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "ec73ee7c-3be2-4514-ace7-d9c5fa4a0f52",
+        "12622c40-ccf3-430d-befa-13caf0f65d62",
+        "3c8f962e-8564-4f0d-af2d-d455d1b3fe2d",
+        "dc7f2ae5-17c1-496a-9dc7-cbfa3d4df9db",
+        "cda9ddfa-73be-4fd0-b7a3-578c87ff93aa"
+      ],
+      "link_indices": [
+        1882,
+        1883,
+        1884,
+        1885,
+        1886
+      ]
+    },
+    "mp_dumbo": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "6659c39f-286f-4c6b-8706-9ae8b7404a4a",
+        "dd9639b4-2d9a-4b5e-bd33-507b468544d5",
+        "c57c09fd-a319-4a2c-93f3-ad3b76a8b0e8",
+        "a99fe7fa-4759-492a-8a3d-edffb7af9a9d",
+        "05519c17-507e-4406-9459-0f854727fdac"
+      ],
+      "link_indices": [
+        2979,
+        2980,
+        2981,
+        2982,
+        2983
+      ]
+    },
+    "mp_eastwood": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "e1e69779-6aca-4e96-8c08-400a8b1d66d5",
+        "a5074a26-adce-412a-80f5-f43ce7b898da",
+        "d321ed6c-c088-4059-8331-70e5a08fd08b",
+        "d3291b54-cd08-4b14-8e81-fbc6ebf39897",
+        "501ed4d6-6a04-47be-98be-8b2b60c9b5eb"
+      ],
+      "link_indices": [
+        136,
+        143,
+        144,
+        146,
+        147
+      ]
+    },
+    "mp_firestorm": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "22a17d81-65e3-474c-ba0d-2e373d814004",
+        "687f9c86-c125-44c7-b6e8-d9e518c5413e",
+        "57a4aea2-dd60-4793-861d-adf2f0e020fc",
+        "51777881-2e6f-44a4-8143-148ec9ec0c15",
+        "708bf57c-11ea-414c-9e92-82f830c4020a"
+      ],
+      "link_indices": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "mp_isolated": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "d19c6bc9-7f83-42ec-a0bd-e93a9c83ce9c",
+        "3dc8a303-4798-4b4d-9846-86840c36dc08",
+        "b57cc6dd-5dbb-4efc-90d6-3444ec2ddcfa",
+        "aa89c930-c9ad-4695-8c09-f6ec806645c7",
+        "b509ed4f-b901-4468-96fd-207f0baf073a"
+      ],
+      "link_indices": [
+        1494,
+        1495,
+        1496,
+        1497,
+        1498
+      ]
+    },
+    "mp_limestone": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "2cb423f5-e209-48b7-a2b4-f0675b8cb204",
+        "ada5710e-d0cd-45c8-ba59-cfafbca08750",
+        "f65b47d4-de32-4528-837d-47ad72e2b711",
+        "b5b312f5-bd29-4a15-b127-9e64d4f14e15"
+      ],
+      "link_indices": [
+        213,
+        214,
+        215,
+        216
+      ]
+    },
+    "mp_outskirts": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "9b084e0d-0ace-4a30-8a31-17ff5669eb6f",
+        "d15a3589-6a54-4528-97aa-5dfeb89c8261",
+        "aaad39ad-8a64-4cd0-b803-310b0f925c28",
+        "d3c8eafc-8bca-4ede-bca4-07c4ccd13e29",
+        "727ef3ff-2e1a-4da9-8002-2458963b4642"
+      ],
+      "link_indices": [
+        1393,
+        1394,
+        1395,
+        1396,
+        1397
+      ]
+    },
+    "mp_plaza": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "747029e7-551c-464f-9278-0de66b3047a7",
+        "93d0d3d8-9492-4df6-bbdc-9c82c13279f8",
+        "5a040aea-71b5-4685-a36d-1dac4bfccdc9",
+        "5d99842b-3c38-4a85-85d1-be036d004749",
+        "673f4081-4eef-450c-8bc4-ddb0e2ac9f54"
+      ],
+      "link_indices": [
+        681,
+        682,
+        683,
+        684,
+        685
+      ]
+    },
+    "mp_subsurface": {
+      "layout": "game/glaciermp/gamemodes/koth/layouts/koth_layout00.ebx#94f27759-be5d-4473-96ab-80c78e9d354f",
+      "capture_guids": [
+        "8fddf9e4-053e-410a-b8dd-377838ccd2ce",
+        "80f81585-8324-4dbe-a6cc-9b80bb2e12ae",
+        "a4de4f45-3dc0-40d1-ac85-d2d0ae370317",
+        "0431104e-698d-46cb-87e1-b4a0f81ed54b",
+        "7d33d1fd-6217-4d69-b4c9-1260b3e02cac"
+      ],
+      "link_indices": [
+        403,
+        404,
+        405,
+        406,
+        407
+      ]
+    }
+  }
+}

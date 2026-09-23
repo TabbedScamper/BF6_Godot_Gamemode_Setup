@@ -9,6 +9,9 @@ var faction_previews := 0
 var cross_partition_areas := 0
 var hq_assignments := 0
 var ordered_objectives := 0
+var grouped_vehicles := 0
+var schematic_vehicles := 0
+var portal_area_triggers := 0
 
 func _init() -> void:
 	var pack: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Exact.LINKS))
@@ -25,6 +28,25 @@ func _init() -> void:
 			host.free()
 			continue
 		var built: Node = host.get_child(0)
+		var sector_folder: Node = built.get_node("Objectives/Sectors")
+		for sector in sector_folder.get_children():
+			var area: Node = sector.get("SectorArea")
+			var index: int = int(sector.get("ObjId")) - 100
+			var trigger_name: String = "AreaTrigger_Boundary%d" % index if area == null \
+				else "AreaTrigger_Sector%d" % index
+			var trigger: Node = sector.get_node_or_null(trigger_name)
+			if key != "mp_contaminated/rush":
+				check(trigger != null, key + " missing game-area Portal trigger " + sector.name)
+			if trigger != null:
+				portal_area_triggers += 1
+				check(int(trigger.get("ObjId")) == int(sector.get("ObjId")) + 500,
+					key + " Portal trigger ID mismatch")
+				if area != null:
+					check(trigger.get("Area") == area, key + " Portal trigger area mismatch")
+				else:
+					check(trigger.get("Area") != null, key + " boundary trigger missing game HQ area")
+		check(not (built.get_meta("bf6_retail_mode_defaults", {}) as Dictionary).is_empty(),
+			key + " missing decoded mode defaults")
 		var baseline: Dictionary = built.get_meta("bf6_hq_control_baseline", {})
 		check(baseline.get("InvertedHQ", true) == false, key + " inverted-HQ baseline")
 		check(baseline.get("InvertTeamRoles", true) == false, key + " team-role baseline")
@@ -42,6 +64,27 @@ func _init() -> void:
 		for row in document.objects: rows[Exact.identity(row)] = row
 		var nodes := {}
 		collect(built, nodes)
+		for id in nodes:
+			var vehicle: Node = nodes[id]
+			if not vehicle.get_meta("bf6_progressive_vehicle", false): continue
+			grouped_vehicles += 1
+			var scope: String = str(vehicle.get_meta("bf6_vehicle_scope", ""))
+			var branch := ""
+			if scope.begins_with("hq/"): branch = "HQ"
+			elif scope.begins_with("objective/"): branch = "Objectives"
+			elif scope.begins_with("sector/"): branch = "Sectors"
+			elif scope.begins_with("schematic/"):
+				branch = "Schematic Groups"
+				schematic_vehicles += 1
+				check(vehicle.has_meta("bf6_schematic_group_identity"),
+					key + " schematic parent identity missing " + id)
+			else: branch = "Unassigned"
+			var ancestor: Node = vehicle.get_parent()
+			var under_branch := false
+			while ancestor != null and ancestor != built:
+				if str(ancestor.name) == branch: under_branch = true
+				ancestor = ancestor.get_parent()
+			check(under_branch, key + " vehicle outside authored scope " + id)
 		for hq_id in evidence.hq_properties:
 			check(nodes.has(hq_id), key + " missing authored HQ")
 			if not nodes.has(hq_id): continue
@@ -135,6 +178,12 @@ func _init() -> void:
 			var restored_nodes := {}
 			collect(restored, restored_nodes)
 			check(restored_nodes.size() == nodes.size(), "roundtrip preserves identities")
+			for sector in restored.get_node("Rush/Objectives/Sectors").get_children():
+				var trigger: Node = sector.get_node_or_null("AreaTrigger_Sector%d" %
+					(int(sector.get("ObjId")) - 100))
+				if trigger != null:
+					check(trigger.get("Area") == sector.get("SectorArea"),
+						"roundtrip preserves Portal trigger area")
 			for edge in evidence.attachments:
 				var property: String = Exact.PIN_PROPERTIES.get(int(edge.source_pin), "")
 				if property.is_empty() or not restored_nodes.has(edge.source) or not restored_nodes.has(edge.target): continue
@@ -171,6 +220,10 @@ func _init() -> void:
 	check(hq_assignments == 240, "expected all 240 authored HQ assignments")
 	check(ordered_objectives == 214, "expected all 214 runtime-ordered objectives")
 	print("HQ ASSIGNMENTS: ", hq_assignments, "; RUNTIME-ORDERED OBJECTIVES: ", ordered_objectives)
+	print("GROUPED GAME-DATA VEHICLES: ", grouped_vehicles)
+	check(schematic_vehicles == 23, "expected 23 exact schematic-group vehicles")
+	print("SCHEMATIC-GROUP VEHICLES: ", schematic_vehicles)
+	print("GAME-POLYGON PORTAL TRIGGERS: ", portal_area_triggers)
 	quit(1 if failures else 0)
 
 func collect(node: Node, nodes: Dictionary) -> void:

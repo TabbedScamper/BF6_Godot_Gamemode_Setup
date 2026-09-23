@@ -7,6 +7,10 @@ const CarrierPreview = preload("res://addons/bf6_gamemode_setup/carrier_preview.
 const BUILD_META := "bf6_gamemode_setup"
 const PROVENANCE_META := "bf6_source"
 const TEMPLATE_NAME := "Andy Rush/Breakthrough Blockly contract"
+const RETAIL_SETTINGS := "res://addons/bf6_gamemode_setup/data/retail_mode_runtime_contracts.json"
+const KOTH_CANDIDATES := "res://addons/bf6_gamemode_setup/data/koth_candidates.json"
+const OPERATIONS_CANDIDATES := "res://addons/bf6_gamemode_setup/data/operations_candidates.json"
+const BOMB_CANDIDATES := "res://addons/bf6_gamemode_setup/data/bomb_candidates.json"
 const SCENES := {
 	"capture": "res://objects/gameplay/conquest/CapturePoint.tscn",
 	"hq": "res://objects/gameplay/common/HQ_PlayerSpawner.tscn",
@@ -96,6 +100,66 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			load("res://addons/bf6_gamemode_setup/classified_builder.gd"), paths)
 	if int(document.get("schema", 0)) not in [2, 3, 4] or level == "" or mode == "":
 		return "Classified layout manifest is invalid"
+	var koth_evidence := {}
+	if mode in ["koth", "kingofthehill"]:
+		var koth_package = JSON.parse_string(FileAccess.get_file_as_string(KOTH_CANDIDATES))
+		if koth_package is Dictionary:
+			koth_evidence = koth_package.get("maps", {}).get(level.to_lower(), {})
+		if not koth_evidence.is_empty():
+			var expected: Array = koth_evidence.get("capture_guids", [])
+			var found: Array = []
+			for element in document.get("elements", []):
+				if str(element.get("gem", "")) == "gem_capturepoint":
+					found.append(str(element.get("instance_guid", "")).to_lower())
+			found.sort()
+			var sorted_expected := expected.duplicate()
+			sorted_expected.sort()
+			if found != sorted_expected:
+				return "KOTH candidate identities disagree with the selected game layout for %s; existing scene preserved." % level
+	var operations_evidence := {}
+	if mode == "operations":
+		var operations_package = JSON.parse_string(FileAccess.get_file_as_string(OPERATIONS_CANDIDATES))
+		if operations_package is Dictionary:
+			operations_evidence = operations_package.get("maps", {}).get(level.to_lower(), {})
+		if not operations_evidence.is_empty():
+			var available := {}
+			for element in document.get("elements", []):
+				available[str(element.get("partition", "")) + "#" + str(element.get("instance_guid", ""))] = true
+			var shapes := {}
+			for shape in document.get("capture_shapes", []):
+				shapes[str(shape.get("controller_instance_guid", ""))] = true
+			for candidate in operations_evidence.sectors:
+				if not available.has(candidate.sector):
+					return "Operations selected sector is absent from this export; existing scene preserved: " + str(candidate.sector)
+				for member_id in candidate.captures:
+					if not available.has(member_id) or not shapes.has(str(member_id).get_slice("#", 1)):
+						return "Operations selected capture or area is absent from this export; existing scene preserved: " + str(member_id)
+				for member_id in candidate.hqs:
+					if not available.has(member_id):
+						return "Operations selected HQ is absent from this export; existing scene preserved: " + str(member_id)
+	var bomb_evidence := {}
+	if mode in ["obliteration", "squadobliteration"]:
+		var bomb_package = JSON.parse_string(FileAccess.get_file_as_string(BOMB_CANDIDATES))
+		if bomb_package is Dictionary:
+			bomb_evidence = bomb_package.get("layouts", {}).get(level.to_lower() + "/" + mode, {})
+		if not bomb_evidence.is_empty():
+			var sector_found := false
+			for element in document.get("elements", []):
+				if str(element.get("partition", "")) + "#" + str(element.get("instance_guid", "")) == bomb_evidence.sector:
+					sector_found = true
+			if not sector_found:
+				return "Bomb-mode selected sector is absent from this export; existing scene preserved."
+			for spec in [[8, "mcoms"], [9, "bombs"], [100, "hqs"]]:
+				var found_members: Array = []
+				for object in document.get("objects", []):
+					if int(object.get("role", 0)) != spec[0]: continue
+					var raw: Dictionary = object.get("raw", {})
+					found_members.append(str(raw.get("partition", "")) + "#" + str(raw.get("instance_guid", "")))
+				found_members.sort()
+				var expected_members: Array = bomb_evidence[spec[1]].duplicate()
+				expected_members.sort()
+				if found_members != expected_members:
+					return "Bomb-mode selected %s disagree with the game layout; existing scene preserved." % spec[1]
 	var existing := _find(map_root, layout_id)
 	if existing != null:
 		if not replace_existing:
@@ -109,6 +173,26 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	root.set_meta(BUILD_META, layout_id)
 	root.set_meta(PROVENANCE_META, "installed BF6 %s/%s; classified layout schema %d" % [
 		level, mode, int(document.get("schema", 0))])
+	root.set_meta("bf6_relationship_status",
+		"game-derived placements; mode-specific relationships may be classified or incomplete")
+	if mode in ["koth", "kingofthehill"]:
+		if koth_evidence.is_empty():
+			root.set_meta("bf6_koth_candidate_status", "retail selected candidate graph unavailable for this map")
+		else:
+			root.set_meta("bf6_koth_candidate_status",
+				"exact selected candidate identities and authored link order; live hill rotation unverified")
+			root.set_meta("bf6_koth_candidate_guids", koth_evidence.capture_guids)
+			root.set_meta("bf6_koth_candidate_link_indices", koth_evidence.link_indices)
+			root.set_meta("bf6_koth_layout_identity", koth_evidence.layout)
+	if mode == "operations" and not operations_evidence.is_empty():
+		root.set_meta("bf6_operations_candidate_status",
+			"exact selected sector/HQ/capture membership; gameplay phase and battalion order unverified")
+		root.set_meta("bf6_operations_layout_identity", operations_evidence.layout)
+	if mode in ["obliteration", "squadobliteration"] and not bomb_evidence.is_empty():
+		root.set_meta("bf6_bomb_candidate_status",
+			"exact selected bomb/MCOM/HQ sites; live bomb selection and activation unverified")
+		root.set_meta("bf6_bomb_layout_identity", bomb_evidence.layout)
+	_apply_retail_mode_settings(root, mode)
 	if mode in ["rush", "breakthrough"]:
 		root.set_meta("bf6_template_compatibility", TEMPLATE_NAME)
 		root.set_meta("bf6_template_compatibility_policy",
@@ -202,6 +286,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		hq.set_meta(PROVENANCE_META, _source(row))
 		hq.set_meta("bf6_source_instance_guid",
 			str((row.get("raw", {}) as Dictionary).get("instance_guid", "")))
+		var hq_raw: Dictionary = row.get("raw", {})
+		hq.set_meta("bf6_source_identity",
+			str(hq_raw.get("partition", "")) + "#" + str(hq_raw.get("instance_guid", "")))
 		hq.set_meta("bf6_root_order", int((row.get("raw", {}) as Dictionary).get(
 			"root_order", hqs.size())))
 		root.add_child(hq)
@@ -264,11 +351,11 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var insertion_rows := _mode_elements(elements, "gem_insertion")
 	insertion_rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.get("root_order", -1)) < int(b.get("root_order", -1)))
-	# gem_insertion is the installed mode's authored insertion marker. Portal has
-	# no equivalent controller, so represent it as a SpawnPoint only when the
-	# exact marker lies inside an installed HQ polygon. No proximity fallback is
-	# allowed for progressive modes.
-	var has_authored_hq_insertions := not insertion_rows.is_empty() and not hqs.is_empty()
+	# An insertion marker is not itself a player spawn. The generic Operations
+	# path has no exact insertion-to-HQ spawn link, so do not materialize one.
+	# Rush/Breakthrough use their separate exact-link importer.
+	var has_authored_hq_insertions := mode not in ["operations", "rush", "breakthrough"] and \
+		 not insertion_rows.is_empty() and not hqs.is_empty()
 	if has_authored_hq_insertions:
 		for value in insertion_rows:
 			var insertion := value as Dictionary
@@ -386,6 +473,8 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var hq_vehicle_links: Array = []
 	for _index in range(hqs.size()): hq_vehicle_links.append([])
 	var objective_vehicle_counts := {}
+	var bomb_nodes := {}
+	var mcom_nodes := {}
 	for value in objects:
 		var row := value as Dictionary
 		var role := int(row.get("role", 0))
@@ -405,6 +494,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 				var folder_name := "Carrier Objectives" if mode == "carrierstrike" else "MCOM Objectives"
 				var mcom_root := _folder(captures_root, folder_name, map_root)
 				var mcom := _add_plain(row, "mcom", mcom_root, map_root)
+				mcom_nodes[mcom.get_meta("bf6_source_identity")] = mcom
 				var mcom_slot := maxi(str(row.get("label", "MCOM 1")).get_slice(" ", 1).to_int(), 1)
 				mcom.name = "MCOM_%02d_Root%02d" % [mcom_slot, _root_order(row)]
 				mcom.set("ObjId", 300 + mcom_slot)
@@ -420,6 +510,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			if mode in ["obliteration", "squadobliteration"]:
 				var bombs_root := _folder(captures_root, "Bomb Spawn Candidates", map_root)
 				var bomb := _add_plain(row, "bomb", bombs_root, map_root)
+				bomb_nodes[bomb.get_meta("bf6_source_identity")] = bomb
 				bomb.name = "BombCandidate_Root%02d" % _root_order(row)
 				bomb.set("ObjId", 400 + maxi(_root_order(row), 0))
 				bomb.set_meta("bf6_runtime_activation",
@@ -471,6 +562,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			map_root, hqs, elements)
 		for key in rush_claimed:
 			claimed_zone_sources[key] = true
+	elif mode == "operations" and not operations_evidence.is_empty():
+		_build_operations_candidate_sectors(operations_evidence, elements,
+			captures, hqs, captures_root, map_root)
 	elif mode in ["breakthrough", "operations"] and not captures.is_empty():
 		var breakthrough_claimed := _build_breakthrough_sectors(captures,
 			captures_root, map_root, elements, hqs, objects, mode,
@@ -483,6 +577,9 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		_build_sabotage_objectives(objects, elements, captures_root, map_root)
 	elif mode == "carrierstrike":
 		_build_carrier_objectives(elements, captures_root, map_root)
+	elif mode in ["obliteration", "squadobliteration"] and not bomb_evidence.is_empty():
+		_build_bomb_candidate_sector(bomb_evidence, elements, hqs,
+			mcom_nodes, bomb_nodes, captures_root, map_root)
 	_build_deploy_cameras(elements, attachments_root, map_root)
 
 	for value in objects:
@@ -542,6 +639,11 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		sector.owner = map_root
 	elif mode in ["escalation", "koth", "kingofthehill", "strikepoint", "payload", "sabotage"]:
 		_build_runtime_sectors(elements, captures_root, map_root, mode)
+		if mode in ["koth", "kingofthehill"] and not koth_evidence.is_empty():
+			var candidates_sector: Node = captures_root.get_node_or_null("Runtime Sectors/SectorCandidate_01")
+			if candidates_sector != null:
+				candidates_sector.set_meta("bf6_koth_candidate_guids", koth_evidence.capture_guids)
+				candidates_sector.set_meta("bf6_koth_candidate_link_indices", koth_evidence.link_indices)
 
 	var carrier_path := str(paths.get("carriers", ""))
 	if carrier_path != "":
@@ -892,6 +994,85 @@ static func _build_carrier_objectives(elements: Array, objectives_root: Node,
 			var prefix := "ObjectiveGroup" if gem_name == "gem_objectivegroup" else "VLS_Battery"
 			_add_runtime_marker(rows[index] as Dictionary, folder, owner,
 				"%s_%02d" % [prefix, index + 1], gem_name.trim_prefix("gem_"))
+
+
+static func _build_operations_candidate_sectors(evidence: Dictionary,
+		elements: Array, captures: Dictionary, hqs: Array,
+		objectives_root: Node, owner: Node) -> void:
+	var element_by_id := {}
+	for element in elements:
+		var id := str(element.get("partition", "")) + "#" + str(element.get("instance_guid", ""))
+		element_by_id[id] = element
+	var capture_by_guid := {}
+	for capture in captures.values():
+		var guid := str((capture as Node).get_meta("bf6_capture_instance_guid", ""))
+		if not guid.is_empty(): capture_by_guid[guid] = capture
+	var hq_by_guid := {}
+	for hq in hqs:
+		var guid := str((hq as Node).get_meta("bf6_source_instance_guid", ""))
+		if not guid.is_empty(): hq_by_guid[guid] = hq
+	var folder := _folder(objectives_root, "Runtime Sectors", owner)
+	folder.set_meta("bf6_membership_status",
+		"exact selected Operations candidates; folder order is identity order, not gameplay phase order")
+	for index in range(evidence.sectors.size()):
+		var row: Dictionary = evidence.sectors[index]
+		var sector := _scene("sector", "SectorCandidate_" + str(row.sector).get_slice("#", 1).left(8))
+		sector.transform = _element_transform(element_by_id[row.sector])
+		sector.set("ObjId", 500 + index)
+		sector.set_meta("bf6_source_identity", row.sector)
+		sector.set_meta("bf6_operations_candidate_not_phase_order", true)
+		sector.set_meta("bf6_membership_link_indices", row.membership_link_indices)
+		folder.add_child(sector)
+		sector.owner = owner
+		var linked_hqs := []
+		for member_id in row.hqs:
+			var hq: Node = hq_by_guid[str(member_id).get_slice("#", 1)]
+			linked_hqs.append(hq)
+			hq.set_meta("bf6_operations_sector_identity", row.sector)
+		var linked_captures := []
+		for member_id in row.captures:
+			var capture: Node = capture_by_guid[str(member_id).get_slice("#", 1)]
+			linked_captures.append(capture)
+			capture.set_meta("bf6_operations_sector_identity", row.sector)
+		_set_array(sector, "HQs", linked_hqs)
+		_set_array(sector, "CapturePoints", linked_captures)
+
+
+static func _build_bomb_candidate_sector(evidence: Dictionary, elements: Array,
+		hqs: Array, mcom_nodes: Dictionary, bomb_nodes: Dictionary,
+		objectives_root: Node, owner: Node) -> void:
+	var sector_row := {}
+	for element in elements:
+		if str(element.get("partition", "")) + "#" + str(element.get("instance_guid", "")) == evidence.sector:
+			sector_row = element
+			break
+	var folder := _folder(objectives_root, "Runtime Sectors", owner)
+	var sector := _scene("sector", "SectorCandidate_" + str(evidence.sector).get_slice("#", 1).left(8))
+	sector.transform = _element_transform(sector_row)
+	sector.set("ObjId", 500)
+	sector.set_meta("bf6_source_identity", evidence.sector)
+	sector.set_meta("bf6_bomb_candidate_status", "authored sites; live active bomb is selected at runtime")
+	sector.set_meta("bf6_bomb_candidate_guids", evidence.bombs)
+	sector.set_meta("bf6_membership_link_indices", evidence.membership_link_indices)
+	folder.add_child(sector)
+	sector.owner = owner
+	var hq_by_identity := {}
+	for hq in hqs:
+		hq_by_identity[(hq as Node).get_meta("bf6_source_identity")] = hq
+	var linked_hqs := []
+	for id in evidence.hqs:
+		var hq: Node = hq_by_identity[id]
+		linked_hqs.append(hq)
+		hq.set_meta("bf6_bomb_sector_identity", evidence.sector)
+	var linked_mcoms := []
+	for id in evidence.mcoms:
+		var mcom: Node = mcom_nodes[id]
+		linked_mcoms.append(mcom)
+		mcom.set_meta("bf6_bomb_sector_identity", evidence.sector)
+	for id in evidence.bombs:
+		(bomb_nodes[id] as Node).set_meta("bf6_bomb_sector_identity", evidence.sector)
+	_set_array(sector, "HQs", linked_hqs)
+	_set_array(sector, "MCOMs", linked_mcoms)
 
 
 static func _build_runtime_sectors(elements: Array, objectives_root: Node,
@@ -1970,6 +2151,9 @@ static func _add_plain(row: Dictionary, kind: String, parent: Node, owner: Node)
 	var node := _scene(kind, str(row.get("label", kind.capitalize())))
 	node.transform = _raw_transform(row)
 	node.set_meta(PROVENANCE_META, _source(row))
+	var raw: Dictionary = row.get("raw", {})
+	node.set_meta("bf6_source_identity",
+		str(raw.get("partition", "")) + "#" + str(raw.get("instance_guid", "")))
 	parent.add_child(node)
 	node.owner = owner
 	return node
@@ -2069,6 +2253,25 @@ static func _folder(parent: Node, node_name: String, owner: Node) -> Node3D:
 	parent.add_child(node)
 	node.owner = owner
 	return node
+
+
+static func _apply_retail_mode_settings(root: Node, mode: String) -> void:
+	# These are authored mutator defaults, not Portal SDK gameplay properties.
+	# Keep the names/values intact so a Blockly/TypeScript builder can translate
+	# only the fields that Portal actually exposes.
+	var package = JSON.parse_string(FileAccess.get_file_as_string(RETAIL_SETTINGS))
+	if not package is Dictionary:
+		root.set_meta("bf6_retail_settings_status", "missing or invalid decoded defaults")
+		return
+	var key := "kingofthehill" if mode == "koth" else mode
+	var record: Dictionary = package.get("modes", {}).get(key, {})
+	if record.is_empty():
+		root.set_meta("bf6_retail_settings_status", "no decoded mutator defaults for this mode")
+		return
+	root.set_meta("bf6_retail_mode_defaults", record.get("values", {}))
+	root.set_meta("bf6_retail_mode_defaults_partition", str(record.get("partition", "")))
+	root.set_meta("bf6_retail_settings_status",
+		"installed-game mutator defaults; not live server values or applied SDK properties")
 
 
 static func _prune_empty_folders(node: Node) -> void:

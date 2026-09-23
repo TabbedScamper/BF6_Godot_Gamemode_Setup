@@ -25,10 +25,24 @@ are retained on the generated root. Static membership is not runtime activation.
   their controller; shared spawns retain multiple inspector references.
 - HQArea, CaptureArea, SectorArea and all four retreat/advance area roles remain
   separate. No generic surrounding CombatArea is inferred from these polygons.
+- Public Portal `AreaTrigger` adapters use the exact linked SectorArea polygons
+  (`ObjId 600+sector index`) and unique boundary HQArea polygons. They are
+  labeled API adapters, not game-authored trigger entities. Missing game
+  polygons do not receive fabricated trigger volumes.
 - Selected vehicles retain their class and exact membership. Where exactly one
   authored HQ owns the vehicle, its authored Team selects the class's faction
   model. This is labeled an authored-default preview, not live activation.
   Shared or conflicting ownership does not arbitrarily select a faction.
+- Vehicles are grouped in the scene tree by their first selected authored HQ,
+  objective, or sector ancestor. The 23 Contaminated Breakthrough vehicles
+  without one of those ancestors have exact links to eight selected schematic
+  groups, now shown under `Vehicles/Schematic Groups`. That is a graph parent,
+  not a proven HQ/sector activation rule. Any truly unscoped or multi-owner
+  record remains under `Vehicles/Unassigned`; `bf6_vehicle_scope` explains why.
+  Reparenting does not change transforms or inspector references.
+- The root retains decoded installed-mode mutator defaults in
+  `bf6_retail_mode_defaults`. The importer does not force them into SDK fields
+  that do not represent the same runtime setting.
 - Authored HQ Team/AltTeam values are imported with evidence metadata. For the
   mounted standard Rush/Breakthrough path, the verified authored baseline is
   Team 1 attacking, Team 2 defending, with `InvertedHQ`, `InvertTeamRoles`, and
