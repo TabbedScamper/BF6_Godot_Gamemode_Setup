@@ -639,8 +639,15 @@ func _find_required_auto_spawn_disabled(node: Node) -> String:
 
 
 func _find_generated_name(node: Node) -> String:
-	if str(node.name).to_lower().begins_with("@spawn"):
-		return str(node.name)
+	var name := str(node.name)
+	if name.begins_with("@") or name.find("_Root") >= 0:
+		return name
+	var suffix := name.get_slice("_", name.get_slice_count("_") - 1)
+	if suffix.length() == 8:
+		var hex := true
+		for character in suffix:
+			if not character in "0123456789abcdefABCDEF": hex = false
+		if hex: return name
 	for child in node.get_children():
 		var found := _find_generated_name(child)
 		if found != "":
@@ -651,6 +658,16 @@ func _find_generated_name(node: Node) -> String:
 func _check_automatic_aa_teams(node: Node, filename: String) -> void:
 	if str(node.scene_file_path).get_file() == "VEH_Stationary_AutomaticAA.tscn":
 		var team := int(node.get("OwnerTeam"))
+		var basis := str(node.get_meta("bf6_owner_team_basis", ""))
+		if basis.is_empty():
+			failures += 1
+			print("FAIL ", filename, ": automatic AA has no team provenance ", node.name)
+		if team == 0 and not basis.begins_with("unresolved"):
+			failures += 1
+			print("FAIL ", filename, ": automatic AA left neutral despite team choice ", node.name)
+		if filename.contains("_conquest.") and team not in [1, 2]:
+			failures += 1
+			print("FAIL ", filename, ": Conquest automatic AA has no assigned team ", node.name)
 		if str(node.name).begins_with("@"):
 			failures += 1
 			print("FAIL ", filename, ": automatic AA has generated name ", node.name)

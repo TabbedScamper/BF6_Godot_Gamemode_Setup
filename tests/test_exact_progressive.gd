@@ -117,6 +117,19 @@ func _init() -> void:
 		for id in nodes:
 			if not rows.has(id): continue
 			var raw: Dictionary = rows[id].get("raw", rows[id])
+			if not rows[id].get("world_points", []).is_empty():
+				var polygon: Node = nodes[id]
+				var polygon_transform := Transform3D.IDENTITY
+				var polygon_ancestor: Node = polygon
+				while polygon_ancestor != built:
+					if polygon_ancestor is Node3D:
+						polygon_transform = polygon_ancestor.transform * polygon_transform
+					polygon_ancestor = polygon_ancestor.get_parent()
+				var centre: Array = rows[id].get("centre", [])
+				if centre.size() == 3:
+					check(polygon_transform.origin.distance_to(Vector3(centre[0], centre[1], centre[2])) < 0.01,
+						key + " changed polygon centre " + id)
+				continue
 			var t: Array = raw.get("transform", [])
 			if t.size() != 12 or nodes[id].has_meta("bf6_shared_spawn_owners"): continue
 			# Polygon rows use baked world points; actor/spawn transforms must be untouched.
@@ -167,6 +180,10 @@ func _init() -> void:
 				check(controller.get_meta("bf6_unresolved_" + property).has(edge.target), key + " missing ambiguous candidate")
 				continue
 			check(found.has(target) if found is Array else found == target, key + " wrong " + property)
+			if property in ["CaptureArea", "SectorArea"]:
+				check(target.get_parent() == controller, key + " area outside its controller " + property)
+				check(str(target.name).begins_with(str(controller.name) + "_" + property),
+					key + " area name obscures controller " + property)
 			checked_links += 1
 		print(key, " ", message)
 		if key == "mp_atoll/rush":
@@ -232,6 +249,13 @@ func collect(node: Node, nodes: Dictionary) -> void:
 		check(not nodes.has(id), "duplicate identity " + id)
 		nodes[id] = node
 	check(not str(node.name).begins_with("@"), "generated node name")
+	check(not str(node.name).contains("_Root"), "raw root-order node name " + str(node.name))
+	var suffix := str(node.name).get_slice("_", str(node.name).get_slice_count("_") - 1)
+	if suffix.length() == 8:
+		var hex := true
+		for character in suffix:
+			if not character in "0123456789abcdefABCDEF": hex = false
+		check(not hex, "source GUID leaked into node name " + str(node.name))
 	for child in node.get_children(): collect(child, nodes)
 
 func check(ok: bool, message: String) -> void:
