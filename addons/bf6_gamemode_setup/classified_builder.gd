@@ -90,6 +90,10 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 	var source := document.get("source", {}) as Dictionary
 	var level := str(source.get("level", ""))
 	var mode := str(source.get("mode", ""))
+	if mode in ["rush", "breakthrough"]:
+		return preload("res://addons/bf6_gamemode_setup/progressive_builder.gd").build(
+			map_root, layout_id, document, replace_existing, progress,
+			load("res://addons/bf6_gamemode_setup/classified_builder.gd"), paths)
 	if int(document.get("schema", 0)) not in [2, 3, 4] or level == "" or mode == "":
 		return "Classified layout manifest is invalid"
 	var existing := _find(map_root, layout_id)
