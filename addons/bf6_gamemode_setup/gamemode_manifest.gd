@@ -54,7 +54,7 @@ func gems(blueprint := "") -> Array:
 		if blueprint_value == null:
 			blueprint_value = raw.get("gem_blueprint", null)
 		var gem_blueprint := "" if blueprint_value == null else str(blueprint_value)
-		if gem_blueprint == "" and int(document.get("schema", 0)) in [2, 3]:
+		if gem_blueprint == "" and int(document.get("schema", 0)) in [2, 3, 4]:
 			gem_blueprint = str({2: "gem_capturepoint", 6: "gem_vehiclespawner",
 				7: "gem_vehicleresupplystation", 10: "gem_specialcombatarea",
 				100: "gem_hq", 101: "gem_automaticaa"}.get(int(row.get("role", 0)), ""))
@@ -76,7 +76,7 @@ static func vehicle_name(selector: int) -> String:
 
 func _validate() -> bool:
 	var schema := int(document.get("schema", 0))
-	if schema in [2, 3]:
+	if schema in [2, 3, 4]:
 		return _validate_layout()
 	if schema != 1:
 		return _fail("unsupported game-data manifest schema")

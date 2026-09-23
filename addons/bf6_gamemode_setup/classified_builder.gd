@@ -247,6 +247,15 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			continue
 		var capture := _scene("capture", "CapturePoint%s" % String.chr(65 + flag))
 		capture.position = _vec3(row.get("centre", []))
+		var exact_binding := row.get("capture_binding", {}) as Dictionary
+		var capture_source := row.get("raw", {}) as Dictionary
+		var capture_transform := capture_source.get("transform", []) as Array
+		if str(exact_binding.get("method", "")).begins_with(
+				"installed_gem_instance_parameter_") and \
+				capture_transform.size() == 12:
+			# Keep the placed controller at its exact game transform. Its attached
+			# polygon can have a different centroid and floor elevation.
+			capture.position = _vec3(capture_transform.slice(9, 12))
 		capture.set("ObjId", 200 + flag)
 		capture.set_meta(PROVENANCE_META, _source(row))
 		var capture_binding := row.get("capture_binding", {}) as Dictionary
@@ -1480,12 +1489,16 @@ static func _exact_capture_rows(document: Dictionary, elements: Array, mode: Str
 			centre += Vector3(float(points[index]), float(points[index + 1]),
 				float(points[index + 2]))
 		centre /= float(points.size() / 3)
+		var height := float(shape.get("height", 0.0))
+		# The generated asset boundary is reported at the middle of its convex
+		# extrusion. Portal's PolygonVolume origin is the bottom face.
+		centre.y -= height * 0.5
 		rows.append({
 			"role": 2,
 			"flag": int(shape.get("flag", -1)),
 			"centre": [centre.x, centre.y, centre.z],
 			"world_points": points,
-			"height": float(shape.get("height", 0.0)),
+			"height": height,
 			"raw": {
 				"layer": str(controller.get("layer", "")),
 				"partition": str(controller.get("partition", "")),
@@ -1788,6 +1801,15 @@ static func _assign_hq_areas(objects: Array, hqs: Array, owner: Node,
 		var team := int(hq.get("Team"))
 		var area := _polygon(best, "HQArea_Team%d" % team,
 			TEAM_1_VOLUME_COLOR if team == 1 else TEAM_2_VOLUME_COLOR)
+		if not progressive and absf(float(best.get("height", 0.0))) < 0.001:
+			if (best.get("land", []) as Array).size() == 3:
+				area.position.y = _volume_preview_center(best).y
+			else:
+				# An infinite-height ocean polygon has no terrain sample. Its
+				# explicitly attached HQ supplies a game-authored preview height.
+				area.position.y = hq.position.y
+			area.set_meta("bf6_portal_preview_translation",
+				"Infinite-height HQ polygon shown at installed terrain or HQ elevation")
 		if progressive:
 			_ensure_progressive_volume_height(area)
 		hq.add_child(area)
@@ -1846,11 +1868,16 @@ static func _build_combat_area_rows(combat_row: Dictionary,
 		surrounding_row: Dictionary, used: Dictionary, parent: Node,
 		owner: Node) -> void:
 	var combat := _scene("combat", "CombatArea")
-	combat.position = _vec3(combat_row.get("centre", []))
+	combat.position = _volume_preview_center(combat_row)
 	combat.set_meta(PROVENANCE_META, _source(combat_row))
 	parent.add_child(combat)
 	combat.owner = owner
 	var volume := _polygon(combat_row, "CombatVolume", Color(0.2, 0.75, 0.3, 0.3))
+	if absf(float(combat_row.get("height", 0.0))) < 0.001 and \
+			(combat_row.get("land", []) as Array).size() == 3:
+		volume.position.y = _volume_preview_center(combat_row).y
+		volume.set_meta("bf6_portal_preview_translation",
+			"Infinite-height combat polygon shown at installed terrain sample")
 	combat.add_child(volume)
 	volume.owner = owner
 	volume.position -= combat.position
@@ -1862,6 +1889,15 @@ static func _build_combat_area_rows(combat_row: Dictionary,
 		return
 	var surrounding := _polygon(surrounding_row, "SurroundingVolume",
 		Color(0.2, 0.55, 0.95, 0.22))
+	if float(surrounding_row.get("height", 0.0)) == 0.0 and \
+			(surrounding_row.get("land", []) as Array).size() != 3 and \
+			(combat_row.get("land", []) as Array).size() == 3:
+		# Both polygons are infinite-height in Portal. The outer shared-layer
+		# polygon has no terrain sample; borrow the inner area's game-derived
+		# sample solely to make its editor gizmo visible at the play surface.
+		surrounding.position.y = _volume_preview_center(combat_row).y
+		surrounding.set_meta("bf6_portal_preview_translation",
+			"Infinite-height polygon shown at game-derived combat-area terrain sample")
 	combat.add_child(surrounding)
 	surrounding.owner = owner
 	surrounding.position -= combat.position
@@ -2209,6 +2245,17 @@ static func _polygon(row: Dictionary, node_name: String, color: Color) -> Node3D
 	node.set("color", color)
 	node.set_meta(PROVENANCE_META, _source(row))
 	return node
+
+
+static func _volume_preview_center(row: Dictionary) -> Vector3:
+	var center := _vec3(row.get("centre", []))
+	# Portal defines height 0 as infinite, so moving its editor gizmo in Y
+	# cannot change gameplay. The classified row retains the installed source
+	# transform and a separate game-terrain sample for this exact footprint.
+	var land := row.get("land", []) as Array
+	if absf(float(row.get("height", 0.0))) < 0.001 and land.size() == 3:
+		center.y = float(land[1])
+	return center
 
 
 static func _ensure_progressive_volume_height(volume: Node) -> void:

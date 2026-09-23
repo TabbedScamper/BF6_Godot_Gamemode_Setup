@@ -251,6 +251,8 @@ func _init() -> void:
 							"0139a1cf-8515-44a9-b56e-adf3bbe57833",
 							"adf6e4b1-5197-4dda-a6d8-3e52178fcb63")
 						_check_faction_swap_roundtrip(root, built, key, filename)
+					if level == "mp_contaminated" and mode == "conquest":
+						_check_contaminated_conquest(built, manifest, filename)
 					if level == "mp_eastwood" and mode == "conquest":
 						_check_combat_area(built, filename,
 							"3da39332-bedc-47b2-ae21-1dac5dc0be79",
@@ -1242,6 +1244,21 @@ func _check_conquest_flag_mapping(root: Node, manifest: Dictionary, filename: St
 				String.chr(65 + source_flag))
 		var capture := root.get_node_or_null("Objectives/CapturePoint%s" % String.chr(65 + source_flag)) as Node3D
 		var expected := Vector3(float(row.centre[0]), float(row.centre[1]), float(row.centre[2]))
+		for shape_value in manifest.get("capture_shapes", []):
+			var shape := shape_value as Dictionary
+			if int(shape.get("flag", -1)) != source_flag:
+				continue
+			for element_value in manifest.get("elements", []):
+				var element := element_value as Dictionary
+				if str(element.get("instance_guid", "")) != \
+						str(shape.get("controller_instance_guid", "")):
+					continue
+				var transform := element.get("transform", []) as Array
+				if transform.size() == 12:
+					expected = Vector3(float(transform[9]), float(transform[10]),
+						float(transform[11]))
+				break
+			break
 		if capture == null or not capture.position.is_equal_approx(expected):
 			failures += 1
 			print("FAIL ", filename, ": Conquest flag ", String.chr(65 + source_flag),
@@ -1250,6 +1267,44 @@ func _check_conquest_flag_mapping(root: Node, manifest: Dictionary, filename: St
 		failures += 1
 		print("FAIL ", filename, ": Conquest capture identity count ", seen, "/",
 			expected_guids.size())
+
+
+func _check_contaminated_conquest(root: Node, manifest: Dictionary,
+		filename: String) -> void:
+	var shapes := manifest.get("capture_shapes", []) as Array
+	if shapes.size() != 6:
+		failures += 1
+		print("FAIL ", filename, ": expected six exact installed capture shapes")
+	for value in shapes:
+		var shape := value as Dictionary
+		var flag := int(shape.get("flag", -1))
+		var capture := root.get_node_or_null("Objectives/CapturePoint%s" %
+			String.chr(65 + flag))
+		if capture == null:
+			failures += 1
+			print("FAIL ", filename, ": missing capture ", flag)
+			continue
+		var area := capture.get("CaptureArea") as Node3D
+		var points := shape.get("world_points", []) as Array
+		var expected_floor := float(points[1]) - float(shape.get("height", 0.0)) * 0.5
+		if area == null or absf(area.global_position.y - expected_floor) > 0.01:
+			failures += 1
+			print("FAIL ", filename, ": exact capture volume floor differs for ", flag)
+	for value in manifest.get("objects", []):
+		var row := value as Dictionary
+		if int(row.get("role", 0)) != 3 or \
+				absf(float(row.get("height", 0.0))) > 0.001:
+			continue
+		var land := row.get("land", []) as Array
+		if land.size() != 3:
+			continue
+		var guid := str((row.get("raw", {}) as Dictionary).get("instance_guid", ""))
+		var volume := _find_meta_value(root, "bf6_source_instance_guid", guid) as Node3D
+		if volume == null:
+			continue
+		if absf(volume.global_position.y - float(land[1])) > 0.01:
+			failures += 1
+			print("FAIL ", filename, ": infinite game volume not visible near terrain ", guid)
 
 
 func _check_atoll_hq_areas(root: Node, filename: String) -> void:

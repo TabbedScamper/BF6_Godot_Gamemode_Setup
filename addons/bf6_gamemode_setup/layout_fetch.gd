@@ -2,8 +2,8 @@
 extends Node
 
 const REPO := "TabbedScamper/BF6_Godot_Gamemode_Setup"
-const INDEX_URL := "https://raw.githubusercontent.com/%s/main/gamemode_index.json"
-const DATA_TAG := "layouts-v1.4.0"
+const INDEX_URL := "https://raw.githubusercontent.com/%s/main/gamemode_index_v1.5.9.json"
+const DATA_TAG := "layouts-v1.4.1"
 const RELEASE_API := "https://api.github.com/repos/%s/releases/tags/%s"
 const CACHE_DIR := "user://bf6_gamemode_setup/layouts"
 const USER_AGENT := "BF6-Game-Mode-Setup"
@@ -30,6 +30,9 @@ func fetch_index() -> bool:
 	var parsed: Variant = JSON.parse_string(body.get_string_from_utf8())
 	if not (parsed is Dictionary) or not (parsed as Dictionary).has("layouts"):
 		error = "the game-mode index is not valid"
+		return false
+	if str((parsed as Dictionary).get("release_tag", "")) != DATA_TAG:
+		error = "the game-mode index references the wrong layout release"
 		return false
 	_index = (parsed as Dictionary)["layouts"]
 	return true
