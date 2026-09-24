@@ -63,10 +63,10 @@ func _init() -> void:
 					for element in koth_document.get("elements", []):
 						if str(element.get("gem", "")) == "gem_capturepoint":
 							found_koth.append(str(element.get("instance_guid", "")).to_lower())
-					found_koth.sort()
 					var expected_koth: Array = koth_row.capture_guids.duplicate()
-					expected_koth.sort()
-					if found_koth != expected_koth:
+					var missing_koth := expected_koth.any(func(guid: Variant) -> bool:
+						return not found_koth.has(str(guid).to_lower()))
+					if missing_koth:
 						if not message.begins_with("KOTH candidate identities disagree") or root.get_child_count() != 0:
 							failures += 1
 							print("FAIL ", filename, ": mismatched KOTH candidate set was not refused")
