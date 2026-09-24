@@ -2,8 +2,8 @@
 extends Node
 
 const REPO := "TabbedScamper/BF6_Godot_Gamemode_Setup"
-const INDEX_URL := "https://raw.githubusercontent.com/%s/main/gamemode_index_v1.5.9.json"
-const DATA_TAG := "layouts-v1.4.1"
+const INDEX_URL := "https://raw.githubusercontent.com/%s/main/gamemode_index_v1.5.10.json"
+const DATA_TAG := "layouts-v1.4.2"
 const RELEASE_API := "https://api.github.com/repos/%s/releases/tags/%s"
 const CACHE_DIR := "user://bf6_gamemode_setup/layouts"
 const USER_AGENT := "BF6-Game-Mode-Setup"

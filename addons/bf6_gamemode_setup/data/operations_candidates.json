@@ -1,10 +1,25 @@
 {
   "source": "installed Operations layout00 selected GEM membership",
-  "scope": "candidate membership only; gameplay sector/phase order unverified",
+  "scope": "Exact selected membership and authored collector candidate order; live phase/battalion order unverified",
   "maps": {
     "mp_capstone": {
       "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
       "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#1b888515-cfc2-4fe9-8155-6cdec4465b8a",
+          "captures": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#f734842e-1d57-44d0-8782-2127baf4eac8"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#18c565a3-a114-43ef-9143-32447f7f7b18",
+            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#b27db76b-b3ee-4948-b228-9e67c875e91f"
+          ],
+          "membership_link_indices": [
+            1818,
+            1841,
+            1861
+          ]
+        },
         {
           "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#021a7ddd-c309-4586-9ed2-ad067e0689b7",
           "captures": [
@@ -20,21 +35,6 @@
             1910,
             1941,
             1950
-          ]
-        },
-        {
-          "sector": "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#1b888515-cfc2-4fe9-8155-6cdec4465b8a",
-          "captures": [
-            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#f734842e-1d57-44d0-8782-2127baf4eac8"
-          ],
-          "hqs": [
-            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#18c565a3-a114-43ef-9143-32447f7f7b18",
-            "game/glaciermp/levels/mp_capstone/_layers_gameplay/mp_operations0#b27db76b-b3ee-4948-b228-9e67c875e91f"
-          ],
-          "membership_link_indices": [
-            1818,
-            1841,
-            1861
           ]
         },
         {
@@ -84,11 +84,45 @@
             2155
           ]
         }
-      ]
+      ],
+      "order_basis": "installed Operations layout00 collector sibling links",
+      "order_status": "authored candidate order; live phase and battalion order unverified"
     },
     "mp_contaminated": {
       "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
       "sectors": [
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#dcd03683-cdbb-453e-8a26-7ecc5fe4b02f",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#4778de6c-1b60-4deb-9b86-ce3f1c7400f5"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#ef251e7b-f7a7-42e4-9a52-ede2e45a3d0b",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#e779ee7b-1b84-4a9a-91f6-c3404f09c656"
+          ],
+          "membership_link_indices": [
+            1888,
+            1893,
+            1894
+          ]
+        },
+        {
+          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#b9c98f6b-98a6-41aa-a3c4-da9f91b96481",
+          "captures": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0606911f-aa27-487e-9a7f-7edccd5b506b",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#d81aed33-3cf3-47a4-8045-c91cc30cb49a"
+          ],
+          "hqs": [
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#900cbe3b-9ea1-4a90-b9c5-a352d25b80e9",
+            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#fb28035d-ab2e-4c75-be49-56d807c59700"
+          ],
+          "membership_link_indices": [
+            1889,
+            1890,
+            1895,
+            1896
+          ]
+        },
         {
           "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#089e6c9c-123a-4507-91d5-2d8c1a062e53",
           "captures": [
@@ -124,38 +158,6 @@
           ]
         },
         {
-          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#b9c98f6b-98a6-41aa-a3c4-da9f91b96481",
-          "captures": [
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#0606911f-aa27-487e-9a7f-7edccd5b506b",
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#d81aed33-3cf3-47a4-8045-c91cc30cb49a"
-          ],
-          "hqs": [
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#900cbe3b-9ea1-4a90-b9c5-a352d25b80e9",
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#fb28035d-ab2e-4c75-be49-56d807c59700"
-          ],
-          "membership_link_indices": [
-            1889,
-            1890,
-            1895,
-            1896
-          ]
-        },
-        {
-          "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#dcd03683-cdbb-453e-8a26-7ecc5fe4b02f",
-          "captures": [
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#4778de6c-1b60-4deb-9b86-ce3f1c7400f5"
-          ],
-          "hqs": [
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#ef251e7b-f7a7-42e4-9a52-ede2e45a3d0b",
-            "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#e779ee7b-1b84-4a9a-91f6-c3404f09c656"
-          ],
-          "membership_link_indices": [
-            1888,
-            1893,
-            1894
-          ]
-        },
-        {
           "sector": "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#fbd59704-bc46-4181-bcd8-1b2f93803a2f",
           "captures": [
             "game/glaciermp/levels/mp_contaminated/_layers_gameplay/breakthrough/breakthrough0#a50bc683-9426-429e-ad69-eb97c1e5e124"
@@ -170,24 +172,28 @@
             2244
           ]
         }
-      ]
+      ],
+      "order_basis": "installed Operations layout00 collector sibling links",
+      "order_status": "authored candidate order; live phase and battalion order unverified"
     },
     "mp_subsurface": {
       "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
       "sectors": [
         {
-          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#2f1cab66-284f-46bf-b2dd-afa979e63c53",
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#42ae16af-ad9d-4a2c-9ff2-a7855f3efb92",
           "captures": [
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#3ec749aa-8e3c-48f3-b408-8ada3534ebb7"
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#27427b47-0426-414f-89d9-8a013794a197",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#25cb515c-02d3-48dd-bdaa-f8ce093b70fe"
           ],
           "hqs": [
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#fbe72587-2b53-4c82-8d38-5bbe905564bf",
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#86659e3f-9eae-424a-933d-a92d9648c544"
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#68158dd9-de59-42a2-8ea0-032198cef107",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#bff2e711-ede1-47bd-af26-0bdebb65d5a9"
           ],
           "membership_link_indices": [
-            106,
-            107,
-            127
+            101,
+            102,
+            103,
+            111
           ]
         },
         {
@@ -206,20 +212,18 @@
           ]
         },
         {
-          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#42ae16af-ad9d-4a2c-9ff2-a7855f3efb92",
+          "sector": "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#2f1cab66-284f-46bf-b2dd-afa979e63c53",
           "captures": [
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#27427b47-0426-414f-89d9-8a013794a197",
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#25cb515c-02d3-48dd-bdaa-f8ce093b70fe"
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#3ec749aa-8e3c-48f3-b408-8ada3534ebb7"
           ],
           "hqs": [
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#68158dd9-de59-42a2-8ea0-032198cef107",
-            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#bff2e711-ede1-47bd-af26-0bdebb65d5a9"
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#fbe72587-2b53-4c82-8d38-5bbe905564bf",
+            "game/glaciermp/levels/mp_subsurface/_layers_gameplay/breakthrough/breakthrough0#86659e3f-9eae-424a-933d-a92d9648c544"
           ],
           "membership_link_indices": [
-            101,
-            102,
-            103,
-            111
+            106,
+            107,
+            127
           ]
         },
         {
@@ -239,26 +243,28 @@
             186
           ]
         }
-      ]
+      ],
+      "order_basis": "installed Operations layout00 collector sibling links",
+      "order_status": "authored candidate order; live phase and battalion order unverified"
     },
     "mp_tungsten": {
       "layout": "game/glaciermp/gamemodes/operations/layouts/operations_layout00.ebx#67c37e4f-b5bf-4fb9-9cb2-776b7036c168",
       "sectors": [
         {
-          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#5ba2f271-5f0a-4b76-9811-0ba07ce3192f",
+          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9fc6c589-0816-4f04-ba2b-0615ce63124c",
           "captures": [
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0db4a086-709b-43a9-bc49-347fa9e04574",
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9ac1002a-4140-4adb-ae25-5f5a16443dc6"
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#968e8977-2b1c-4e94-a1c8-29bee116b520",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#d133205c-ccb3-4d05-a615-081288755672"
           ],
           "hqs": [
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0a8c6bf0-e36e-4388-bfc2-05f98a2874f3",
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#aa03da07-f06a-446c-bb49-1bce3f0f158d"
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#6a944900-daf6-4fb6-9339-ee167090a2d4",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#e8db1010-3dec-4a05-b376-2dabd7d019fc"
           ],
           "membership_link_indices": [
-            1193,
-            1231,
-            1243,
-            1262
+            970,
+            1003,
+            1024,
+            1044
           ]
         },
         {
@@ -279,23 +285,25 @@
           ]
         },
         {
-          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9fc6c589-0816-4f04-ba2b-0615ce63124c",
+          "sector": "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#5ba2f271-5f0a-4b76-9811-0ba07ce3192f",
           "captures": [
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#968e8977-2b1c-4e94-a1c8-29bee116b520",
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#d133205c-ccb3-4d05-a615-081288755672"
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0db4a086-709b-43a9-bc49-347fa9e04574",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#9ac1002a-4140-4adb-ae25-5f5a16443dc6"
           ],
           "hqs": [
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#6a944900-daf6-4fb6-9339-ee167090a2d4",
-            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#e8db1010-3dec-4a05-b376-2dabd7d019fc"
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#0a8c6bf0-e36e-4388-bfc2-05f98a2874f3",
+            "game/glaciermp/levels/mp_tungsten/_layers_gameplay/mp_operations0#aa03da07-f06a-446c-bb49-1bce3f0f158d"
           ],
           "membership_link_indices": [
-            970,
-            1003,
-            1024,
-            1044
+            1193,
+            1231,
+            1243,
+            1262
           ]
         }
-      ]
+      ],
+      "order_basis": "installed Operations layout00 collector sibling links",
+      "order_status": "authored candidate order; live phase and battalion order unverified"
     }
   }
 }

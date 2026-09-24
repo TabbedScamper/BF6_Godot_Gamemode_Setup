@@ -10,6 +10,7 @@ const TEMPLATE_NAME := "Andy Rush/Breakthrough Blockly contract"
 const RETAIL_SETTINGS := "res://addons/bf6_gamemode_setup/data/retail_mode_runtime_contracts.json"
 const KOTH_CANDIDATES := "res://addons/bf6_gamemode_setup/data/koth_candidates.json"
 const OPERATIONS_CANDIDATES := "res://addons/bf6_gamemode_setup/data/operations_candidates.json"
+const PAYLOAD_ROUTES := "res://addons/bf6_gamemode_setup/data/payload_routes.json"
 const BOMB_CANDIDATES := "res://addons/bf6_gamemode_setup/data/bomb_candidates.json"
 const SCENES := {
 	"capture": "res://objects/gameplay/conquest/CapturePoint.tscn",
@@ -107,14 +108,15 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			koth_evidence = koth_package.get("maps", {}).get(level.to_lower(), {})
 		if not koth_evidence.is_empty():
 			var expected: Array = koth_evidence.get("capture_guids", [])
-			var found: Array = []
+			var found := {}
 			for element in document.get("elements", []):
 				if str(element.get("gem", "")) == "gem_capturepoint":
-					found.append(str(element.get("instance_guid", "")).to_lower())
-			found.sort()
-			var sorted_expected := expected.duplicate()
-			sorted_expected.sort()
-			if found != sorted_expected:
+					found[str(element.get("instance_guid", "")).to_lower()] = true
+			# A partition can retain inactive capture controllers. Only the
+			# layout00-selected identities are hills; extra loose controllers do
+			# not invalidate the authored candidate graph.
+			if expected.is_empty() or expected.any(func(guid: Variant) -> bool:
+				return not found.has(str(guid).to_lower())):
 				return "KOTH candidate identities disagree with the selected game layout for %s; existing scene preserved." % level
 	var operations_evidence := {}
 	if mode == "operations":
@@ -138,6 +140,21 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 					if not available.has(member_id):
 						return "Operations selected HQ is absent from this export; existing scene preserved: " + str(member_id)
 	var bomb_evidence := {}
+	var payload_evidence := {}
+	var payload_unlinked := false
+	if mode == "payload":
+		var payload_package = JSON.parse_string(FileAccess.get_file_as_string(PAYLOAD_ROUTES))
+		if not payload_package is Dictionary:
+			return "Payload route evidence is missing or invalid; existing scene preserved."
+		payload_evidence = payload_package.get("routes", {}).get(level.to_lower() + "/payload", {})
+		payload_unlinked = (payload_package.get("unlinked_selected_maps", []) as Array).has(level.to_lower())
+		if not payload_evidence.is_empty():
+			var payload_found := false
+			for element in document.get("elements", []):
+				if str(element.get("partition", "")) + "#" + str(element.get("instance_guid", "")) == str(payload_evidence.get("payload", "")):
+					payload_found = true
+			if not payload_found or (payload_evidence.get("sampled_world_points", []) as Array).size() < 2:
+				return "Payload route source or sampled path disagrees with the game layout; existing scene preserved."
 	if mode in ["obliteration", "squadobliteration"]:
 		var bomb_package = JSON.parse_string(FileAccess.get_file_as_string(BOMB_CANDIDATES))
 		if bomb_package is Dictionary:
@@ -193,6 +210,11 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 			"exact selected bomb/MCOM/HQ sites; live bomb selection and activation unverified")
 		root.set_meta("bf6_bomb_layout_identity", bomb_evidence.layout)
 	_apply_retail_mode_settings(root, mode)
+	if mode == "payload":
+		root.set_meta("bf6_payload_route_status", "exact authored spline link and sampled editor path" \
+			if not payload_evidence.is_empty() else \
+			"selected Payload has no proven spline attachment" if payload_unlinked else \
+			"Payload spline link not resolved in current game-data package")
 	if mode in ["rush", "breakthrough"]:
 		root.set_meta("bf6_template_compatibility", TEMPLATE_NAME)
 		root.set_meta("bf6_template_compatibility_policy",
@@ -584,7 +606,7 @@ static func build(map_root: Node, layout_id: String, document: Dictionary,
 		for key in breakthrough_claimed:
 			claimed_zone_sources[key] = true
 	elif mode == "payload":
-		_build_payload_objectives(elements, captures_root, map_root)
+		_build_payload_objectives(elements, captures_root, map_root, payload_evidence)
 	elif mode == "sabotage":
 		_build_sabotage_objectives(objects, elements, captures_root, map_root)
 	elif mode == "carrierstrike":
@@ -928,7 +950,7 @@ static func _build_rush_objectives(objects: Array, objectives_root: Node,
 
 
 static func _build_payload_objectives(elements: Array, objectives_root: Node,
-		owner: Node) -> void:
+		owner: Node, route: Dictionary) -> void:
 	var payloads := _mode_elements(elements, "gem_payload")
 	var checkpoints := _mode_elements(elements, "gem_checkpoint")
 	payloads.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -939,8 +961,26 @@ static func _build_payload_objectives(elements: Array, objectives_root: Node,
 	route_root.set_meta("bf6_portal_limit",
 		"Portal SDK 1.4.3 has no Payload or Checkpoint class; these are exact retail markers")
 	for index in range(payloads.size()):
-		_add_runtime_marker(payloads[index] as Dictionary, route_root, owner,
+		var row := payloads[index] as Dictionary
+		var marker := _add_runtime_marker(row, route_root, owner,
 			"Payload_%02d" % (index + 1), "payload controller")
+		var source_id := str(row.get("partition", "")) + "#" + str(row.get("instance_guid", ""))
+		if source_id == str(route.get("payload", "")):
+			var path := Path3D.new()
+			path.name = "Authored Spline Route"
+			path.set_meta(PROVENANCE_META, str(route.get("spline", "")))
+			path.set_meta("bf6_payload_source_identity", source_id)
+			path.set_meta("bf6_payload_spline_link_index", int(route.get("link_index", -1)))
+			path.set_meta("bf6_portal_limit", "editor route preview; Portal SDK has no Payload spline objective")
+			var curve := Curve3D.new()
+			for point in route.get("sampled_world_points", []):
+				curve.add_point(marker.transform.affine_inverse() * _vec3(point))
+			path.curve = curve
+			marker.add_child(path)
+			path.owner = owner
+			marker.set_meta("bf6_payload_spline_target", str(route.get("spline", "")))
+		else:
+			marker.set_meta("bf6_payload_spline_status", "no exact authored spline link in current selected layout")
 	for index in range(checkpoints.size()):
 		_add_runtime_marker(checkpoints[index] as Dictionary, route_root, owner,
 			"Checkpoint_%02d" % (index + 1), "payload checkpoint")
@@ -1026,14 +1066,16 @@ static func _build_operations_candidate_sectors(evidence: Dictionary,
 		if not guid.is_empty(): hq_by_guid[guid] = hq
 	var folder := _folder(objectives_root, "Runtime Sectors", owner)
 	folder.set_meta("bf6_membership_status",
-		"exact selected Operations candidates; folder order is identity order, not gameplay phase order")
+		"exact selected Operations candidates in authored collector order; live phase order unverified")
 	for index in range(evidence.sectors.size()):
 		var row: Dictionary = evidence.sectors[index]
-		var sector := _scene("sector", "SectorCandidate_" + str(row.sector).get_slice("#", 1).left(8))
+		var sector := _scene("sector", "SectorCandidate_%02d" % (index + 1))
 		sector.transform = _element_transform(element_by_id[row.sector])
 		sector.set("ObjId", 500 + index)
 		sector.set_meta("bf6_source_identity", row.sector)
 		sector.set_meta("bf6_operations_candidate_not_phase_order", true)
+		sector.set_meta("bf6_operations_collector_index", index)
+		sector.set_meta("bf6_operations_order_basis", str(evidence.get("order_basis", "")))
 		sector.set_meta("bf6_membership_link_indices", row.membership_link_indices)
 		folder.add_child(sector)
 		sector.owner = owner

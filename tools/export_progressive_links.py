@@ -49,12 +49,31 @@ def add_cross_partition_rows(result, directory):
     return result
 
 
-def export(research, reports, hq_evidence):
+def export(research, reports, hq_evidence, extra_reports=(), only_extra=False):
     sys.path.insert(0, str(research / 'impl/retools'))
     from evaluate_gem_layout import select_layout
+    from audit_progressive_order_manifest import measure
+    from audit_progressive_objective_order import audit_report
     manifest = json.loads((research / 'data/progressive_authored_order_6a1c1b.json').read_text())
     objective_manifest = json.loads(
         (research / 'data/progressive_objective_order_6a1c1b.json').read_text())
+    extra_maps = set()
+    for path in extra_reports:
+        for report in json.loads(path.read_text(encoding='utf-8'))['maps']:
+            if any(row['map'].lower() == report['map'].lower() for row in manifest['maps']):
+                raise ValueError('Extra report duplicates an existing map: ' + report['map'])
+            ordered = measure(report)
+            if any(row['status'] != 'conditional_authored_order' for row in ordered['layouts']):
+                raise ValueError('Extra report has unresolved progressive order: ' + report['map'])
+            objectives = audit_report(report, ordered)
+            manifest['maps'].append(ordered)
+            objective_manifest['maps'].append(objectives)
+            extra_maps.add(report['map'].lower())
+    if only_extra:
+        manifest['maps'] = [row for row in manifest['maps']
+                            if row['map'].lower() in extra_maps]
+        objective_manifest['maps'] = [row for row in objective_manifest['maps']
+                                      if row['map'].lower() in extra_maps]
     objective_order = {}
     for map_entry in objective_manifest['maps']:
         for layout_entry in map_entry['layouts']:
@@ -138,13 +157,27 @@ def export(research, reports, hq_evidence):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--research', type=Path, required=True)
-    parser.add_argument('--reports', type=Path, nargs='+', required=True)
+    parser.add_argument('--reports', type=Path, nargs='*', default=[])
+    parser.add_argument('--extra-report', type=Path, action='append', default=[],
+                        help='Additional installed-game membership report, audited before packaging')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--hq-evidence', type=Path, required=True)
     parser.add_argument('--layouts', type=Path, default=Path(__file__).resolve().parents[1] / 'data')
+    parser.add_argument('--append-existing', action='store_true',
+                        help='Append audited extra reports to the existing link package')
     args = parser.parse_args()
-    result = export(args.research, args.reports, args.hq_evidence)
+    if not args.reports and not args.extra_report:
+        parser.error('At least one membership report is required')
+    result = export(args.research, args.reports + args.extra_report,
+                    args.hq_evidence, args.extra_report, args.append_existing)
     add_cross_partition_rows(result, args.layouts)
+    if args.append_existing:
+        previous = json.loads(args.output.read_text(encoding='utf-8'))
+        overlap = set(previous['layouts']) & set(result['layouts'])
+        if overlap:
+            raise ValueError('Existing package already contains extra layouts: ' + str(overlap))
+        previous['layouts'].update(result['layouts'])
+        result = previous
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, separators=(',', ':'), sort_keys=True) + '\n', encoding='utf-8')
     print('Exported', len(result['layouts']), 'layout link sets')
