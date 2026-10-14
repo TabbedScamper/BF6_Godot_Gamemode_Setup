@@ -1,5 +1,9 @@
 # BF6 Godot Game Mode Setup
 
+> **This plugin has moved to the BF6 Portal Toolbox.** Get the latest version here:
+> https://github.com/TabbedScamper/BF6_Portal_Toolbox/releases/tag/BF6_Godot_Gamemode_Setup-v1.6.1
+> Older versions keep working; layout downloads for them stay available.
+
 A focused Godot editor plugin for building editable Battlefield Portal game-mode layouts from the mode reference.
 
 The current review release covers **184 shipped gameplay layers across 18 maps**. The dropdown includes Conquest, Breakthrough, Rush, Domination, Escalation, King of the Hill, Operations, Obliteration, Squad Obliteration, Sabotage, Strikepoint, deathmatch variants, and map-specific Carrier Strike, Gauntlet, and Payload layouts.
